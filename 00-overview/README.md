@@ -4,6 +4,10 @@
 
 ![GNS3 최종 토폴로지](images/gns3-topology.png)
 
+논리 구성도(포트 이름 제외)
+
+![논리 구성도](images/logical-overview.png)
+
 | 번호 | 문서 | 내용 |
 |---|---|---|
 | 01 | [포트 매핑](01-port-mapping.md) | 장비 포트와 링크, 계층 구분 |

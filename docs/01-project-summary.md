@@ -17,9 +17,14 @@
 | 호스트 | Ubuntu Docker Guest | Host A, B, C, D, F, G | 연결 시험, 트래픽 생성 |
 
 - 네트워크 장비 19대, 호스트 6대
+- 작업 기간: 2026.10.21 ~ 10.23(3일), 1인 수행
 - 환경: GNS3 VM 22GB. 노드별 메모리와 단계별로 켜는 노드는 [리소스 계획](../00-overview/04-resource-plan.md)
 
 ![GNS3 최종 토폴로지](../00-overview/images/gns3-topology.png)
+
+논리 구성도(포트 이름 제외)
+
+![논리 구성도](../00-overview/images/logical-overview.png)
 
 ## 구축 순서
 

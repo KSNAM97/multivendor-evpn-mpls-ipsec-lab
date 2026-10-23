@@ -4,6 +4,8 @@ Cisco, Arista, Aruba를 섞어 DC 2곳과 Branch를 MPLS 코어와 GRE over IPse
 
 ![GNS3 최종 토폴로지](00-overview/images/gns3-topology.png)
 
+논리 구성도(포트 이름 제외): ![논리 구성도](00-overview/images/logical-overview.png)
+
 ## 한눈에 보기
 
 | 항목 | 내용 |
@@ -12,6 +14,7 @@ Cisco, Arista, Aruba를 섞어 DC 2곳과 Branch를 MPLS 코어와 GRE over IPse
 | 구성 | DC1(Arista EVPN-VXLAN), MPLS 코어(Cisco PE 3대), DC2(Aruba VSX), Branch(Cisco), Hub-BGW GRE over IPsec 터널 2개 |
 | 핵심 기술 | EVPN-VXLAN, MLAG, VSX, MPLS L3VPN(LDP, MP-BGP VPNv4), PE-CE eBGP, GRE over IPsec(IKEv1), 터널 위 eBGP, VRRP, MSTP, QoS(DiffServ) |
 | 검증 | 구간마다 기대 결과를 먼저 적고 CLI show 출력과 Wireshark 패킷으로 대조. 검증 캡처 343장 |
+| 작업 기간 | 2026.10.21 ~ 10.23 (3일), 1인 수행 |
 | 환경 | GNS3 VM 22GB |
 
 ## 주요 결과
