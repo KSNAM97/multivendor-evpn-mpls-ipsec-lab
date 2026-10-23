@@ -1,6 +1,8 @@
 # 01. 포트 매핑 (벤더별 / 계층별)
 
-토폴로지: [topology-revised.png](topology-revised.png) (초기안: [topology.png](topology.png))
+토폴로지: [GNS3 최종 토폴로지](images/gns3-topology.png) (설계 수정안: [topology-revised.png](topology-revised.png), 초기안: [topology.png](topology.png))
+
+![GNS3 최종 토폴로지](images/gns3-topology.png)
 
 ## 표기 규칙
 
