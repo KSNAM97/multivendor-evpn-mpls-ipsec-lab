@@ -1,0 +1,47 @@
+! Cisco IOS / IOSv - 기본 설정 샘플 (DSW1 기준, 값은 예시)
+! 호스트 이름은 GNS3 노드 이름과 같게 한다: BGW1, BGW2, DSW1, DSW2, ASW1
+! 확인: show running-config | include hostname|domain|enable|username|vtp
+! 비밀번호는 문서에 적지 않고 자리표시자로 둔다
+!
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+!
+hostname DSW1
+!
+! 오타를 입력했을 때 DNS 조회로 멈추는 것을 막는다
+no ip domain-lookup
+ip domain-name lab.local
+!
+! 권한 모드(enable)와 계정
+enable secret <ENABLE-SECRET>
+username admin privilege 15 secret <PASSWORD>
+!
+! 콘솔: 바로 권한 모드로 진입, 세션 유지, 출력 중 입력 줄 보호
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+!
+line vty 0 4
+ exec-timeout 0 0
+ privilege level 15
+ login local
+ transport input ssh
+ logging synchronous
+!
+! SSH (exec 모드에서 키 생성 필요: crypto key generate rsa modulus 2048)
+ip ssh version 2
+!
+! [스위치(DSW, ASW) 추가] VLAN을 장비 안에서만 관리
+vtp mode transparent
+! [DSW 추가] L3 스위칭 사용
+ip routing
+!
+logging buffered 16384
+clock timezone KST 9 0
+!
+banner motd #
+ LAB DSW1 - authorized use only
+#
+!

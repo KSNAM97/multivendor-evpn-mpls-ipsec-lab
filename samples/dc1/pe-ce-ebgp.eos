@@ -1,0 +1,22 @@
+! Arista EOS - border leaf(leaf3)와 PE1의 VRF eBGP 샘플 (값은 예시)
+! 확인: show ip bgp summary vrf TENANT-A / show ip route vrf TENANT-A
+!
+interface ethernet5
+   description to-PE1
+   no switchport
+   vrf TENANT-A
+   ip address 10.0.20.1/31
+!
+router bgp 65100
+   vrf TENANT-A
+      router-id 10.1.2.13
+      rd 10.1.2.13:50001
+      route-target import evpn 50001:50001
+      route-target export evpn 50001:50001
+      neighbor 10.0.20.0 remote-as 65000
+      neighbor 10.0.20.0 timers 3 9
+      redistribute connected
+      !
+      address-family ipv4
+         neighbor 10.0.20.0 activate
+!

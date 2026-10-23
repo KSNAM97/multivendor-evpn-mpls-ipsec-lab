@@ -1,0 +1,23 @@
+! Cisco IOS (c7200) - OSPF 샘플 (PE1 기준)
+! 확인: show ip ospf neighbor / show ip ospf interface gigabitethernet 0/0 / show ip route ospf
+! PE2, PE3는 router-id와 loopback IP만 바꾼다 (PE2 10.0.0.12, PE3 10.0.0.13)
+!
+router ospf 1
+    router-id 10.0.0.11
+    passive-interface loopback 0
+!
+interface loopback 0
+    ip ospf 1 area 0
+!
+interface gigabitethernet 0/0
+    ip ospf network point-to-point
+    ip ospf hello-interval 1
+    ip ospf dead-interval 4
+    ip ospf 1 area 0
+!
+interface gigabitethernet 1/0
+    ip ospf network point-to-point
+    ip ospf hello-interval 1
+    ip ospf dead-interval 4
+    ip ospf 1 area 0
+!

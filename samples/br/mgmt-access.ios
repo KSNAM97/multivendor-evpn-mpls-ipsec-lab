@@ -1,0 +1,53 @@
+! Cisco IOSv - 관리망 연결과 SSH 제한 샘플 (DSW1, DSW2, ASW1)
+! DSW(IOSvL3): Gi3/3 을 MGMT-SW 로 연결하고 VRF MGMT 에 넣어 데이터 라우팅과 분리한다
+! ASW1(IOSvL2): 물리 포트에 IP를 줄 수 없어서 Gi3/3 을 access VLAN 100 에 두고 Vlan100 SVI 로 관리한다
+! 장비마다 주소만 다르다: DSW1 192.168.100.44, DSW2 192.168.100.45, ASW1 192.168.100.46
+! MGMT-SW 포트는 DSW1 Et10, DSW2 Et11, ASW1 Et12
+! IOS 버전에 따라 VRF 선언이 다르다: 15.x 는 vrf definition, 12.4 는 ip vrf (먼저 ? 로 확인)
+! 확인: show ip interface brief / show ip ssh / show access-lists MGMT-ACL
+!
+! [DSW1, DSW2] VRF MGMT
+vrf definition MGMT
+ address-family ipv4
+ exit-address-family
+!
+! [DSW1] (DSW2는 192.168.100.45)
+interface gigabitethernet 3/3
+    description to-MGMT-SW
+    no switchport
+    vrf forwarding MGMT
+    ip address 192.168.100.44 255.255.255.0
+    no shutdown
+!
+! [ASW1] VRF 없이 관리 VLAN 100 (VLAN 100은 트렁크 allowed 50,60에 넣지 않는다)
+vlan 100
+    name MGMT
+!
+interface gigabitethernet 3/3
+    description to-MGMT-SW
+    switchport mode access
+    switchport access vlan 100
+    no shutdown
+!
+interface vlan 100
+    description MGMT
+    ip address 192.168.100.46 255.255.255.0
+    no shutdown
+!
+! SSH (exec 모드에서 키 생성 필요: crypto key generate rsa modulus 2048)
+ip ssh version 2
+!
+ip access-list standard MGMT-ACL
+    permit 192.168.100.0 0.0.0.255
+!
+! line vty 0 4 는 기본 설정 샘플의 vty 블록에 access-class 한 줄을 더한 형태로 쓴다
+! (line vty 블록을 따로 두 번 쓰면 뒤의 설정이 앞의 설정과 섞인다)
+! DSW는 access-class MGMT-ACL in vrf-also, ASW1은 VRF가 없어서 access-class MGMT-ACL in
+line vty 0 4
+    exec-timeout 0 0
+    privilege level 15
+    login local
+    transport input ssh
+    logging synchronous
+    access-class MGMT-ACL in vrf-also
+!

@@ -1,0 +1,17 @@
+! Arista EOS - MGMT-SW (관리망 L2 스위치) 샘플
+! 관리 IP 없이 기본 VLAN 1로 동작하는 스위치다. 장비의 관리 포트를 모으고 PC 쪽 포트(Cloud)에 연결한다
+! [먼저, 콘솔 exec 모드] zerotouch cancel (재부팅) > 부팅 후 enable, zerotouch disable, write memory
+! 확인: show interfaces status / show mac address-table
+!
+hostname MGMT-SW
+!
+service routing protocols model multi-agent
+!
+username admin privilege 15 role network-admin secret <PASSWORD>
+!
+management console
+   idle-timeout 0
+!
+logging buffered 64000
+clock timezone Asia/Seoul
+!

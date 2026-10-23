@@ -1,0 +1,13 @@
+!
+hostname MGMT-SW
+!
+service routing protocols model multi-agent
+!
+username admin privilege 15 role network-admin secret admin1234
+!
+management console
+   idle-timeout 0
+!
+logging buffered 64000
+clock timezone Asia/Seoul
+!

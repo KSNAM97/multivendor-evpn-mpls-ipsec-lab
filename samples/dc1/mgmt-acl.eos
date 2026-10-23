@@ -1,0 +1,20 @@
+! Arista EOS - 관리 접속 제한 (control-plane ACL) 샘플, 모든 spine, leaf 공통 (값은 예시)
+! 확인: show ip access-lists MGMT-ACL / show running-config section control-plane / show logging | include ACL
+! 목적: 관리망(192.168.100.0/24)에서 오는 SSH, ping만 허용하고, 그 밖의 장비 접속은 차단한다.
+! 주의: control-plane ACL은 OSPF, BGP, MLAG 제어 통신도 걸러내므로 이 프로토콜은 반드시 허용해야 한다.
+! 데이터 포트의 인터페이스 ACL(ip access-group ... in/out)은 vEOS에서 지원되지 않아 쓰지 않는다.
+! 잠겼을 때(콘솔): system control-plane 아래에서 no ip access-group MGMT-ACL in
+!
+ip access-list MGMT-ACL
+   10 permit tcp 192.168.100.0/24 any eq ssh
+   20 permit icmp 192.168.100.0/24 any
+   30 permit ospf any any
+   40 permit tcp 10.1.0.0/24 any eq bgp
+   50 permit tcp 10.1.0.0/24 eq bgp any
+   60 permit ip 10.1.254.0/24 any
+   70 permit icmp 10.0.0.0/8 any
+   80 deny ip any any log
+!
+system control-plane
+   ip access-group MGMT-ACL in
+!

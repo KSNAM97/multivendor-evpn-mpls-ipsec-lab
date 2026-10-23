@@ -1,0 +1,98 @@
+!
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+!
+hostname HUB1
+!
+no ip domain-lookup
+ip domain-name lab.local
+!
+enable secret admin1234
+username admin privilege 15 secret admin1234
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+!
+line vty 0 4
+ exec-timeout 0 0
+ privilege level 15
+ login local
+ transport input ssh
+ logging synchronous
+!
+ip ssh version 2
+!
+logging buffered 16384
+clock timezone KST 9 0
+!
+banner motd #
+ LAB HUB1 - authorized use only
+#
+!
+interface loopback 0 
+    ip address 10.0.0.21 255.255.255.255
+!
+interface gigabitethernet 0/0
+    description PE1 to Gi4/0
+    ip address 10.0.30.1 255.255.255.254
+    no shutdown
+!
+interface gigabitethernet 1/0
+    description leaf3 to Et6 
+    ip address 10.0.31.1 255.255.255.254
+    no shutdown
+!
+ip route 10.0.30.5 255.255.255.255 10.0.30.0
+!
+router bgp 65010
+    bgp router-id 10.0.1.21
+    bgp log-neighbor-changes
+    no bgp default ipv4-unicast
+    neighbor 10.0.31.0 remote-as 65100
+    neighbor 10.0.31.0 timers 3 9
+    !
+    address-family ipv4
+        neighbor 10.0.31.0 activate
+    exit-address-family
+!
+crypto isakmp policy 10
+    encryption aes 256
+    hash sha
+    authentication pre-share
+    group 14
+    lifetime 86400
+!
+crypto isakmp keepalive 10 3 periodic
+!
+crypto ipsec transform-set TS esp-aes 256 esp-sha-hmac
+    mode transport
+!
+crypto ipsec profile IPSEC-PROF
+    set transform-set TS
+!
+crypto isakmp key Fy2Wa7sRcCosSoXG5TXziEVq address 10.0.30.5
+!
+interface tunnel 0
+    description GRE-over-IPsec-to-BGW1
+    ip address 10.0.40.0 255.255.255.254
+    ip mtu 1400
+    ip tcp adjust-mss 1360
+    tunnel source 10.0.30.1
+    tunnel destination 10.0.30.5
+    tunnel protection ipsec profile IPSEC-PROF
+!
+ip prefix-list NO-UNDERLAY seq 5 deny 10.0.30.0/24 le 32
+ip prefix-list NO-UNDERLAY seq 10 permit 0.0.0.0/0 le 32
+!
+router bgp 65010
+    neighbor 10.0.40.1 remote-as 65020
+    neighbor 10.0.40.1 timers 3 9
+    !
+    address-family ipv4
+        neighbor 10.0.40.1 activate
+        neighbor 10.0.40.1 prefix-list NO-UNDERLAY out
+    exit-address-family
+!

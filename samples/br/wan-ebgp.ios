@@ -1,0 +1,27 @@
+! Cisco IOS (c7200) - PE3 - BGW eBGP (WAN-UL) 샘플 (BGW1, BGW2)
+! 확인: show ip bgp summary / show ip route 10.0.30.1 / show ip bgp neighbors 10.0.30.4 | include hold
+! 장비마다 값만 다르다
+!   BGW1 router-id 10.0.1.31, PE3 이웃 10.0.30.4 (PE3 Gi2/0)
+!   BGW2 router-id 10.0.1.32, PE3 이웃 10.0.30.6 (PE3 Gi3/0)
+! BGW가 PE3로 광고하는 경로는 없다 (Branch LAN을 WAN-UL VRF로 흘리지 않는다)
+!
+! [BGW1] (BGW2는 router-id 10.0.1.32, 이웃 10.0.30.6)
+ip prefix-list NONE seq 5 deny 0.0.0.0/0 le 32
+!
+router bgp 65020
+    bgp router-id 10.0.1.31
+    bgp log-neighbor-changes
+    no bgp default ipv4-unicast
+    neighbor 10.0.30.4 remote-as 65000
+    neighbor 10.0.30.4 timers 3 9
+    !
+    address-family ipv4
+        neighbor 10.0.30.4 activate
+        neighbor 10.0.30.4 prefix-list NONE out
+    exit-address-family
+!
+! [BGW1, BGW2 공통] DSW가 DC 방향 경로를 default route로 받는다
+! (DC 경로는 BGP로 BGW까지만 오고 OSPF로 내려가지 않기 때문. BGW에 default가 없어도 always로 항상 광고)
+router ospf 1
+    default-information originate always
+!

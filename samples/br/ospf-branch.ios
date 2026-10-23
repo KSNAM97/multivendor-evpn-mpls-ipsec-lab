@@ -1,0 +1,53 @@
+! Cisco IOS - Branch OSPF 샘플 (BGW1, BGW2, DSW1, DSW2)
+! 확인: show ip ospf neighbor / show ip route ospf / show ip protocols
+! 장비마다 값만 다르고 형식은 같다
+!   BGW1 router-id 10.0.0.31, Gi1/0 10.50.0.0/31 (DSW1 Gi0/0 상대)
+!   BGW2 router-id 10.0.0.32, Gi1/0 10.50.0.2/31 (DSW2 Gi0/0 상대)
+!   DSW1 router-id 10.0.0.41, Gi0/0 10.50.0.1/31, SVI 192.168.50.2, 192.168.60.2
+!   DSW2 router-id 10.0.0.42, Gi0/0 10.50.0.3/31, SVI 192.168.50.3, 192.168.60.3
+! IP 주소는 인터페이스 단계에서 먼저 입력한 뒤에 OSPF를 입력한다
+! BGW의 Gi0/0(PE3 방향 WAN 링크)은 OSPF에 넣지 않는다
+! 인터페이스 방식(ip ospf 1 area 0)을 받지 않는 이미지는 network 문으로 바꾼다
+!
+! [BGW1] (BGW2는 router-id 10.0.0.32)
+! default-information originate always: DSW가 DC 방향 경로를 default route로 받는다
+! (BGW에 default가 없어도 항상 광고. DC 경로는 BGP로 BGW까지만 오고 OSPF로 내려가지 않기 때문)
+router ospf 1
+    router-id 10.0.0.31
+    no passive-interface default
+    passive-interface loopback 0
+    default-information originate always
+!
+interface loopback 0
+    ip ospf 1 area 0
+!
+interface gigabitethernet 1/0
+    ip ospf network point-to-point
+    ip ospf hello-interval 1
+    ip ospf dead-interval 4
+    ip ospf 1 area 0
+!
+! [DSW1] (DSW2는 router-id 10.0.0.42). Branch LAN(SVI)을 passive로 OSPF에 포함
+! SVI는 VLAN 50, 60과 SVI 주소를 먼저 입력해야 올라온다 (SVI 샘플 참고)
+router ospf 1
+    router-id 10.0.0.41
+    no passive-interface default
+    passive-interface loopback 0
+    passive-interface vlan 50
+    passive-interface vlan 60
+!
+interface loopback 0
+    ip ospf 1 area 0
+!
+interface gigabitethernet 0/0
+    ip ospf network point-to-point
+    ip ospf hello-interval 1
+    ip ospf dead-interval 4
+    ip ospf 1 area 0
+!
+interface vlan 50
+    ip ospf 1 area 0
+!
+interface vlan 60
+    ip ospf 1 area 0
+!

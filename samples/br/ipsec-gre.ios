@@ -1,0 +1,55 @@
+! Cisco IOS (c7200) - GRE over IPsec(IKEv1, ISAKMP) 샘플 (Hub1, Hub2, BGW1, BGW2, 값은 예시)
+! 이 프로젝트의 c7200 이미지는 "show crypto ?" 에 isakmp 가 있고 ikev2 가 없어서 IKEv1을 쓴다
+! 확인: show crypto isakmp sa / show crypto ipsec sa / show crypto session / show interface tunnel 0
+! 사전 공유 키는 실습 랩 전용 값이다 (Tunnel0 Fy2Wa7sRcCosSoXG5TXziEVq, Tunnel1 a37GYcnFbHABwpTzXJcmNV2J, 양쪽 같은 값). 목록은 baseline/br/08-ipsec-keys.md
+! 이 c7200 이미지(IOS 12.4(24)T5)는 isakmp hash sha256 을 지원하지 않아(% Invalid input) hash sha(SHA-1)를 쓴다. group 14 는 지원된다
+! 터널 위 eBGP와 prefix-list는 "터널 위 eBGP" 샘플(bgp-over-tunnel.ios)에 있다
+!
+!   Tunnel0: Hub1 10.0.40.0/31 (source 10.0.30.1) <-> BGW1 10.0.40.1/31 (source 10.0.30.5), 키 Fy2Wa7sRcCosSoXG5TXziEVq
+!   Tunnel1: Hub2 10.0.40.2/31 (source 10.0.30.3) <-> BGW2 10.0.40.3/31 (source 10.0.30.7), 키 a37GYcnFbHABwpTzXJcmNV2J
+!
+! [공통: Hub1, Hub2, BGW1, BGW2] ISAKMP 정책, DPD, transform-set, profile
+crypto isakmp policy 10
+    encryption aes 256
+    hash sha
+    authentication pre-share
+    group 14
+    lifetime 86400
+!
+! DPD (장애 시험에서 상대가 죽은 것을 감지). 지원 여부와 형식은 ? 로 확인
+crypto isakmp keepalive 10 3 periodic
+!
+crypto ipsec transform-set TS esp-aes 256 esp-sha-hmac
+    mode transport
+!
+crypto ipsec profile IPSEC-PROF
+    set transform-set TS
+!
+! [Hub1] peer(BGW1)의 언더레이 주소 기준 (Hub2는 a37GYcnFbHABwpTzXJcmNV2J, address 10.0.30.7)
+crypto isakmp key Fy2Wa7sRcCosSoXG5TXziEVq address 10.0.30.5
+!
+interface tunnel 0
+    description GRE-over-IPsec-to-BGW1
+    ip address 10.0.40.0 255.255.255.254
+    ip mtu 1400
+    ip tcp adjust-mss 1360
+    tunnel source 10.0.30.1
+    tunnel destination 10.0.30.5
+    tunnel protection ipsec profile IPSEC-PROF
+!
+! (Hub2는 interface tunnel 1, 10.0.40.2/31, source 10.0.30.3, destination 10.0.30.7)
+!
+! [BGW1] peer(Hub1)의 언더레이 주소 기준 (BGW2는 a37GYcnFbHABwpTzXJcmNV2J, address 10.0.30.3)
+crypto isakmp key Fy2Wa7sRcCosSoXG5TXziEVq address 10.0.30.1
+!
+interface tunnel 0
+    description GRE-over-IPsec-to-HUB1
+    ip address 10.0.40.1 255.255.255.254
+    ip mtu 1400
+    ip tcp adjust-mss 1360
+    tunnel source 10.0.30.5
+    tunnel destination 10.0.30.1
+    tunnel protection ipsec profile IPSEC-PROF
+!
+! (BGW2는 interface tunnel 1, 10.0.40.3/31, source 10.0.30.7, destination 10.0.30.3)
+!

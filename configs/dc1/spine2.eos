@@ -1,0 +1,114 @@
+!
+hostname SPINE2
+!
+service routing protocols model multi-agent
+!
+username admin privilege 15 role network-admin secret admin1234
+!
+management console
+   idle-timeout 0
+!
+management ssh
+   idle-timeout 0
+   no shutdown
+!
+interface management1
+   ip address 192.168.100.12/24
+!
+interface loopback0
+   description ROUTER-ID
+   ip address 10.1.0.2/32
+!
+logging buffered 64000
+clock timezone Asia/Seoul
+!
+ip routing
+!
+interface ethernet1
+   description leaf1 to ethernet2
+   no switchport
+   ip address 10.1.10.8/31
+   no shutdown
+!
+interface ethernet2
+   description leaf2 to ethernet2
+   no switchport
+   ip address 10.1.10.10/31
+   no shutdown
+!
+interface ethernet3
+   description leaf3 to ethernet2
+   no switchport
+   ip address 10.1.10.12/31
+   no shutdown
+!
+interface ethernet4
+   description leaf4 to ethernet2
+   no switchport
+   ip address 10.1.10.14/31
+   no shutdown
+!
+ip access-list MGMT-ACL
+   10 permit tcp 192.168.100.0/24 any eq ssh
+   20 permit icmp 192.168.100.0/24 any
+   30 permit ospf any any
+   40 permit tcp 10.1.0.0/24 any eq bgp
+   50 permit tcp 10.1.0.0/24 eq bgp any
+   60 permit ip 10.1.254.0/24 any
+   70 permit icmp 10.0.0.0/8 any
+   80 deny ip any any log
+!
+system control-plane
+   ip access-group MGMT-ACL in
+!
+router ospf 1
+   router-id 10.1.0.2
+   passive-interface loopback0
+   max-lsa 12000
+!
+interface loopback0
+   ip ospf area 0.0.0.0
+!
+interface ethernet1
+   ip ospf network point-to-point
+   ip ospf area 0.0.0.0
+   ip ospf hello-interval 1
+   ip ospf dead-interval 4
+!
+interface ethernet2
+   ip ospf network point-to-point
+   ip ospf area 0.0.0.0
+   ip ospf hello-interval 1
+   ip ospf dead-interval 4
+!
+interface ethernet3
+   ip ospf network point-to-point
+   ip ospf area 0.0.0.0
+   ip ospf hello-interval 1
+   ip ospf dead-interval 4
+!
+interface ethernet4
+   ip ospf network point-to-point
+   ip ospf area 0.0.0.0
+   ip ospf hello-interval 1
+   ip ospf dead-interval 4
+!
+router bgp 65100
+   router-id 10.1.2.2
+   bgp cluster-id 10.1.0.100
+   no bgp default ipv4-unicast
+   maximum-paths 4 ecmp 4
+   neighbor LEAFS peer group
+   neighbor LEAFS remote-as 65100
+   neighbor LEAFS update-source loopback0
+   neighbor LEAFS route-reflector-client
+   neighbor LEAFS timers 3 9
+   neighbor LEAFS send-community extended
+   neighbor 10.1.0.11 peer group LEAFS
+   neighbor 10.1.0.12 peer group LEAFS
+   neighbor 10.1.0.13 peer group LEAFS
+   neighbor 10.1.0.14 peer group LEAFS
+   !
+   address-family evpn
+      neighbor LEAFS activate
+!

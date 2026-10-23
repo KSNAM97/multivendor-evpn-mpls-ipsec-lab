@@ -1,0 +1,142 @@
+!
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+!
+hostname DSW2
+!
+no ip domain-lookup
+ip domain-name lab.local
+!
+enable secret admin1234
+username admin privilege 15 secret admin1234
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+!
+ip ssh version 2
+!
+logging buffered 16384
+clock timezone KST 9 0
+!
+banner motd #
+ LAB DSW2 - authorized use only
+#
+!
+vtp mode transparent
+ip routing
+!
+vrf definition MGMT
+ address-family ipv4
+ exit-address-family
+!
+interface gigabitethernet 3/3
+    description to-MGMT-SW
+    no switchport
+    vrf forwarding MGMT
+    ip address 192.168.100.45 255.255.255.0
+    no shutdown
+!
+ip access-list standard MGMT-ACL
+    permit 192.168.100.0 0.0.0.255
+!
+line vty 0 4
+ exec-timeout 0 0
+ privilege level 15
+ login local
+ transport input ssh
+ logging synchronous
+ access-class MGMT-ACL in vrf-also
+!
+vlan 50
+    name BR-LAN50
+vlan 60
+    name BR-LAN60
+vlan 999
+    name NATIVE
+!
+interface loopback 0
+    ip address 10.0.0.42 255.255.255.255
+!
+interface gigabitethernet 0/0
+    description BGW2 to Gi1/0
+    no switchport
+    ip address 10.50.0.3 255.255.255.254
+    no shutdown
+!
+spanning-tree mode mst
+spanning-tree mst configuration
+    name LAB
+    revision 1
+    instance 1 vlan 50
+    instance 2 vlan 60
+!
+spanning-tree mst 1 priority 8192
+spanning-tree mst 2 priority 4096
+!
+interface range gigabitethernet 0/1 - 2
+    switchport trunk encapsulation dot1q
+    switchport mode trunk
+    switchport trunk native vlan 999
+    switchport trunk allowed vlan 50,60
+    channel-group 1 mode active
+!
+interface port-channel 1
+    switchport trunk encapsulation dot1q
+    switchport mode trunk
+    switchport trunk native vlan 999
+    switchport trunk allowed vlan 50,60
+!
+interface range gigabitethernet 0/3 , gigabitethernet 1/0
+    switchport trunk encapsulation dot1q
+    switchport mode trunk
+    switchport trunk native vlan 999
+    switchport trunk allowed vlan 50,60
+    channel-group 3 mode active
+!
+interface port-channel 3
+    switchport trunk encapsulation dot1q
+    switchport mode trunk
+    switchport trunk native vlan 999
+    switchport trunk allowed vlan 50,60
+!
+interface vlan 50
+    description BR-LAN50
+    ip address 192.168.50.3 255.255.255.0
+    vrrp 50 ip 192.168.50.1
+    vrrp 50 priority 100
+    vrrp 50 preempt
+    no shutdown
+!
+interface vlan 60
+    description BR-LAN60
+    ip address 192.168.60.3 255.255.255.0
+    vrrp 60 ip 192.168.60.1
+    vrrp 60 priority 110
+    vrrp 60 preempt
+    no shutdown
+!
+router ospf 1
+    router-id 10.0.0.42
+    no passive-interface default
+    passive-interface loopback 0
+    passive-interface vlan 50
+    passive-interface vlan 60
+!
+interface loopback 0
+    ip ospf 1 area 0
+!
+interface gigabitethernet 0/0
+    ip ospf network point-to-point
+    ip ospf hello-interval 1
+    ip ospf dead-interval 4
+    ip ospf 1 area 0
+!
+interface vlan 50
+    ip ospf 1 area 0
+!
+interface vlan 60
+    ip ospf 1 area 0
+!

@@ -1,0 +1,35 @@
+! Arista EOS - iBGP EVPN Route Reflector (spine) 샘플 (spine1 기준, 값은 예시)
+! 확인: show bgp evpn summary / show ip ospf neighbor
+! DC1은 AS 65100 하나의 iBGP이고 spine1, spine2가 Route Reflector, leaf1~4가 client이다.
+! iBGP는 next-hop을 바꾸지 않으므로 next-hop-unchanged 와 ebgp-multihop 이 필요 없다.
+! route-reflector-client 는 router bgp 바로 아래에서 neighbor 뒤에 붙인다 (이 vEOS에서 neighbor LEAFS ? 로 확인, address-family evpn 안에서는 받지 않음)
+!
+! (EVPN 필수) 이 설정은 write memory 후 reload(재부팅) 해야 적용된다. 적용 전에는 address-family evpn 이 거부된다
+service routing protocols model multi-agent
+!
+ip routing
+!
+interface loopback0
+   ip address 10.1.0.1/32
+   ip ospf area 0.0.0.0
+!
+router bgp 65100
+   router-id 10.1.2.1
+   bgp cluster-id 10.1.0.100
+   no bgp default ipv4-unicast
+   maximum-paths 4 ecmp 4
+   neighbor LEAFS peer group
+   neighbor LEAFS remote-as 65100
+   neighbor LEAFS update-source loopback0
+   neighbor LEAFS route-reflector-client
+   neighbor LEAFS timers 3 9
+   neighbor LEAFS send-community extended
+   neighbor 10.1.0.11 peer group LEAFS
+   neighbor 10.1.0.12 peer group LEAFS
+   neighbor 10.1.0.13 peer group LEAFS
+   neighbor 10.1.0.14 peer group LEAFS
+   !
+   address-family evpn
+      neighbor LEAFS activate
+!
+! BGP router-id 는 OSPF router-id(loopback0 주소)와 다른 값(10.1.2.x)을 쓴다. spine2 는 router-id 10.1.2.2, loopback0 10.1.0.2/32 만 다르고 cluster-id 는 두 spine이 같은 값(10.1.0.100)을 쓴다

@@ -1,0 +1,125 @@
+!
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+!
+hostname PE2
+!
+no ip domain-lookup
+ip domain-name lab.local
+!
+enable secret admin1234
+username admin privilege 15 secret admin
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+!
+line vty 0 4
+ exec-timeout 0 0
+ privilege level 15
+ login local
+ transport input ssh
+ logging synchronous
+!
+ip ssh version 2
+!
+ip cef
+logging buffered 16384
+clock timezone KST 9 0
+!
+banner motd #
+ LAB PE2 - authorized use only
+#
+!
+ip vrf TENANT-A
+!
+interface loopback 0
+    ip address 10.0.0.12 255.255.255.255
+!
+interface gigabitethernet 0/0
+    description PE1 to Gi0/0
+    ip address 10.0.10.1 255.255.255.254
+    no shutdown
+!
+interface gigabitethernet 1/0
+    description PE3 to Gi1/0
+    ip address 10.0.10.4 255.255.255.254
+    no shutdown
+!
+interface gigabitethernet 2/0
+    description CX1 to 1/1/1
+    ip vrf forwarding TENANT-A
+    ip address 10.0.20.4 255.255.255.254
+    no shutdown
+!
+interface gigabitethernet 3/0
+    description CX2 to 1/1/1
+    ip vrf forwarding TENANT-A
+    ip address 10.0.20.6 255.255.255.254
+    no shutdown
+!
+router ospf 1
+    router-id 10.0.0.12
+    no passive-interface default
+    passive-interface loopback 0
+!
+interface loopback 0
+    ip ospf 1 area 0
+!
+interface gigabitethernet 0/0
+    ip ospf network point-to-point
+    ip ospf hello-interval 1
+    ip ospf dead-interval 4
+    ip ospf 1 area 0
+!
+interface gigabitethernet 1/0
+    ip ospf network point-to-point
+    ip ospf hello-interval 1
+    ip ospf dead-interval 4
+    ip ospf 1 area 0
+!
+exit
+!
+mpls label protocol ldp
+mpls ldp router-id loopback 0 force
+!
+interface gigabitethernet 0/0
+    mpls ip 
+!
+interface gigabitethernet 1/0
+    mpls ip 
+!
+ip vrf TENANT-A
+    rd 65000:1
+    route-target both 65000:1
+!
+router bgp 65000
+    bgp router-id 10.0.1.12
+    bgp log-neighbor-changes
+    no bgp default ipv4-unicast
+    neighbor 10.0.0.11 remote-as 65000
+    neighbor 10.0.0.11 update-source loopback 0
+    neighbor 10.0.0.11 timers 3 9
+    neighbor 10.0.0.13 remote-as 65000
+    neighbor 10.0.0.13 update-source loopback 0
+    neighbor 10.0.0.13 timers 3 9
+    !
+    address-family vpnv4
+        neighbor 10.0.0.11 activate
+        neighbor 10.0.0.11 send-community extended
+        neighbor 10.0.0.13 activate
+        neighbor 10.0.0.13 send-community extended
+    exit-address-family
+    !
+    address-family ipv4 vrf TENANT-A
+        neighbor 10.0.20.5 remote-as 65201
+        neighbor 10.0.20.5 timers 3 9
+        neighbor 10.0.20.5 activate
+        neighbor 10.0.20.7 remote-as 65201
+        neighbor 10.0.20.7 timers 3 9
+        neighbor 10.0.20.7 activate
+        maximum-paths 2
+    exit-address-family
+!

@@ -1,0 +1,16 @@
+! Aruba AOS-CX - PE2와 VRF eBGP 샘플 (CX1 기준, 값은 예시)
+! 확인: show bgp vrf TENANT-A all summary / show ip route vrf TENANT-A
+! CX2는 bgp router-id 10.2.2.2, neighbor 10.0.20.6 (PE2 Gi3/0 방향)
+!
+! VRF, loopback 0, 1/1/1 IP는 02 인터페이스 IP 단계에서 이미 입력
+!
+router bgp 65201
+    bgp router-id 10.2.2.1
+    vrf TENANT-A
+        neighbor 10.0.20.4 remote-as 65000
+        neighbor 10.0.20.4 timers 3 9
+        address-family ipv4 unicast
+            neighbor 10.0.20.4 activate
+            redistribute connected
+        exit-address-family
+!

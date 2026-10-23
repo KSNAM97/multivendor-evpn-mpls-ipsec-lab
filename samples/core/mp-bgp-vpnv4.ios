@@ -1,0 +1,23 @@
+! Cisco IOS (c7200) - MP-BGP VPNv4 샘플 (PE1 기준)
+! 확인: show bgp vpnv4 unicast all summary / show bgp vpnv4 unicast all
+! PE2는 router-id 10.0.1.12, 이웃 10.0.0.11과 10.0.0.13
+! PE3는 router-id 10.0.1.13, 이웃 10.0.0.11과 10.0.0.12
+!
+router bgp 65000
+    bgp router-id 10.0.1.11
+    bgp log-neighbor-changes
+    no bgp default ipv4-unicast
+    neighbor 10.0.0.12 remote-as 65000
+    neighbor 10.0.0.12 update-source loopback 0
+    neighbor 10.0.0.12 timers 3 9
+    neighbor 10.0.0.13 remote-as 65000
+    neighbor 10.0.0.13 update-source loopback 0
+    neighbor 10.0.0.13 timers 3 9
+    !
+    address-family vpnv4
+        neighbor 10.0.0.12 activate
+        neighbor 10.0.0.12 send-community extended
+        neighbor 10.0.0.13 activate
+        neighbor 10.0.0.13 send-community extended
+    exit-address-family
+!

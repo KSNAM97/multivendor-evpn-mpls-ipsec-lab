@@ -1,0 +1,65 @@
+! Aruba AOS-CX - VSX LAG 샘플 (access 스위치 CX3 연결, 값은 예시)
+! 확인: show lacp interfaces / show lacp aggregates / show vsx status
+!
+! [CX1, CX2 공통] 멀티 섀시 LAG (양쪽에 같은 lag 번호)
+vlan 110
+    name APP-DC2
+!
+vlan 999
+    name NATIVE
+!
+interface lag 10 multi-chassis
+    no shutdown
+    description to-CX3
+    no routing
+    vlan trunk native 999
+    vlan trunk allowed 110
+    lacp mode active
+!
+interface 1/1/5
+    no shutdown
+    lag 10
+!
+interface 1/1/6
+    no shutdown
+    lag 10
+!
+! [CX3 access] 일반 LAG (4링크: CX1 2개, CX2 2개)
+interface lag 10
+    no shutdown
+    description to-VSX-pair
+    no routing
+    vlan trunk native 999
+    vlan trunk allowed 110
+    lacp mode active
+!
+interface 1/1/1
+    no shutdown
+    lag 10
+!
+interface 1/1/2
+    no shutdown
+    lag 10
+!
+interface 1/1/3
+    no shutdown
+    lag 10
+!
+interface 1/1/4
+    no shutdown
+    lag 10
+!
+interface 1/1/5
+    no shutdown
+    description to-HostD
+    spanning-tree port-type admin-edge
+    no routing
+    vlan access 110
+!
+! [CX1] Host D 직접 연결 (CX3 경유가 이미지 한계로 안 될 때 사용, Host D의 eth1)
+interface 1/1/7
+    no shutdown
+    description to-HostD-eth1
+    no routing
+    vlan access 110
+!

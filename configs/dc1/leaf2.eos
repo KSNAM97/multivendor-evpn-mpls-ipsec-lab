@@ -1,0 +1,169 @@
+!
+hostname LEAF2
+!
+service routing protocols model multi-agent
+!
+username admin privilege 15 role network-admin secret admin1234
+!
+management console
+   idle-timeout 0
+!
+management ssh
+   idle-timeout 0
+   no shutdown
+!
+interface management1
+   ip address 192.168.100.22/24
+!
+interface loopback0
+   description ROUTER-ID
+   ip address 10.1.0.12/32
+!
+interface loopback1
+   description VTEP
+   ip address 10.1.1.12/32
+!
+logging buffered 64000
+clock timezone Asia/Seoul
+!
+ip routing
+!
+vrf instance TENANT-A
+!
+ip routing vrf TENANT-A
+!
+ip virtual-router mac-address 00:1c:73:00:00:99
+!
+vlan 10
+   name APP
+vlan 999
+   name NATIVE
+vlan 4094
+   name MLAG-PEER
+   trunk group MLAGPEER
+!
+spanning-tree mode mstp
+no spanning-tree vlan-id 4094
+!
+interface vlan10
+   description APP-GW
+   vrf TENANT-A
+   ip address virtual 192.168.10.1/24
+!
+interface vlan4094
+   ip address 10.1.254.1/31
+   no autostate
+!
+interface ethernet1
+   description spine1 to ethernet2
+   no switchport
+   ip address 10.1.10.3/31
+   no shutdown
+!
+interface ethernet2
+   description spine2 to ethernet2
+   no switchport
+   ip address 10.1.10.11/31
+   no shutdown
+!
+interface port-channel1
+   description MLAG-PEERLINK
+   switchport mode trunk
+   switchport trunk native vlan 999
+   switchport trunk group MLAGPEER
+!
+interface ethernet3
+   channel-group 1 mode active
+!
+interface ethernet4
+   channel-group 1 mode active
+!
+mlag configuration
+   domain-id MLAG1
+   local-interface vlan4094
+   peer-address 10.1.254.0
+   peer-link port-channel1
+exit
+!
+interface port-channel10
+   description to-HostA
+   spanning-tree portfast
+   spanning-tree bpduguard enable
+   switchport mode access
+   switchport access vlan 10
+   mlag 10
+!
+interface ethernet5
+   channel-group 10 mode active
+   lacp timer fast
+!
+interface vxlan1
+   vxlan source-interface loopback1
+   vxlan udp-port 4789
+   vxlan vlan 10 vni 10010
+   vxlan vrf TENANT-A vni 50001
+   vxlan virtual-router encapsulation mac-address mlag-system-id
+!
+ip access-list MGMT-ACL
+   10 permit tcp 192.168.100.0/24 any eq ssh
+   20 permit icmp 192.168.100.0/24 any
+   30 permit ospf any any
+   40 permit tcp 10.1.0.0/24 any eq bgp
+   50 permit tcp 10.1.0.0/24 eq bgp any
+   60 permit ip 10.1.254.0/24 any
+   70 permit icmp 10.0.0.0/8 any
+   80 deny ip any any log
+!
+system control-plane
+   ip access-group MGMT-ACL in
+!
+router ospf 1
+   router-id 10.1.0.12
+   passive-interface loopback0
+   passive-interface loopback1
+   max-lsa 12000
+!
+interface loopback0
+   ip ospf area 0.0.0.0
+!
+interface loopback1
+   ip ospf area 0.0.0.0
+!
+interface ethernet1
+   ip ospf network point-to-point
+   ip ospf area 0.0.0.0
+   ip ospf hello-interval 1
+   ip ospf dead-interval 4
+!
+interface ethernet2
+   ip ospf network point-to-point
+   ip ospf area 0.0.0.0
+   ip ospf hello-interval 1
+   ip ospf dead-interval 4
+!
+router bgp 65100
+   router-id 10.1.2.12
+   no bgp default ipv4-unicast
+   maximum-paths 4 ecmp 4
+   neighbor SPINES peer group
+   neighbor SPINES remote-as 65100
+   neighbor SPINES timers 3 9
+   neighbor SPINES update-source loopback0
+   neighbor SPINES send-community extended
+   neighbor 10.1.0.1 peer group SPINES
+   neighbor 10.1.0.2 peer group SPINES
+   !
+   vlan 10
+      rd 10.1.2.12:10010
+      route-target both 10010:10010
+      redistribute learned
+   !
+   address-family evpn
+      neighbor SPINES activate
+   !
+   vrf TENANT-A
+      rd 10.1.2.12:50001
+      route-target import evpn 50001:50001
+      route-target export evpn 50001:50001
+      redistribute connected
+!

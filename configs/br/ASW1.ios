@@ -1,0 +1,107 @@
+!
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+!
+hostname ASW1
+!
+no ip domain-lookup
+ip domain-name lab.local
+!
+enable secret admin1234
+username admin privilege 15 secret admin1234
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+!
+ip ssh version 2
+!
+logging buffered 16384
+clock timezone KST 9 0
+!
+banner motd #
+ LAB ASW1 - authorized use only
+#
+!
+vtp mode transparent
+!
+ip access-list standard MGMT-ACL
+    permit 192.168.100.0 0.0.0.255
+!
+line vty 0 4
+ exec-timeout 0 0
+ privilege level 15
+ login local
+ transport input ssh
+ logging synchronous
+ access-class MGMT-ACL in
+!
+vlan 50
+    name BR-LAN50
+vlan 60
+    name BR-LAN60
+vlan 100
+    name MGMT
+vlan 999
+    name NATIVE
+!
+interface gigabitethernet 3/3
+    description to-MGMT-SW
+    switchport mode access
+    switchport access vlan 100
+    no shutdown
+!
+interface vlan 100
+    description MGMT
+    ip address 192.168.100.46 255.255.255.0
+    no shutdown
+!
+spanning-tree mode mst
+spanning-tree mst configuration
+    name LAB
+    revision 1
+    instance 1 vlan 50
+    instance 2 vlan 60
+!
+interface range gigabitethernet 0/0 - 1
+    switchport trunk encapsulation dot1q
+    switchport mode trunk
+    switchport trunk native vlan 999
+    switchport trunk allowed vlan 50,60
+    channel-group 2 mode active
+!
+interface port-channel 2
+    switchport trunk encapsulation dot1q
+    switchport mode trunk
+    switchport trunk native vlan 999
+    switchport trunk allowed vlan 50,60
+!
+interface range gigabitethernet 0/2 - 3
+    switchport trunk encapsulation dot1q
+    switchport mode trunk
+    switchport trunk native vlan 999
+    switchport trunk allowed vlan 50,60
+    channel-group 3 mode active
+!
+interface port-channel 3
+    switchport trunk encapsulation dot1q
+    switchport mode trunk
+    switchport trunk native vlan 999
+    switchport trunk allowed vlan 50,60
+!
+interface gigabitethernet 1/0
+    description Host F
+    switchport mode access
+    switchport access vlan 50
+    spanning-tree portfast
+    spanning-tree bpduguard enable
+!
+interface gigabitethernet 1/1
+    description Host G
+    switchport mode access
+    switchport access vlan 60
+    spanning-tree portfast
+    spanning-tree bpduguard enable
+!

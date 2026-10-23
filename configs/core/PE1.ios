@@ -1,0 +1,208 @@
+!
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+!
+hostname PE1
+!
+no ip domain-lookup
+ip domain-name lab.local
+!
+enable secret admin1234
+username admin privilege 15 secret admin1234
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+!
+line vty 0 4
+ exec-timeout 0 0
+ privilege level 15
+ login local
+ transport input ssh
+ logging synchronous
+!
+ip ssh version 2
+!
+ip cef
+logging buffered 16384
+clock timezone KST 9 0
+!
+banner motd #
+ LAB PE1 - authorized use only
+#
+!
+ip vrf TENANT-A
+!
+ip vrf WAN-UL
+!
+interface loopback 0
+    ip address 10.0.0.11 255.255.255.255
+!
+interface gigabitethernet 0/0
+    description PE2 to Gi0/0
+    ip address 10.0.10.0 255.255.255.254
+    no shutdown
+!
+interface gigabitethernet 1/0
+    description PE3 to Gi0/0
+    ip address 10.0.10.2 255.255.255.254
+    no shutdown
+!
+interface gigabitethernet 2/0
+    description leaf3 to Et5
+    ip vrf forwarding TENANT-A
+    ip address 10.0.20.0 255.255.255.254
+    no shutdown
+!
+interface gigabitethernet 3/0
+    description leaf4 to Et5
+    ip vrf forwarding TENANT-A
+    ip address 10.0.20.2 255.255.255.254
+    no shutdown
+!
+interface gigabitethernet 4/0
+    description Hub1 to Gi0/0
+    ip vrf forwarding WAN-UL
+    ip address 10.0.30.0 255.255.255.254
+    no shutdown
+!
+interface gigabitethernet 5/0
+    description Hub2 to Gi0/0
+    ip vrf forwarding WAN-UL
+    ip address 10.0.30.2 255.255.255.254
+    no shutdown
+!
+router ospf 1
+    router-id 10.0.0.11
+    no passive-interface default
+    passive-interface loopback 0
+!
+interface loopback 0
+    ip ospf 1 area 0
+!
+interface gigabitethernet 0/0
+    ip ospf network point-to-point
+    ip ospf hello-interval 1
+    ip ospf dead-interval 4
+    ip ospf 1 area 0
+!
+interface gigabitethernet 1/0
+    ip ospf network point-to-point
+    ip ospf hello-interval 1
+    ip ospf dead-interval 4
+    ip ospf 1 area 0
+!
+exit
+!
+mpls label protocol ldp
+mpls ldp router-id loopback 0 force
+!
+interface gigabitethernet 0/0
+    mpls ip 
+!
+interface gigabitethernet 1/0
+    mpls ip 
+!
+class-map match-all VOICE
+    match dscp ef
+class-map match-all CRITICAL
+    match dscp af31
+class-map match-all BUSINESS
+    match dscp af21
+class-map match-all SCAVENGER
+    match dscp cs1
+!
+policy-map PE-IN
+    class VOICE
+        set mpls experimental imposition 5
+    class CRITICAL
+        set mpls experimental imposition 3
+    class BUSINESS
+        set mpls experimental imposition 2
+    class SCAVENGER
+        set mpls experimental imposition 1
+!
+class-map match-all VOICE-EXP
+    match mpls experimental topmost 5
+class-map match-all CRITICAL-EXP
+    match mpls experimental topmost 3
+class-map match-all BUSINESS-EXP
+    match mpls experimental topmost 2
+class-map match-any NETCTRL
+    match mpls experimental topmost 6
+    match dscp cs6
+!
+policy-map CORE-OUT
+    class VOICE-EXP
+        priority percent 20
+    class NETCTRL
+        bandwidth percent 5
+    class CRITICAL-EXP
+        bandwidth percent 30
+    class BUSINESS-EXP
+        bandwidth percent 20
+    class class-default
+        fair-queue
+!
+policy-map SHAPE-ONLY
+    class class-default
+        shape average 400000
+!
+policy-map SHAPE-400K
+    class class-default
+        shape average 400000
+        service-policy CORE-OUT
+!
+interface gigabitethernet 2/0
+    service-policy input PE-IN
+!
+interface gigabitethernet 3/0
+    service-policy input PE-IN
+!
+interface gigabitethernet 0/0
+    service-policy output SHAPE-400K
+!
+ip vrf TENANT-A
+    rd 65000:1
+    route-target both 65000:1
+!
+ip vrf WAN-UL
+    rd 65000:99
+    route-target both 65000:99
+!
+router bgp 65000
+    bgp router-id 10.0.1.11
+    bgp log-neighbor-changes
+    no bgp default ipv4-unicast
+    neighbor 10.0.0.12 remote-as 65000
+    neighbor 10.0.0.12 update-source loopback 0
+    neighbor 10.0.0.12 timers 3 9
+    neighbor 10.0.0.13 remote-as 65000
+    neighbor 10.0.0.13 update-source loopback 0
+    neighbor 10.0.0.13 timers 3 9
+    !
+    address-family vpnv4
+        neighbor 10.0.0.12 activate
+        neighbor 10.0.0.12 send-community extended
+        neighbor 10.0.0.13 activate
+        neighbor 10.0.0.13 send-community extended
+    exit-address-family
+!
+router bgp 65000
+    address-family ipv4 vrf TENANT-A
+        neighbor 10.0.20.1 remote-as 65100
+        neighbor 10.0.20.1 activate
+        neighbor 10.0.20.1 timers 3 9
+        neighbor 10.0.20.3 remote-as 65100
+        neighbor 10.0.20.3 activate
+        neighbor 10.0.20.3 timers 3 9
+        maximum-paths 2
+    exit-address-family
+!
+router bgp 65000
+    address-family ipv4 vrf WAN-UL
+        redistribute connected
+    exit-address-family
+!

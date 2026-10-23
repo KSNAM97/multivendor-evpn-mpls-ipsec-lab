@@ -1,0 +1,51 @@
+! Arista EOS - OSPF underlay 샘플 (leaf1 기준, 값은 예시)
+! 확인: show ip ospf neighbor / show ip route ospf
+! ip routing 을 켜기 전에 no switchport 후 ip address 를 넣으면 "IP configuration will be ignored" 경고가 나온다 (적용은 되지만 ip routing 을 먼저 켜면 나오지 않는다)
+! 확인: show interfaces ethernet1 switchport (Switchport: Disabled), show ip interface brief (up/up)
+!
+service routing protocols model multi-agent
+!
+ip routing
+!
+interface loopback0
+   description ROUTER-ID
+   ip address 10.1.0.11/32
+   ip ospf area 0.0.0.0
+!
+! leaf만: VTEP도 OSPF로 광고 (MLAG 쌍이 같은 주소 공유)
+interface loopback1
+   description VTEP
+   ip address 10.1.1.12/32
+   ip ospf area 0.0.0.0
+!
+interface ethernet1
+   description to-spine1
+   no switchport
+   ip address 10.1.10.1/31
+   ip ospf network point-to-point
+   ip ospf hello-interval 1
+   ip ospf dead-interval 4
+   ip ospf area 0.0.0.0
+!
+interface ethernet2
+   description to-spine2
+   no switchport
+   ip address 10.1.10.9/31
+   ip ospf network point-to-point
+   ip ospf hello-interval 1
+   ip ospf dead-interval 4
+   ip ospf area 0.0.0.0
+!
+router ospf 1
+   router-id 10.1.0.11
+   passive-interface loopback0
+   passive-interface loopback1
+   max-lsa 12000
+!
+! hello 1초, dead 4초는 모든 링크 인터페이스에 양쪽 같은 값이어야 한다 (loopback은 이웃이 없어 필요 없음)
+! [spine1] 같은 방식. loopback0 + ethernet1~4 (leaf1~4 링크), loopback1은 없음
+! interface loopback0 : ip address 10.1.0.1/32, ip ospf area 0.0.0.0
+! interface ethernet1~4 : no switchport, ip address 10.1.10.0/31 ~ 10.1.10.6/31, ip ospf network point-to-point, ip ospf hello-interval 1, ip ospf dead-interval 4, ip ospf area 0.0.0.0
+! router ospf 1 : router-id 10.1.0.1, passive-interface loopback0, max-lsa 12000
+! [spine2] loopback0 10.1.0.2/32, 링크 10.1.10.8/31 ~ 10.1.10.14/31, router-id 10.1.0.2
+! [leaf2~4] router-id 10.1.0.12 ~ 10.1.0.14. loopback1은 leaf2가 10.1.1.12, leaf3과 leaf4가 10.1.1.34

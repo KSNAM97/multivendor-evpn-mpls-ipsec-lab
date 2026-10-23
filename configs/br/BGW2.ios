@@ -1,0 +1,118 @@
+!
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+!
+hostname BGW2
+!
+no ip domain-lookup
+ip domain-name lab.local
+!
+enable secret admin1234
+username admin privilege 15 secret admin1234
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+!
+line vty 0 4
+ exec-timeout 0 0
+ privilege level 15
+ login local
+ transport input ssh
+ logging synchronous
+!
+ip ssh version 2
+!
+logging buffered 16384
+clock timezone KST 9 0
+!
+banner motd #
+ LAB BGW2 - authorized use only
+#
+!
+interface loopback 0
+    ip address 10.0.0.32 255.255.255.255
+!
+interface gigabitethernet 0/0
+    description PE3 to Gi3/0
+    ip address 10.0.30.7 255.255.255.254
+    no shutdown
+!
+interface gigabitethernet 1/0
+    description DSW2 to Gi0/0
+    ip address 10.50.0.2 255.255.255.254
+    no shutdown
+!
+router ospf 1
+    router-id 10.0.0.32
+    no passive-interface default
+    passive-interface loopback 0
+!
+interface loopback 0
+    ip ospf 1 area 0
+!
+interface gigabitethernet 1/0
+    ip ospf network point-to-point
+    ip ospf hello-interval 1
+    ip ospf dead-interval 4
+    ip ospf 1 area 0
+!
+ip prefix-list NONE seq 5 deny 0.0.0.0/0 le 32
+!
+router bgp 65020
+    bgp router-id 10.0.1.32
+    bgp log-neighbor-changes
+    no bgp default ipv4-unicast
+    neighbor 10.0.30.6 remote-as 65000
+    neighbor 10.0.30.6 timers 3 9
+    !
+    address-family ipv4
+        neighbor 10.0.30.6 activate
+        neighbor 10.0.30.6 prefix-list NONE out
+    exit-address-family
+!
+router ospf 1
+    default-information originate always
+!
+crypto isakmp policy 10
+    encryption aes 256
+    hash sha
+    authentication pre-share
+    group 14
+    lifetime 86400
+!
+crypto isakmp keepalive 10 3 periodic
+!
+crypto ipsec transform-set TS esp-aes 256 esp-sha-hmac
+    mode transport
+!
+crypto ipsec profile IPSEC-PROF
+    set transform-set TS
+!
+crypto isakmp key a37GYcnFbHABwpTzXJcmNV2J address 10.0.30.3
+!
+interface tunnel 1
+    description GRE-over-IPsec-to-HUB2
+    ip address 10.0.40.3 255.255.255.254
+    ip mtu 1400
+    ip tcp adjust-mss 1360
+    tunnel source 10.0.30.7
+    tunnel destination 10.0.30.3
+    tunnel protection ipsec profile IPSEC-PROF
+!
+ip prefix-list NO-UNDERLAY seq 5 deny 10.0.30.0/24 le 32
+ip prefix-list NO-UNDERLAY seq 10 permit 0.0.0.0/0 le 32
+!
+router bgp 65020
+    neighbor 10.0.40.2 remote-as 65010
+    neighbor 10.0.40.2 timers 3 9
+    !
+    address-family ipv4
+        neighbor 10.0.40.2 activate
+        neighbor 10.0.40.2 prefix-list NO-UNDERLAY out
+        network 192.168.50.0 mask 255.255.255.0
+        network 192.168.60.0 mask 255.255.255.0
+    exit-address-family
+!

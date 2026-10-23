@@ -1,0 +1,11 @@
+! Aruba AOS-CX - VSX active gateway 샘플 (값은 예시)
+! 확인: show ip interface vlan110 / show vsx configuration
+! CX1은 ip address .2, CX2는 .3, active gateway(.1)와 MAC은 양쪽에 같게 설정
+!
+interface vlan 110
+    description APP-DC2
+    vrf attach TENANT-A
+    ip address 192.168.110.2/24
+    active-gateway ip mac 12:00:00:00:01:10
+    active-gateway ip 192.168.110.1
+!

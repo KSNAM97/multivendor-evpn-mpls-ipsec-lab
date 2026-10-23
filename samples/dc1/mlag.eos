@@ -1,0 +1,51 @@
+! Arista EOS - MLAG 샘플 (leaf1 기준, leaf2는 IP를 .1 / peer .0 으로 바꿈)
+! 확인: show mlag / show mlag interfaces / show port-channel dense
+!
+spanning-tree mode mstp
+no spanning-tree vlan-id 4094
+!
+vlan 4094
+   name MLAG-PEER
+   trunk group MLAGPEER
+!
+vlan 999
+   name NATIVE
+!
+interface port-channel1
+   description MLAG-PEERLINK
+   switchport mode trunk
+   switchport trunk native vlan 999
+   switchport trunk group MLAGPEER
+!
+interface ethernet3
+   channel-group 1 mode active
+!
+interface ethernet4
+   channel-group 1 mode active
+!
+interface vlan4094
+   ip address 10.1.254.0/31
+   no autostate
+!
+mlag configuration
+   domain-id MLAG1
+   local-interface vlan4094
+   peer-address 10.1.254.1
+   peer-link port-channel1
+exit
+!
+! 호스트 연결 MLAG 포트채널 (양쪽 leaf에 같은 mlag 번호)
+vlan 10
+!
+interface port-channel10
+   description to-HostA
+   spanning-tree portfast
+   spanning-tree bpduguard enable
+   switchport mode access
+   switchport access vlan 10
+   mlag 10
+!
+interface ethernet5
+   channel-group 10 mode active
+   lacp timer fast
+!
