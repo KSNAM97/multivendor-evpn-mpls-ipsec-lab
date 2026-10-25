@@ -23,6 +23,31 @@
 |---|---|
 | PE1 - PE2 링크 shut | PE3를 거쳐 우회하고 PE2 loopback0 경로가 유지됨 |
 
+### 장애 시험 결과 (2026-10-25, PE1 `Gi0/0` shutdown)
+
+- 방법: Host A에서 `ping -D 192.168.110.101`(Host D)을 걸고 PE1 `interface GigabitEthernet0/0`에 `shutdown`. 같은 UTC 시간축으로 PE1 로그와 ping 시각을 맞춤
+
+| 시각(UTC) | 출처 | 사건 |
+|---|---|---|
+| 08:14:05.283 | PE1 로그 | OSPF 이웃 10.0.0.12 FULL -> DOWN(Interface down or detached) |
+| 08:14:05.335 | PE1 로그 | LDP 이웃 10.0.0.12:0 DOWN(Interface not operational) |
+| 08:14:05.751 | Host A ping | 마지막 정상 응답(seq 12, 161 ms, ttl 59) |
+| 08:14:07.259 / 08:14:08.259 | PE1 로그 | Gi0/0 administratively down, line protocol down |
+| 08:14:11.7 ~ 08:14:15.8 | Host A ping | leaf 192.168.10.1에서 `Destination Net Unreachable`(seq 18, 20, 21, 22) |
+| 08:14:16.975 | Host A ping | 복구 첫 응답(seq 23, 198 ms, **ttl 58**) |
+
+- 손실: seq 13 ~ 22의 10개, 마지막 정상 응답에서 첫 복구 응답까지 **약 11.2초**
+- 우회 확인: 복구 뒤 ttl이 59에서 **58**로 줄고 rtt가 100 ~ 160 ms에서 150 ~ 230 ms로 늘어, **PE3를 거치는 우회 경로**로 바뀌었음
+- BGP 세션: PE1 로그에 장애 시각 이후 `%BGP-5-ADJCHANGE`가 **없음**. PE1 - PE2(10.0.0.12) iBGP 세션은 루프백 기반이라 링크가 끊겨도 **유지됨**(PE1 부팅 직후 07:51:35.559에 Up된 뒤 변동 없음)
+- 11초 지연의 원인은 이 로그만으로는 확정할 수 없음. 세션 리셋이 아니므로 IGP 재수렴(SPF 지연)과 BGP next-hop 추적 지연으로 PE2 경유 VPN 경로가 잠시 무효화되어 leaf로 경로가 철회된 것으로 추정(미확인, `show ip ospf`의 SPF 타이머와 `show run | include nexthop`로 확인 예정)
+
+| Host A ping | PE1 shutdown 로그 | PE1 전체 로그 |
+|---|---|---|
+| ![Host A ping](images/03-ospf/failover-host-a-ping-host-d.png) | ![PE1 shutdown 로그](images/03-ospf/failover-pe1-gi0-0-shutdown-log.png) | ![PE1 로그](images/03-ospf/failover-pe1-logging-no-bgp-reset.png) |
+
+- 2회차(같은 날 08:19 UTC)는 BGP 세션 리셋을 동반해 약 47.5초 단절. 시간축, 라벨 [16, 23] 캡처, SPF 타이머(Initial 5000 ms)는 [06-mp-bgp-vpnv4.md](06-mp-bgp-vpnv4.md)의 장애 시험 결과 참고
+- 남은 항목: 복구(`no shutdown`) 시험
+
 ## 증빙
 
 `show ip ospf neighbor`, `show ip route ospf` 출력

@@ -85,7 +85,7 @@
 | 확인할 동작 | 캡처 링크 (GNS3 Start capture) | 일으킬 동작 | 표시 필터 | 볼 것 | 상태 |
 |---|---|---|---|---|---|
 | LDP 세션 | PE1 `Gi0/0` - PE2 `Gi0/0` | `clear mpls ldp neighbor *` | `ldp` | Hello(UDP 646), 이후 TCP 646 세션, Initialization, Label Mapping(10.0.0.x/32) | 캡처 완료 (Hello, Initialization, Label Mapping) |
-| MPLS 라벨 스택 | PE1 `Gi0/0` - PE2 `Gi0/0` | DC1과 DC2 호스트 사이 ping (Host D에서 Host A, DC2 eBGP 구성 뒤) | `mpls` | 직결 링크라 PHP로 바깥 전송 라벨은 이미 제거되어 **VPN 라벨 1개**만 보임(TC 값 포함). 라벨 2개(전송 + VPN)는 직결 링크가 끊겨 PE3를 거치는 우회 경로에서만 보이므로 장애 시험 때 캡처 | 캡처 완료 (VPN 라벨 1개). 우회 시 라벨 2개는 장애 시험 때 |
+| MPLS 라벨 스택 | PE1 `Gi0/0` - PE2 `Gi0/0` | DC1과 DC2 호스트 사이 ping (Host D에서 Host A, DC2 eBGP 구성 뒤) | `mpls` | 직결 링크라 PHP로 바깥 전송 라벨은 이미 제거되어 **VPN 라벨 1개**만 보임(TC 값 포함). 라벨 2개(전송 + VPN)는 직결 링크가 끊겨 PE3를 거치는 우회 경로에서만 보이므로 장애 시험 때 캡처 | 캡처 완료 (VPN 라벨 1개). 우회 시 라벨 2개 [16, 23]은 [06-mp-bgp-vpnv4.md](06-mp-bgp-vpnv4.md)의 장애 시험 결과(프레임 1733)에 기록. 패킷 상세: ![MPLS 라벨 2개](images/04-mpls-ldp/failover-wireshark-mpls-two-labels.png) |
 
 ### 캡처 결과: LDP Hello
 
