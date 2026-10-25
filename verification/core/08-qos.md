@@ -118,6 +118,22 @@
 |---|---|---|
 | ![상태 3 PE1](images/08-qos/state3-netctrl-pe1-policy-map.png) | ![상태 3 EF](images/08-qos/state3-netctrl-ef-probe.png) | ![상태 3 UDP](images/08-qos/state3-netctrl-host-d-udp-receiver.png) |
 
+## 증빙: 상태 3 + `NETCTRL` 재시험 (`SHAPE-400K`, 장비 재부팅 후)
+
+- 장비를 다시 부팅한 뒤 같은 조건(Host A -> Host D `iperf3 -u -b 800k -l 1200 -t 60`)으로 다시 시험하고, `terminal length 0` 후 `show policy-map interface gigabitethernet 0/0 output`으로 전체 정책을 한 번에 수집함
+- 부모 `class-default`(`SHAPE-400K`): 4889 packets, offered 145000 bps, **drop rate 63000 bps**, `queue depth/total drops/no-buffer drops` **0/1820/0**, shape(average) cir 400000
+- 자식 `CORE-OUT`:
+  - **VOICE-EXP 70 packets, 6860 bytes**, 우선 큐 드롭 **0**, `b/w exceed drops: 0`
+  - `CRITICAL-EXP`, `BUSINESS-EXP` 0 packets(해당 트래픽 없음)
+  - **NETCTRL 195 packets, 25697 bytes**, 드롭 **0/0/0**. 분류는 `match dscp cs6` 195개, `mpls experimental topmost 6`은 0개
+  - 자식 `class-default` 4624 packets, **드롭 1820**(flowdrops 1820), 출력 2804 packets
+- Host D UDP 수신: **2.31 MBytes, 313 Kbit/sec, Lost/Total 2876/4896 (59%)**, jitter 1323 ms, 순서가 바뀐 데이터그램 1804개
+- 해석: 혼잡 드롭 1820개가 **전부 class-default**에서 나고 VOICE-EXP와 NETCTRL의 드롭은 0으로 3회차와 같은 결과. 카운터 절대값은 부팅 이후 누적 범위가 달라 3회차와 다름. 이 회차는 EF 프로브(`ping -Q 184`)를 수집하지 않아 지연은 비교하지 않음
+
+| PE1 정책 카운터 (1/2) | PE1 정책 카운터 (2/2) |
+|---|---|
+| ![재시험 카운터 1](images/08-qos/state3-rerun-core-out-1.png) | ![재시험 카운터 2](images/08-qos/state3-rerun-core-out-2.png) |
+
 ## 증빙: 상태 2 재시험 (`SHAPE-ONLY`, 4회차)
 
 - PE1 `show policy-map interface gigabitethernet 0/0`: `Service-policy output: SHAPE-ONLY`, `class-default` **5179 packets, 6058995 bytes**, offered 159000 bps, **drop rate 79000 bps**, 총 드롭 **0/2408/0**, 출력 2771 packets

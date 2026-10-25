@@ -23,7 +23,7 @@
 
 ### EVPN-VXLAN: L2VNI 10010 캡처
 
-외부 UDP 4789, 외부 주소 10.1.1.12 → 10.1.1.34, VNI 10010, 안쪽 ICMP
+외부 UDP 4789, 외부 주소 10.1.1.34 → 10.1.1.12(leaf3·4 → leaf1·2), VNI 10010, 안쪽 ICMP(Host B → Host A)
 
 ![VXLAN 캡처](../verification/dc1/images/03-evpn-vxlan/wireshark-vxlan-vni10010.png)
 
@@ -45,9 +45,11 @@
 
 ### QoS: 혼잡 중 클래스별 카운터
 
-VOICE-EXP 드롭 0, NETCTRL 드롭 0, class-default 드롭 2238
+VOICE-EXP 드롭 0, NETCTRL 드롭 0, class-default 드롭 1820(장비 재부팅 후 재시험, 3회차 첫 시험은 2238로 같은 결과)
 
-![PE1 정책 카운터](../verification/core/images/08-qos/state3-netctrl-pe1-policy-map.png)
+![PE1 정책 카운터 1](../verification/core/images/08-qos/state3-rerun-core-out-1.png)
+
+![PE1 정책 카운터 2](../verification/core/images/08-qos/state3-rerun-core-out-2.png)
 
 ### Branch ↔ DC 통신
 
