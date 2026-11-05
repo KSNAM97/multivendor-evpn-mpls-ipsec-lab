@@ -174,18 +174,4 @@ OSPF router-id는 `loopback0` 주소를 쓰고, **BGP router-id는 별도 대역
 | 인증 | 사전 공유 키 (터널마다 1개, 실습 랩 전용 값은 [IPsec 키 관리](../baseline/br/08-ipsec-keys.md)) |
 | 터널 | Tunnel0(Hub1-BGW1), Tunnel1(Hub2-BGW2). 터널 위 eBGP, ECMP |
 
-## 7. QoS 클래스 (설계값)
-
-| 클래스 | DSCP | 처리 |
-|---|---|---|
-| Voice | EF (46) | 우선 큐(LLQ) |
-| Critical | AF31 | 최소 대역폭 보장 |
-| Business | AF21 | 최소 대역폭 보장 |
-| Best-effort | 0 | 나머지 |
-| Scavenger | CS1 | 혼잡 시 먼저 폐기 |
-
-- 마킹: **호스트**가 iperf3의 DSCP 옵션으로 마킹. (Arista vEOS는 ACL의 interface 적용이 되지 않아 분류에 쓰지 않음.)
-- 집행: **c7200**(PE1~PE3, Hub1, Hub2, BGW1, BGW2)의 class-map과 policy-map, shaping
-- MPLS 구간은 DSCP를 MPLS TC(EXP)로 매핑해 코어에서 큐잉
-
 이중화와 부하 분산 설계: [03-protocol-matrix.md](03-protocol-matrix.md) 3번 표

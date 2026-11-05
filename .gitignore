@@ -2,7 +2,12 @@
 Thumbs.db
 *.bak
 
-ppt/
 *.pdf
 *.pptx
-ppt/
+ppt/*
+!ppt/최종
+ppt/최종/*
+!ppt/최종/증빙_크롭
+ppt/최종/증빙_크롭/후_*/
+ppt/최종/증빙_크롭/전_*/
+ppt/최종/증빙_크롭/점검_*/

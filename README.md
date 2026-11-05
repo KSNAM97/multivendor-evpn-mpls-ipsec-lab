@@ -12,7 +12,7 @@ Cisco, Arista, Aruba를 섞어 DC 2곳과 Branch를 MPLS 코어와 GRE over IPse
 |---|---|
 | 규모 | 네트워크 장비 19대, 호스트 6대, 3개 벤더 |
 | 구성 | DC1(Arista EVPN-VXLAN), MPLS 코어(Cisco PE 3대), DC2(Aruba VSX), Branch(Cisco), Hub-BGW GRE over IPsec 터널 2개 |
-| 핵심 기술 | EVPN-VXLAN, MLAG, VSX, MPLS L3VPN(LDP, MP-BGP VPNv4), PE-CE eBGP, GRE over IPsec(IKEv1), 터널 위 eBGP, VRRP, MSTP, QoS(DiffServ) |
+| 핵심 기술 | EVPN-VXLAN, MLAG, VSX, MPLS L3VPN(LDP, MP-BGP VPNv4), PE-CE eBGP, GRE over IPsec(IKEv1), 터널 위 eBGP, VRRP, MSTP |
 | 검증 | 구간마다 기대 결과를 먼저 적고 CLI show 출력과 Wireshark 패킷으로 대조. 검증 캡처 343장 |
 | 작업 기간 | 2026.10.21 ~ 10.23 (3일), 1인 수행 |
 | 환경 | GNS3 VM 22GB |
@@ -23,7 +23,6 @@ Cisco, Arista, Aruba를 섞어 DC 2곳과 Branch를 MPLS 코어와 GRE over IPse
 - **MPLS L3VPN**: VRF 2개(TENANT-A, WAN-UL)로 DC 구간과 WAN 구간을 분리. DC1, DC2, Branch가 PE-CE eBGP로 접속
 - **GRE over IPsec**: IKEv1, AES256, SHA, DH 14. IKE와 ESP 패킷 캡처, 터널 위 eBGP 이웃 4쌍 Established, Host A ↔ Host F 통신
 - **장애 시험**: BGW1 WAN 단절 후 감지 8.8초, 터널 위 BGP 복구 10~11초(2회 재현). 이중화의 한계 2가지를 확인하고 개선안 정리
-- **QoS**: DSCP 46이 MPLS TC 5로 매핑되고, 혼잡 중 EF와 제어 트래픽은 드롭 0, 드롭은 best-effort에만 발생
 - **트러블슈팅**: 가상 이미지의 LAG 데이터 경로 한계, `lacp rate fast` 불안정, 혼잡 중 BGP 단절 등을 확인하고 설계 변경이나 클래스 추가로 대응
 
 ## 문서 안내
@@ -43,7 +42,7 @@ Cisco, Arista, Aruba를 섞어 DC 2곳과 Branch를 MPLS 코어와 GRE over IPse
 
 ```text
 docs/               포트폴리오 요약 문서 (요약, 설계 판단, 검증 결과, 트러블슈팅, 한계)
-guide/              단계별 진행 순서 (0 사전 준비 ~ 5 QoS, 06은 Hub 보조 가이드). 처음 구축하는 사람은 여기서 시작
+guide/              단계별 진행 순서 (0 사전 준비 ~ 4 Branch와 IPsec, 06은 Hub 보조 가이드). 처음 구축하는 사람은 여기서 시작
 00-overview/        전체 기준 (토폴로지, 포트 매핑, IP 설계, 프로토콜 매트릭스, 리소스 계획, 기능 지원 확인 결과, VLAN과 IP 대역 총괄, 장비별 IP 포트 매칭표, Wireshark 캡처 계획)
 baseline/           기준 문서 (지역별, 프로토콜별로 나눔. 각 폴더의 README가 읽는 순서)
   dc1/  dc2/  core/  br/  host/

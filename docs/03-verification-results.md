@@ -17,7 +17,6 @@
 | 터널 위 eBGP와 통신 | 이웃 4쌍 Established, Host A ↔ F, F → D | 성공 | [검증](../verification/br/10-bgp-over-tunnel.md) |
 | MTU와 MSS | IP 1400 통과, 1428 차단, SYN-ACK MSS 1360 | 성공 (TCP 처리량은 판정에서 제외) | [검증](../verification/br/11-mtu-mss.md) |
 | 이중화 장애 시험 | BGW1 WAN 단절 감지와 복구 | 부분 성공 | [검증](../verification/br/12-ipsec-failover.md) |
-| QoS | DSCP → TC 매핑, 우선 큐, 혼잡 드롭 분리 | 성공 (카운터와 캡처 기준) | [검증](../verification/core/08-qos.md) |
 
 ## 대표 증빙
 
@@ -42,14 +41,6 @@
 | link up → 터널 위 BGP up | 10.5초 | 11.1초 |
 
 ![BGW1 로그](../verification/br/images/12-ipsec-failover/bgw1-log-timeline.png)
-
-### QoS: 혼잡 중 클래스별 카운터
-
-VOICE-EXP 드롭 0, NETCTRL 드롭 0, class-default 드롭 1820(장비 재부팅 후 재시험, 3회차 첫 시험은 2238로 같은 결과)
-
-![PE1 정책 카운터 1](../verification/core/images/08-qos/state3-rerun-core-out-1.png)
-
-![PE1 정책 카운터 2](../verification/core/images/08-qos/state3-rerun-core-out-2.png)
 
 ### Branch ↔ DC 통신
 

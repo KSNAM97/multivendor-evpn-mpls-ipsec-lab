@@ -11,4 +11,3 @@
 | 05 | VRF | [05-vrf.md](05-vrf.md) |
 | 06 | MP-BGP VPNv4 | [06-mp-bgp-vpnv4.md](06-mp-bgp-vpnv4.md) |
 | 07 | PE-CE eBGP | [07-pe-ce-ebgp.md](07-pe-ce-ebgp.md) |
-| 08 | QoS | [08-qos.md](08-qos.md) |

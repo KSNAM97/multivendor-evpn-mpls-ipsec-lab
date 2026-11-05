@@ -59,5 +59,5 @@ GNS3 어댑터 수(관리 포함): spine 5, leaf1/leaf2 6, leaf3/leaf4 8. 관리
 
 ## 7. 제약
 
-- Arista vEOS는 ACL은 만들 수 있지만 `ip access-group ... in/out`이 `% Unavailable command (not supported on this hardware platform)`로 거부됨(확인됨). QoS 분류와 패킷 필터에는 쓰지 않고, 이런 시연은 Cisco나 Aruba에서 함
+- Arista vEOS는 ACL은 만들 수 있지만 `ip access-group ... in/out`이 `% Unavailable command (not supported on this hardware platform)`로 거부됨(확인됨). 패킷 필터에는 쓰지 않고, 이런 시연은 Cisco나 Aruba에서 함
 - vEOS RAM 축소의 안정성은 설정 투입 후에도 확인이 필요

@@ -13,7 +13,6 @@
 | 터널 | GRE over IPsec(IKEv1) 2개: Tunnel0(Hub1-BGW1), Tunnel1(Hub2-BGW2) |
 | 라우팅 | Branch 내부 OSPF, Hub와는 터널 위 eBGP (Hub AS 65010 ↔ BGW AS 65020) |
 | 스위치단 | VLAN 50, 60, MSTP, EtherChannel, VRRP |
-| QoS | BGW에서 shaping과 큐잉 집행 |
 
 Hub1, Hub2는 DC1 WAN 출구 장비라서 [dc1](../dc1/01-overview.md)에 있고, 이 문서는 터널 관계만 다룸.
 

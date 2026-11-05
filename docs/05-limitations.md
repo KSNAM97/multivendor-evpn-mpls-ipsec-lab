@@ -7,8 +7,6 @@
 | BGW 장애 시 Branch 이중화 | BGW1 WAN을 끊어도 DSW1의 default가 BGW1에 고정(`default-information originate always`). Host F → Host A 손실 75.5%, 오류 547건 | default를 조건부로 바꾸고 DSW1·2가 SVI에서 OSPF 인접을 맺어 다른 DSW로 default를 넘김 |
 | leaf3·4 Hub 이중화 | leaf3·4가 VTEP 10.1.1.34를 공유해 leaf3이 Hub1을 잃으면 leaf4로 경로를 넘기지 못함. 일부 흐름만 끊김 | VRF TENANT-A에서 leaf3·4를 iBGP로 연결 |
 | TCP 처리량 | 에뮬레이션 환경에서 TCP가 끊겨 처리량 시험을 쓰지 못함 | ping과 UDP로 검증(적용 중). 실장비나 더 높은 사양에서 재측정 |
-| QoS 범위 | PE1 한 방향(Host A → Host D)만 구현 | PE2, PE3, 반대 방향, Hub와 BGW 입구로 확장 |
-| EF 지연 비교 | 같은 상태에서도 회차마다 평균이 달라(156 ms, 305 ms) 지연으로는 판정 불가 | 반복 측정 또는 부하가 낮은 환경에서 재측정 |
 | Aruba LAG 데이터 경로 | 가상 이미지(10.07)에서 LAG 위 VLAN 데이터가 전달되지 않음 | 다른 이미지 버전에서 재시험 |
 
 ## 하지 않은 시험

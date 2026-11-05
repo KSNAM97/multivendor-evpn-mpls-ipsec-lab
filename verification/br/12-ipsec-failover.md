@@ -131,4 +131,4 @@
 
 - Branch: BGW의 `default-information originate always`를 조건부로 바꾸고, DSW1과 DSW2가 SVI에서 OSPF 인접을 맺어 한쪽 BGW 장애 시 다른 DSW로 default가 넘어가게 함
 - DC1: leaf3과 leaf4가 VRF TENANT-A 안에서 iBGP로 연결해 한쪽 Hub를 잃으면 다른 leaf로 경로를 넘기게 함
-- 위 개선은 QoS 이후에 별도 작업으로 진행하고, 적용 후 같은 시험을 시각 기록과 함께 다시 수행
+- 위 개선은 별도 작업으로 진행하고, 적용 후 같은 시험을 시각 기록과 함께 다시 수행

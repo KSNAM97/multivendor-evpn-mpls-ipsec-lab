@@ -14,7 +14,6 @@
 | WAN 언더레이 (VRF WAN-UL) | 정적 경로(PE1 - Hub), eBGP(PE3 - BGW) | 터널 양끝 주소(10.0.30.x) 도달성. 구역별 방식은 [코어 PE-CE 기준](../baseline/core/07-pe-ce-ebgp.md) |
 | 보안 터널 | GRE over IPsec (IKEv1) x2 + eBGP | Branch 연결 (이중 터널) |
 | 부하 분산 | ECMP, BGP multipath, LACP 해시, MSTP 인스턴스 분산 | 경로와 링크 분산 |
-| QoS | DiffServ (DSCP, MPLS TC) | 트래픽 보장 |
 
 ## 2. 벤더별 적용 범위
 
@@ -22,7 +21,7 @@
 |---|---|---|
 | Arista | vEOS 6대 | DC1: OSPF underlay, MLAG x2, iBGP EVPN-VXLAN(L2/L3VNI), border leaf의 PE와 Hub 연동 |
 | Aruba | CX 3대 | DC2: VSX 쌍(CX1, CX2) + access(CX3), active gateway, PE와 eBGP |
-| Cisco c7200 | 7대 | MPLS 코어 PE 삼각형(OSPF, LDP, MP-BGP), Hub와 BGW 이중 터널, IPsec, QoS 집행 |
+| Cisco c7200 | 7대 | MPLS 코어 PE 삼각형(OSPF, LDP, MP-BGP), Hub와 BGW 이중 터널, IPsec |
 | Cisco IOSv | 3대 | Branch 스위치단 (VLAN, MSTP, EtherChannel, VRRP, OSPF) |
 
 벤더는 Cisco, Arista, Aruba 3개. Juniper(vQFX)는 이 GNS3 환경에서 PFE가 FPC로 등록되지 않아 제외됨
@@ -74,7 +73,6 @@
 | GRE + IPsec | - | - | - | O | O | - | - | - |
 | VRF | - | O | O | - | - | - | - | O |
 | ECMP / multipath | O | O | O | O | O | - | - | O |
-| QoS 큐잉/shaping | - | - | O | O | O | - | - | - |
 
 ## 5. 단계별 목표 프로토콜
 
@@ -84,8 +82,7 @@
 | 2 | MPLS 코어(PE 삼각형) + DC1 DCI | PE1 VRF 경유 경로 광고, 코어 링크 장애 우회 |
 | 3 | DC2(Aruba) 연동 | DC1과 DC2 간 TENANT-A 통신, VSX 장애 전환 |
 | 4 | Hub, BGW 이중 GRE over IPsec + Branch 스위치단 | 터널 위 eBGP와 ECMP, VRRP, MSTP 인스턴스별 blocking, EtherChannel 장애 전환 |
-| 5 | QoS 적용과 검증 | 혼잡 상황에서 EF 지연과 손실 비교 |
-| 6 | 장애 주입과 트러블슈팅 문서화 | 시나리오별 증상, 원인, 조치 기록 |
+| 5 | 장애 주입과 트러블슈팅 문서화 | 시나리오별 증상, 원인, 조치 기록 |
 
 단계마다 필요한 노드만 켬. 4단계에서는 DC2를 끌 수 있음
 
@@ -115,8 +112,7 @@
 | AOS-CX Virtual 10.07의 LAG 데이터 경로 | 확인됨(한계): `lag10`은 LACP 협상(`ALFNCD`)까지 정상이지만 VLAN 110 데이터 프레임이 LAG를 통과하지 못함. 같은 링크를 일반 트렁크로 쓰면 정상. 그래서 Host D를 CX1 `1/1/7`에 직접 연결. ISL(`lag256`)은 정상. 상세는 [DC2 active gateway 검증](../verification/dc2/05-active-gateway.md) |
 | AOS-CX Virtual의 `lacp rate fast` | 확인됨(한계): 에뮬레이션 부하에서 LACP가 반복해서 흔들려(`X`, `lacp-block`, VSX Out-Of-Sync) 제거하고 기본(slow) 사용 |
 | vEOS의 VXLAN DSCP 복사 동작 | 캡처로 외부 헤더 DSCP 확인 |
-| vEOS ACL의 interface 적용 | 확인됨: `ip access-group ... in/out`이 `% Unavailable command (not supported on this hardware platform)`로 거부됨. QoS 분류와 패킷 필터에 쓰지 않음. 컨트롤 플레인 ACL은 사용자 정의도 수락, 활성(`system control-plane`). 실제 차단은 미확인 |
-| Aruba CX 시뮬레이터 QoS 기능 범위 | `show qos`에 cos-map, dscp-map, queue-profile, schedule-profile, threshold-profile, trust가 있음(상세는 [기능 지원 확인 결과](05-feature-check.md)) |
+| vEOS ACL의 interface 적용 | 확인됨: `ip access-group ... in/out`이 `% Unavailable command (not supported on this hardware platform)`로 거부됨. 패킷 필터에 쓰지 않음. 컨트롤 플레인 ACL은 사용자 정의도 수락, 활성(`system control-plane`). 실제 차단은 미확인 |
 | QEMU 노드 vCPU 1개 안정성 | 이미지별로 부팅, BGP 유지 확인 후 필요 시 2개로 상향 |
 | Arista vEOS RAM 축소 후 안정성 | 설정 투입 후에도 BGP, EVPN 유지 확인 |
 

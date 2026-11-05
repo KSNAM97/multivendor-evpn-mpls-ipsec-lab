@@ -114,7 +114,6 @@
 - 패킷 36(Echo request, Host D 192.168.110.101 → Host A 192.168.10.101): Ethernet Src `ca:04:1b:f6:00:08`(PE2 Gi0/0), Dst `ca:03:19:a9:00:08`(PE1 Gi0/0), 그 위에 **MultiProtocol Label Switching Header 하나**: **Label 23, Exp 0, S 1, TTL 62**
 - **S 비트가 1**이라 이 라벨이 스택의 맨 아래(VPN 라벨)이고, 라벨이 하나뿐임. PE1과 PE2 사이는 직결 링크라 PHP로 전송 라벨이 이미 제거되어 있음
 - MPLS TTL 62는 IP TTL(요청 62)과 같음. Host D(64)에서 CX1(63), PE2(62)로 내려오는 값이 그대로 복사됨 (uniform 모델)
-- Exp 0: QoS 단계([QoS](08-qos.md)) 적용 전이라 TC 값이 기본 0. QoS 뒤에는 이 값이 바뀌는지 확인
 - 이 라벨 23은 PE1의 `show bgp vpnv4 unicast all labels`에서 **192.168.10.101/32**(Host A 호스트 경로, next-hop leaf3·leaf4)의 In label **23**과 일치. 즉 PE1이 이 경로에 붙여 PE2에 광고한 VPN 라벨이고, PE2가 이 라벨을 붙여 PE1로 보낸 것
 - 같은 출력의 다른 경로: 192.168.10.0은 20, 192.168.20.0은 19, 10.0.20.0/31은 21, 10.0.20.2/31은 22(In label). 192.168.110.0은 `nolabel/20`(PE2가 광고한 out label 20), 10.0.20.4/31은 `nolabel/19`, 10.0.20.6/31은 `nolabel/21`
 

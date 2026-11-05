@@ -39,7 +39,6 @@
 | MPLS 라벨 스택 | 같은 링크 | `mpls` | 직결 링크에서는 PHP로 VPN 라벨 1개만 보임. 라벨 2개(전송, VPN)는 PE3를 거치는 우회 경로(장애 시험)에서 보임. TC 값 확인 |
 | VPNv4 iBGP | 같은 링크 | `bgp` | OPEN의 AFI/SAFI VPNv4, UPDATE의 RD(65000:1)와 Route Target |
 | PE-CE eBGP (DC1) | PE1 `Gi2/0` - leaf3 `ethernet5` | `bgp` | AS 65000과 65100, Hold Time 9, BGP Identifier(PE1 10.0.1.11, leaf3 VRF router-id 10.1.2.13), UPDATE에 192.168.10.0/24, 192.168.20.0/24 |
-| QoS (MPLS TC) | 같은 링크 | `mpls.exp == 5` | 음성 트래픽의 TC 5 (`ip.dsfield.dscp == 46`과 비교) |
 
 ## DC1 WAN 출구와 Branch
 

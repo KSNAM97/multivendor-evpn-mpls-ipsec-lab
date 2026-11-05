@@ -11,7 +11,7 @@
 | 영역 | 벤더 | 장비 | 주요 기능 |
 |---|---|---|---|
 | DC1 | Arista vEOS, Cisco c7200 | spine 2, leaf 4, Hub 2 | OSPF 언더레이, EVPN-VXLAN, MLAG, 관리망 ACL |
-| MPLS 코어 | Cisco c7200 | PE1~PE3 | OSPF, LDP, VRF, MP-BGP VPNv4, PE-CE eBGP, QoS |
+| MPLS 코어 | Cisco c7200 | PE1~PE3 | OSPF, LDP, VRF, MP-BGP VPNv4, PE-CE eBGP |
 | DC2 | Aruba AOS-CX | CX1~CX3 | VSX, 멀티 섀시 LAG, Active Gateway, VRF eBGP |
 | Branch | Cisco c7200, IOSv | BGW 2, DSW 2, ASW 1 | MSTP, EtherChannel, VRRP, OSPF, WAN-UL, GRE over IPsec |
 | 호스트 | Ubuntu Docker Guest | Host A, B, C, D, F, G | 연결 시험, 트래픽 생성 |
@@ -35,7 +35,6 @@
 | 2 | MPLS 코어와 DC1 연동 | [코어](../guide/02-core.md) |
 | 3 | DC2 연동 | [DC2](../guide/03-dc2.md) |
 | 4 | Branch와 IPsec | [Branch](../guide/04-branch-ipsec.md) |
-| 5 | QoS | [QoS](../guide/05-qos.md) |
 
 ## 문서 체계
 
@@ -54,4 +53,3 @@
 | GRE over IPsec | Hub-BGW 터널 2개 | [검증](../verification/br/09-ipsec-gre.md) |
 | 터널 위 eBGP | Hub-BGW | [검증](../verification/br/10-bgp-over-tunnel.md) |
 | VRRP, MSTP, EtherChannel | Branch DSW, ASW | [MSTP 검증](../verification/br/04-mstp-etherchannel.md), [VRRP 검증](../verification/br/05-vrrp-svi.md) |
-| QoS (DiffServ) | PE1 | [검증](../verification/core/08-qos.md) |

@@ -11,5 +11,4 @@
 | 05 | [VRF](05-vrf.md) | RD, route-target | `vrf.ios` |
 | 06 | [MP-BGP VPNv4](06-mp-bgp-vpnv4.md) | PE 간 iBGP VPNv4 | `mp-bgp-vpnv4.ios` |
 | 07 | [PE-CE eBGP](07-pe-ce-ebgp.md) | VRF 안 고객 장비와 eBGP | `pe-ce-ebgp.ios` |
-| 08 | [QoS](08-qos.md) | DSCP, MPLS TC 매핑, 큐잉, shaping | `qos.ios` |
 | 09 | [비밀번호 지정 위치](09-password.md) | enable, 계정, 라인, OSPF, LDP, BGP 인증 위치 | `password.ios` |

@@ -6,7 +6,7 @@ GNS3 이미지에서 설계에 쓰는 기능이 되는지 장비에서 직접 �
 
 | 기능 | 결과 | 비고 |
 |---|---|---|
-| 인터페이스 ACL (`ip access-group in/out`) | **지원 안 됨** | `% Unavailable command (not supported on this hardware platform)`. QoS 분류, 패킷 필터에 쓰지 않음 |
+| 인터페이스 ACL (`ip access-group in/out`) | **지원 안 됨** | `% Unavailable command (not supported on this hardware platform)`. 패킷 필터에 쓰지 않음 |
 | ACL 정의 (`ip access-list`) | 지원 | 적용은 안 됨 |
 | 컨트롤 플레인 ACL | 지원 | 기본 ACL(`default-control-plane-acl`, 27규칙)이 활성. **사용자 정의 ACL을 `system control-plane`의 `ip access-group ... in`으로 설정하면 수락되고 Active**(기본 ACL을 대체하는 것으로 보이므로 필수 프로토콜을 허용해야 함). 실제 차단 동작은 미확인 |
 | 라우티드 포트 (`no switchport` + `ip address`) | 지원 | `ip routing`을 켜기 전에는 "IP configuration will be ignored" 경고가 나옴(적용은 됨). `ip routing`을 먼저 켜면 안 나옴 |
@@ -27,7 +27,6 @@ GNS3 이미지에서 설계에 쓰는 기능이 되는지 장비에서 직접 �
 | BGP (`router bgp`, `bgp router-id`) | 지원 | 설정 수락 |
 | VSX 하위 모드 | 지원 | `inter-switch-link`, `keepalive`, `role`, `system-mac`, `linkup-delay-timer`, `configuration-sync`, `split-recovery`, `vsx-sync` |
 | `show vsx status` | 지원 | peer가 없을 때 ISL Init, 정상 |
-| QoS | 명령 존재 | `show qos` 하위에 `cos-map`, `dscp-map`, `queue-profile`, `schedule-profile`, `threshold-profile`, `trust` |
 | VSX ISL, VSX LAG 실제 동작 | 미확인 | CX 두 대를 연결해야 확인됨(3단계) |
 
 ## Cisco c7200 (IOS 12.4(24)T5, C7200-ADVENTERPRISEK9-M)
@@ -37,7 +36,6 @@ GNS3 이미지에서 설계에 쓰는 기능이 되는지 장비에서 직접 �
 | VRF | 지원 | `ip vrf`, `rd` 수락 (이 버전은 `vrf definition`이 아니라 `ip vrf`) |
 | MPLS/LDP | 지원 | `mpls label protocol ldp`, 인터페이스 `mpls ip`, `show mpls interfaces` 동작 |
 | MP-BGP VPNv4 | 지원 | `router bgp` 아래 `address-family vpnv4` 수락 |
-| QoS | 지원 | `class-map match dscp`, `set mpls experimental imposition`, `priority percent`, `fair-queue`, `shape average`, 중첩 `service-policy` 수락 |
 | IPsec 프로파일, 터널 보호 | 지원 | `crypto ipsec transform-set`(esp-aes 256, esp-sha-hmac, transport), `crypto ipsec profile`, `tunnel protection ipsec profile` 수락 |
 | IKEv2 | **지원 안 됨** | `show crypto ?`에 `ikev2` 없음 → IKEv1(ISAKMP) 사용 |
 | ISAKMP `hash sha256` | **지원 안 됨** | `% Invalid input` → `hash sha`(SHA-1) 사용 |
@@ -104,15 +102,7 @@ VRF, active gateway, 멀티섀시 LAG, BGP, VSX 하위 명령이 수락되는 �
 
 ![Aruba 설정 수락](images/feature-check/aruba-vrf-gateway-lag-bgp-vsx-accepted.png)
 
-`show vsx status`, `show lacp aggregates`, `show qos`:
-
-![Aruba VSX, LACP, QoS 확인](images/feature-check/aruba-vsx-lacp-qos-show.png)
-
 ### Cisco c7200 (IOS 12.4(24)T5)
-
-버전, VRF, MPLS, VPNv4, QoS 설정 수락:
-
-![c7200 버전과 설정 수락](images/feature-check/c7200-version-vrf-mpls-bgp-qos.png)
 
 ISAKMP `hash sha256` 거부:
 
@@ -122,7 +112,7 @@ IPsec 프로파일과 터널 보호 수락:
 
 ![c7200 IPsec 프로파일 수락](images/feature-check/c7200-ipsec-profile-tunnel-accepted.png)
 
-설정 결과(`show ip vrf`, `show mpls interfaces`, `show crypto isakmp policy`, `show policy-map`):
+설정 결과(`show ip vrf`, `show mpls interfaces`, `show crypto isakmp policy`):
 
 ![c7200 설정 결과](images/feature-check/c7200-show-vrf-mpls-isakmp-policy.png)
 

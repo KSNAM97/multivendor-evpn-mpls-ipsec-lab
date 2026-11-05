@@ -82,7 +82,7 @@ GRE와 IPsec 오버헤드 때문에 큰 패킷이 터널에서 잘릴 수 있어
 - `iperf3 -c 192.168.60.101 -t 10`: 평균 **944 Kbits/sec**, 재전송 **109**, 1초 단위로 0 Bytes 구간이 반복(3 ~ 4초, 5 ~ 6초, 8 ~ 9초). Host G(수신) 쪽도 같은 구간이 0 Bytes
 - Branch 안에서(ASW1, DSW 경유, 터널 없음)도 TCP가 끊기며 재전송이 많음. 따라서 **터널, MTU, MSS가 원인이 아니고** Branch 스위치와 호스트 에뮬레이션이 TCP 버스트를 처리하지 못하는 환경 한계로 판단. UDP 저속과 ping은 정상
 - Host의 `ethtool`은 설치되어 있지 않아(`command not found`) 오프로드 설정은 확인하거나 끌 수 없었음
-- 이 랩에서는 TCP 처리량 시험(iperf3 TCP)을 MTU/MSS의 합격 기준으로 쓰지 않음. 항목 4는 TCP SYN의 MSS 값을 Wireshark로 보는 방식으로 바꿈. QoS 시험도 UDP 저속 전송과 정책 카운터로 확인
+- 이 랩에서는 TCP 처리량 시험(iperf3 TCP)을 MTU/MSS의 합격 기준으로 쓰지 않음. 항목 4는 TCP SYN의 MSS 값을 Wireshark로 보는 방식으로 바꿈
 
 ![Host F -> Host G iperf3](images/11-mtu-mss/host-f-iperf3-to-host-g.png)
 
@@ -102,7 +102,7 @@ GRE와 IPsec 오버헤드 때문에 큰 패킷이 터널에서 잘릴 수 있어
 
 - Hub1 `show interface tunnel 0 | include MTU`: **MTU 17916 bytes**, **BW 100 Kbit/sec**, DLY 50000 usec, **Tunnel transport MTU 1476 bytes**
 - 17916은 GRE 터널 인터페이스의 기본 MTU이고 `ip mtu 1400`은 `show ip interface`에서 보임. 1476은 언더레이 1500에서 GRE 오버헤드 24를 뺀 값
-- **BW 100 Kbit/sec**는 터널 기본값. 라우팅과 QoS(퍼센트 기준 큐잉)에 쓰이므로 QoS 단계에서 `bandwidth`를 설정할 때 같이 정함
+- **BW 100 Kbit/sec**는 터널 기본값. 라우팅 메트릭 계산에 쓰임
 
 ![Hub1 터널 MTU 표시](images/11-mtu-mss/hub1-show-interface-tunnel0-mtu.png)
 

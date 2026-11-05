@@ -39,5 +39,3 @@ Hub 설정은 [Hub 설정 가이드](06-hub.md)를 따름
 - 터널 2개가 up이고 터널 위 eBGP가 Established
 - Host A와 Host F 사이 ping이 됨
 - 이중화 장애 시험으로 감지와 복구 시간을 기록함. 현재 구조는 BGW 한쪽 WAN 장애에서 일부 흐름이 복구되지 않는 한계가 있고 내용은 [장애 시험](../verification/br/12-ipsec-failover.md)에 기록
-
-다음: [5단계 QoS](05-qos.md)

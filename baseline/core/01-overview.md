@@ -14,7 +14,6 @@
 | 레이블 | MPLS, LDP (코어 링크) |
 | VPN | MP-BGP VPNv4 (PE 간 iBGP full mesh, AS 65000) |
 | PE-CE | eBGP (AS 65000 ↔ DC1 AS 65100, DC2 AS 65201, WAN-UL은 고정 경로 또는 eBGP) |
-| QoS | DSCP를 MPLS TC로 매핑, PE에서 집행 |
 
 ## 2. 포트 매핑
 

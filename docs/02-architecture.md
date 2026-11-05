@@ -29,8 +29,6 @@
 | IPsec은 IKEv1, AES256, SHA, DH 14, 전송 모드 | c7200 12.4(24)T 지원 범위에서 선택(SHA256 미지원). 전송 모드로 GRE 오버헤드를 줄임 | [GRE over IPsec 검증](../verification/br/09-ipsec-gre.md) |
 | 터널 IP MTU 1400, MSS 1360 | GRE와 ESP 오버헤드로 큰 패킷이 잘리는 것을 막음 | [MTU 검증](../verification/br/11-mtu-mss.md) |
 | VRRP master와 MSTP root를 같은 스위치로 일치 | 게이트웨이와 L2 root가 다르면 트래픽이 DSW 사이로 우회함 | [VRRP 검증](../verification/br/05-vrrp-svi.md) |
-| QoS 분류는 c7200에서 DSCP로 함 | vEOS가 인터페이스 ACL을 지원하지 않음 | [기능 확인](../00-overview/05-feature-check.md) |
-| QoS에 제어 트래픽 클래스(NETCTRL) 추가 | 혼잡 시 BGP 유지 패킷이 밀려 세션이 끊긴 적이 있음 | [QoS 검증](../verification/core/08-qos.md) |
 
 ## 트래픽 경로 예
 
