@@ -33,7 +33,7 @@ banner motd #
  LAB PE3 - authorized use only
 #
 !
-ip vrf WAN-UL
+ip vrf BR1
 !
 interface loopback 0
     ip address 10.0.0.13 255.255.255.255
@@ -50,15 +50,25 @@ interface gigabitethernet 1/0
 !
 interface gigabitethernet 2/0
     description BGW1 to Gi0/0
-    ip vrf forwarding WAN-UL
-    ip address 10.0.30.4 255.255.255.254
+    no ip address
     no shutdown
+!
+interface gigabitethernet 2/0.100
+    description BGW1 Gi0/0.100 (VRF BR1)
+    encapsulation dot1q 100
+    ip vrf forwarding BR1
+    ip address 10.0.60.0 255.255.255.254
 !
 interface gigabitethernet 3/0
     description BGW2 to Gi0/0
-    ip vrf forwarding WAN-UL
-    ip address 10.0.30.6 255.255.255.254
+    no ip address
     no shutdown
+!
+interface gigabitethernet 3/0.100
+    description BGW2 Gi0/0.100 (VRF BR1)
+    encapsulation dot1q 100
+    ip vrf forwarding BR1
+    ip address 10.0.60.2 255.255.255.254
 !
 router ospf 1
     router-id 10.0.0.13
@@ -91,9 +101,12 @@ interface gigabitethernet 0/0
 interface gigabitethernet 1/0
     mpls ip
 !
-ip vrf WAN-UL
-    rd 65000:99
-    route-target both 65000:99
+ip vrf BR1
+    rd 65000:3
+    route-target export 65000:3
+    route-target import 65000:1
+    route-target import 65000:2
+    route-target import 65000:3
 !
 router bgp 65000
     bgp router-id 10.0.1.13
@@ -112,15 +125,14 @@ router bgp 65000
         neighbor 10.0.0.12 activate
         neighbor 10.0.0.12 send-community extended
     exit-address-family
-!
-router bgp 65000
-    address-family ipv4 vrf WAN-UL
-        redistribute connected
-        neighbor 10.0.30.5 remote-as 65020
-        neighbor 10.0.30.5 activate
-        neighbor 10.0.30.5 timers 3 9
-        neighbor 10.0.30.7 remote-as 65020
-        neighbor 10.0.30.7 activate
-        neighbor 10.0.30.7 timers 3 9
+    !
+    address-family ipv4 vrf BR1
+        neighbor 10.0.60.1 remote-as 65020
+        neighbor 10.0.60.1 activate
+        neighbor 10.0.60.1 timers 3 9
+        neighbor 10.0.60.3 remote-as 65020
+        neighbor 10.0.60.3 activate
+        neighbor 10.0.60.3 timers 3 9
+        maximum-paths 2
     exit-address-family
 !

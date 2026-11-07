@@ -45,54 +45,25 @@ interface gigabitethernet 1/0
     ip address 10.0.31.3 255.255.255.254
     no shutdown
 !
-ip route 10.0.30.7 255.255.255.255 10.0.30.2
+interface gigabitethernet 2/0
+    description leaf3 to Et8
+    ip address 10.0.32.1 255.255.255.254
+    no shutdown
 !
 router bgp 65010
     bgp router-id 10.0.1.22
     bgp log-neighbor-changes
     no bgp default ipv4-unicast
+    neighbor 10.0.30.2 remote-as 65000
+    neighbor 10.0.30.2 timers 3 9
     neighbor 10.0.31.2 remote-as 65100
     neighbor 10.0.31.2 timers 3 9
+    neighbor 10.0.32.0 remote-as 65100
+    neighbor 10.0.32.0 timers 3 9
     !
     address-family ipv4
+        neighbor 10.0.30.2 activate
         neighbor 10.0.31.2 activate
-    exit-address-family
-!
-crypto isakmp policy 10
-    encryption aes 256
-    hash sha
-    authentication pre-share
-    group 14
-    lifetime 86400
-!
-crypto isakmp keepalive 10 3 periodic
-!
-crypto ipsec transform-set TS esp-aes 256 esp-sha-hmac
-    mode transport
-!
-crypto ipsec profile IPSEC-PROF
-    set transform-set TS
-!
-crypto isakmp key a37GYcnFbHABwpTzXJcmNV2J address 10.0.30.7
-!
-interface tunnel 1
-    description GRE-over-IPsec-to-BGW2
-    ip address 10.0.40.2 255.255.255.254
-    ip mtu 1400
-    ip tcp adjust-mss 1360
-    tunnel source 10.0.30.3
-    tunnel destination 10.0.30.7
-    tunnel protection ipsec profile IPSEC-PROF
-!
-ip prefix-list NO-UNDERLAY seq 5 deny 10.0.30.0/24 le 32
-ip prefix-list NO-UNDERLAY seq 10 permit 0.0.0.0/0 le 32
-!
-router bgp 65010
-    neighbor 10.0.40.3 remote-as 65020
-    neighbor 10.0.40.3 timers 3 9
-    !
-    address-family ipv4
-        neighbor 10.0.40.3 activate
-        neighbor 10.0.40.3 prefix-list NO-UNDERLAY out
+        neighbor 10.0.32.0 activate
     exit-address-family
 !

@@ -35,8 +35,6 @@ banner motd #
 !
 ip vrf TENANT-A
 !
-ip vrf WAN-UL
-!
 interface loopback 0
     ip address 10.0.0.11 255.255.255.255
 !
@@ -50,27 +48,15 @@ interface gigabitethernet 1/0
     ip address 10.0.10.2 255.255.255.254
     no shutdown
 !
-interface gigabitethernet 2/0
-    description leaf3 to Et5
-    ip vrf forwarding TENANT-A
-    ip address 10.0.20.0 255.255.255.254
-    no shutdown
-!
-interface gigabitethernet 3/0
-    description leaf4 to Et5
-    ip vrf forwarding TENANT-A
-    ip address 10.0.20.2 255.255.255.254
-    no shutdown
-!
 interface gigabitethernet 4/0
     description Hub1 to Gi0/0
-    ip vrf forwarding WAN-UL
+    ip vrf forwarding TENANT-A
     ip address 10.0.30.0 255.255.255.254
     no shutdown
 !
 interface gigabitethernet 5/0
     description Hub2 to Gi0/0
-    ip vrf forwarding WAN-UL
+    ip vrf forwarding TENANT-A
     ip address 10.0.30.2 255.255.255.254
     no shutdown
 !
@@ -107,11 +93,9 @@ interface gigabitethernet 1/0
 !
 ip vrf TENANT-A
     rd 65000:1
-    route-target both 65000:1
-!
-ip vrf WAN-UL
-    rd 65000:99
-    route-target both 65000:99
+    route-target export 65000:1
+    route-target import 65000:1
+    route-target import 65000:3
 !
 router bgp 65000
     bgp router-id 10.0.1.11
@@ -133,17 +117,12 @@ router bgp 65000
 !
 router bgp 65000
     address-family ipv4 vrf TENANT-A
-        neighbor 10.0.20.1 remote-as 65100
-        neighbor 10.0.20.1 activate
-        neighbor 10.0.20.1 timers 3 9
-        neighbor 10.0.20.3 remote-as 65100
-        neighbor 10.0.20.3 activate
-        neighbor 10.0.20.3 timers 3 9
+        neighbor 10.0.30.1 remote-as 65010
+        neighbor 10.0.30.1 activate
+        neighbor 10.0.30.1 timers 3 9
+        neighbor 10.0.30.3 remote-as 65010
+        neighbor 10.0.30.3 activate
+        neighbor 10.0.30.3 timers 3 9
         maximum-paths 2
-    exit-address-family
-!
-router bgp 65000
-    address-family ipv4 vrf WAN-UL
-        redistribute connected
     exit-address-family
 !

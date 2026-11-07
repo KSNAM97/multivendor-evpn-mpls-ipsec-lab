@@ -32,7 +32,7 @@ banner motd #
  LAB HUB1 - authorized use only
 #
 !
-interface loopback 0 
+interface loopback 0
     ip address 10.0.0.21 255.255.255.255
 !
 interface gigabitethernet 0/0
@@ -41,58 +41,29 @@ interface gigabitethernet 0/0
     no shutdown
 !
 interface gigabitethernet 1/0
-    description leaf3 to Et6 
+    description leaf3 to Et6
     ip address 10.0.31.1 255.255.255.254
     no shutdown
 !
-ip route 10.0.30.5 255.255.255.255 10.0.30.0
+interface gigabitethernet 2/0
+    description leaf4 to Et8
+    ip address 10.0.32.3 255.255.255.254
+    no shutdown
 !
 router bgp 65010
     bgp router-id 10.0.1.21
     bgp log-neighbor-changes
     no bgp default ipv4-unicast
+    neighbor 10.0.30.0 remote-as 65000
+    neighbor 10.0.30.0 timers 3 9
     neighbor 10.0.31.0 remote-as 65100
     neighbor 10.0.31.0 timers 3 9
+    neighbor 10.0.32.2 remote-as 65100
+    neighbor 10.0.32.2 timers 3 9
     !
     address-family ipv4
+        neighbor 10.0.30.0 activate
         neighbor 10.0.31.0 activate
-    exit-address-family
-!
-crypto isakmp policy 10
-    encryption aes 256
-    hash sha
-    authentication pre-share
-    group 14
-    lifetime 86400
-!
-crypto isakmp keepalive 10 3 periodic
-!
-crypto ipsec transform-set TS esp-aes 256 esp-sha-hmac
-    mode transport
-!
-crypto ipsec profile IPSEC-PROF
-    set transform-set TS
-!
-crypto isakmp key Fy2Wa7sRcCosSoXG5TXziEVq address 10.0.30.5
-!
-interface tunnel 0
-    description GRE-over-IPsec-to-BGW1
-    ip address 10.0.40.0 255.255.255.254
-    ip mtu 1400
-    ip tcp adjust-mss 1360
-    tunnel source 10.0.30.1
-    tunnel destination 10.0.30.5
-    tunnel protection ipsec profile IPSEC-PROF
-!
-ip prefix-list NO-UNDERLAY seq 5 deny 10.0.30.0/24 le 32
-ip prefix-list NO-UNDERLAY seq 10 permit 0.0.0.0/0 le 32
-!
-router bgp 65010
-    neighbor 10.0.40.1 remote-as 65020
-    neighbor 10.0.40.1 timers 3 9
-    !
-    address-family ipv4
-        neighbor 10.0.40.1 activate
-        neighbor 10.0.40.1 prefix-list NO-UNDERLAY out
+        neighbor 10.0.32.2 activate
     exit-address-family
 !

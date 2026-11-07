@@ -175,11 +175,11 @@ router bgp 65100
       route-target export evpn 50001:50001
       redistribute connected
 !
-interface ethernet5
-   description PE1 to Gi2/0
+interface ethernet8
+   description Hub2 to Gi2/0
    no switchport
    vrf TENANT-A
-   ip address 10.0.20.1/31
+   ip address 10.0.32.0/31
    no shutdown
 !
 interface ethernet6
@@ -192,12 +192,12 @@ interface ethernet6
 router bgp 65100
    vrf TENANT-A
       router-id 10.1.2.13
-      neighbor 10.0.20.0 remote-as 65000
-      neighbor 10.0.20.0 timers 3 9
+      neighbor 10.0.32.1 remote-as 65010
+      neighbor 10.0.32.1 timers 3 9
       neighbor 10.0.31.1 remote-as 65010
       neighbor 10.0.31.1 timers 3 9
       !
       address-family ipv4
-         neighbor 10.0.20.0 activate
+         neighbor 10.0.32.1 activate
          neighbor 10.0.31.1 activate
 !

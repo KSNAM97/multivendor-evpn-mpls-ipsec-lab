@@ -37,8 +37,13 @@ interface loopback 0
 !
 interface gigabitethernet 0/0
     description PE3 to Gi2/0
-    ip address 10.0.30.5 255.255.255.254
+    no ip address
     no shutdown
+!
+interface gigabitethernet 0/0.100
+    description PE3 Gi2/0.100 (VRF BR1)
+    encapsulation dot1q 100
+    ip address 10.0.60.1 255.255.255.254
 !
 interface gigabitethernet 1/0
     description DSW1 to Gi0/0
@@ -49,6 +54,7 @@ router ospf 1
     router-id 10.0.0.31
     no passive-interface default
     passive-interface loopback 0
+    default-information originate always
 !
 interface loopback 0
     ip ospf 1 area 0
@@ -59,59 +65,23 @@ interface gigabitethernet 1/0
     ip ospf dead-interval 4
     ip ospf 1 area 0
 !
-ip prefix-list NONE seq 5 deny 0.0.0.0/0 le 32
+ip prefix-list BR-TO-PARTNER seq 5 permit 192.168.50.0/24
+ip prefix-list BR-TO-PARTNER seq 10 permit 192.168.60.0/24
+ip prefix-list PARTNER-TO-BR seq 5 permit 192.168.110.0/24
+ip prefix-list PARTNER-TO-BR seq 10 permit 192.168.10.0/24
+ip prefix-list PARTNER-TO-BR seq 15 permit 192.168.20.0/24
 !
 router bgp 65020
     bgp router-id 10.0.1.31
     bgp log-neighbor-changes
     no bgp default ipv4-unicast
-    neighbor 10.0.30.4 remote-as 65000
-    neighbor 10.0.30.4 timers 3 9
+    neighbor 10.0.60.0 remote-as 65000
+    neighbor 10.0.60.0 timers 3 9
     !
     address-family ipv4
-        neighbor 10.0.30.4 activate
-        neighbor 10.0.30.4 prefix-list NONE out
-    exit-address-family
-!
-router ospf 1
-    default-information originate always
-!
-crypto isakmp policy 10
-    encryption aes 256
-    hash sha
-    authentication pre-share
-    group 14
-    lifetime 86400
-!
-crypto isakmp keepalive 10 3 periodic
-!
-crypto ipsec transform-set TS esp-aes 256 esp-sha-hmac
-    mode transport
-!
-crypto ipsec profile IPSEC-PROF
-    set transform-set TS
-!
-crypto isakmp key Fy2Wa7sRcCosSoXG5TXziEVq address 10.0.30.1
-!
-interface tunnel 0
-    description GRE-over-IPsec-to-HUB1
-    ip address 10.0.40.1 255.255.255.254
-    ip mtu 1400
-    ip tcp adjust-mss 1360
-    tunnel source 10.0.30.5
-    tunnel destination 10.0.30.1
-    tunnel protection ipsec profile IPSEC-PROF
-!
-ip prefix-list NO-UNDERLAY seq 5 deny 10.0.30.0/24 le 32
-ip prefix-list NO-UNDERLAY seq 10 permit 0.0.0.0/0 le 32
-!
-router bgp 65020
-    neighbor 10.0.40.0 remote-as 65010
-    neighbor 10.0.40.0 timers 3 9
-    !
-    address-family ipv4
-        neighbor 10.0.40.0 activate
-        neighbor 10.0.40.0 prefix-list NO-UNDERLAY out
+        neighbor 10.0.60.0 activate
+        neighbor 10.0.60.0 prefix-list BR-TO-PARTNER out
+        neighbor 10.0.60.0 prefix-list PARTNER-TO-BR in
         network 192.168.50.0 mask 255.255.255.0
         network 192.168.60.0 mask 255.255.255.0
     exit-address-family

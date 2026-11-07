@@ -33,7 +33,7 @@ banner motd #
  LAB PE2 - authorized use only
 #
 !
-ip vrf TENANT-A
+ip vrf PARTNER
 !
 interface loopback 0
     ip address 10.0.0.12 255.255.255.255
@@ -50,13 +50,13 @@ interface gigabitethernet 1/0
 !
 interface gigabitethernet 2/0
     description CX1 to 1/1/1
-    ip vrf forwarding TENANT-A
+    ip vrf forwarding PARTNER
     ip address 10.0.20.4 255.255.255.254
     no shutdown
 !
 interface gigabitethernet 3/0
     description CX2 to 1/1/1
-    ip vrf forwarding TENANT-A
+    ip vrf forwarding PARTNER
     ip address 10.0.20.6 255.255.255.254
     no shutdown
 !
@@ -91,9 +91,11 @@ interface gigabitethernet 0/0
 interface gigabitethernet 1/0
     mpls ip 
 !
-ip vrf TENANT-A
-    rd 65000:1
-    route-target both 65000:1
+ip vrf PARTNER
+    rd 65000:2
+    route-target export 65000:2
+    route-target import 65000:2
+    route-target import 65000:3
 !
 router bgp 65000
     bgp router-id 10.0.1.12
@@ -113,7 +115,7 @@ router bgp 65000
         neighbor 10.0.0.13 send-community extended
     exit-address-family
     !
-    address-family ipv4 vrf TENANT-A
+    address-family ipv4 vrf PARTNER
         neighbor 10.0.20.5 remote-as 65201
         neighbor 10.0.20.5 timers 3 9
         neighbor 10.0.20.5 activate
