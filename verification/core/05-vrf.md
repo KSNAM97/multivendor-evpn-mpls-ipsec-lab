@@ -8,37 +8,17 @@
 
 | 순서 | 장비 | 명령 | 기대 결과 | 안 될 때 확인 |
 |---|---|---|---|---|
-| 1 | PE1 | `show ip vrf` | TENANT-A(RD 65000:1), WAN-UL(RD 65000:99)과 소속 인터페이스(Gi2/0, Gi3/0, Gi4/0, Gi5/0) | `rd` 입력, `ip vrf forwarding` |
-| 2 | PE2 | `show ip vrf` | TENANT-A(RD 65000:1)만, Gi2/0, Gi3/0 소속 | 같은 점검 |
-| 3 | PE3 | `show ip vrf` | WAN-UL(RD 65000:99)만, Gi2/0, Gi3/0 소속 | 같은 점검 |
-| 4 | PE1~PE3 | `show ip vrf detail` | Export, Import route-target이 TENANT-A는 65000:1, WAN-UL은 65000:99 | `route-target both` |
+| 1 | PE1 | `show ip vrf` | TENANT-A(RD 65000:1)와 소속 인터페이스(Gi4/0, Gi5/0) | `rd` 입력, `ip vrf forwarding` |
+| 2 | PE2 | `show ip vrf` | PARTNER(RD 65000:2)와 Gi2/0, Gi3/0 소속 | 같은 점검 |
+| 3 | PE3 | `show ip vrf` | BR1(RD 65000:3)과 Gi2/0.100, Gi3/0.100 소속 | 같은 점검 |
+| 4 | PE1~PE3 | `show ip vrf detail` | Export RT는 TENANT-A 65000:1, PARTNER 65000:2, BR1 65000:3. Import RT는 TENANT-A가 65000:1과 65000:3, PARTNER가 65000:2와 65000:3, BR1이 65000:1, 65000:2, 65000:3 | `route-target export`, `route-target import` |
 | 5 | PE1~PE3 | `show ip vrf interfaces` | VRF 링크의 IP와 VRF 이름, Protocol up | [인터페이스 IP 검증](02-interface-ip.md) |
 
 ## 증빙
 
-`show ip vrf`, `show ip vrf detail`, `show ip vrf interfaces` 출력
+이전 구성(VRF WAN-UL 포함)에서 찍은 화면은 삭제함. 최종 구성(TENANT-A, PARTNER, BR1)의 `show ip vrf`, `show ip vrf detail` 화면은 추가해야 함
 
-### PE1
-
-- TENANT-A: RD **65000:1**, Gi2/0, Gi3/0 소속, Export와 Import RT 65000:1
-- WAN-UL: RD **65000:99**, Gi4/0, Gi5/0 소속, Export와 Import RT 65000:99
-- VRF Table ID 1, 2. `show ip vrf interfaces`에서 4개 인터페이스의 IP(10.0.20.0, 10.0.20.2, 10.0.30.0, 10.0.30.2)와 VRF 이름, Protocol up
-
-![PE1 VRF](images/05-vrf/pe1-vrf.png)
-
-### PE2
-
-- TENANT-A만 정의: RD 65000:1, Gi2/0, Gi3/0 소속, Export와 Import RT 65000:1
-- Gi2/0 10.0.20.4, Gi3/0 10.0.20.6, Protocol up
-
-![PE2 VRF](images/05-vrf/pe2-vrf.png)
-
-### PE3
-
-- WAN-UL만 정의: RD 65000:99, Gi2/0, Gi3/0 소속, Export와 Import RT 65000:99
-- Gi2/0 10.0.30.4, Gi3/0 10.0.30.6, Protocol up
-
-![PE3 VRF](images/05-vrf/pe3-vrf.png)
+PE1에서 확인한 최종 구성 동작(2026-11-07): `show bgp vpnv4 unicast all labels`에 RD 65000:1(TENANT-A)과 RD 65000:3(BR1)이 함께 보이고 192.168.50.0/24, 192.168.60.0/24가 두 RD에 같은 레이블 26, 27로 들어 있음. BR1 경로를 TENANT-A가 import한다는 증거
 
 ## 결과 기록
 

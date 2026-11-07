@@ -108,16 +108,18 @@
 
 ![LDP Label Mapping 패킷](images/04-mpls-ldp/wireshark-ldp-label-mapping.png)
 
-### 캡처 결과: MPLS 라벨 스택 (Host D에서 Host A로 ping)
+### 캡처 결과: MPLS 라벨 스택 (Host A와 Host F ping, 2026-11-07)
 
-- 링크 PE1 `Gi0/0` - PE2 `Gi0/0`, 필터 `mpls`, 동작은 Host D `ping -c 3 192.168.10.101`. 요청 3개와 응답 3개(패킷 36~48)가 모두 MPLS로 잡힘
-- 패킷 36(Echo request, Host D 192.168.110.101 → Host A 192.168.10.101): Ethernet Src `ca:04:1b:f6:00:08`(PE2 Gi0/0), Dst `ca:03:19:a9:00:08`(PE1 Gi0/0), 그 위에 **MultiProtocol Label Switching Header 하나**: **Label 23, Exp 0, S 1, TTL 62**
-- **S 비트가 1**이라 이 라벨이 스택의 맨 아래(VPN 라벨)이고, 라벨이 하나뿐임. PE1과 PE2 사이는 직결 링크라 PHP로 전송 라벨이 이미 제거되어 있음
-- MPLS TTL 62는 IP TTL(요청 62)과 같음. Host D(64)에서 CX1(63), PE2(62)로 내려오는 값이 그대로 복사됨 (uniform 모델)
-- 이 라벨 23은 PE1의 `show bgp vpnv4 unicast all labels`에서 **192.168.10.101/32**(Host A 호스트 경로, next-hop leaf3·leaf4)의 In label **23**과 일치. 즉 PE1이 이 경로에 붙여 PE2에 광고한 VPN 라벨이고, PE2가 이 라벨을 붙여 PE1로 보낸 것
-- 같은 출력의 다른 경로: 192.168.10.0은 20, 192.168.20.0은 19, 10.0.20.0/31은 21, 10.0.20.2/31은 22(In label). 192.168.110.0은 `nolabel/20`(PE2가 광고한 out label 20), 10.0.20.4/31은 `nolabel/19`, 10.0.20.6/31은 `nolabel/21`
+- 링크 PE1 `Gi1/0` - PE3 `Gi0/0`, 필터 `mpls`. 동작은 Host A와 Host F 사이 ping. 두 방향 패킷이 모두 MPLS로 잡힘
+- 패킷 75719(PE1 -> PE3, Echo request 192.168.10.101 -> 192.168.50.101): Ethernet Src `ca:03:19:a9:00:1c`(PE1), Dst `ca:05:1c:13:00:08`(PE3), **MultiProtocol Label Switching Header 하나**: **Label 26, Exp 0, S 1, TTL 60**
+- 패킷 75721(PE3 -> PE1, Echo reply 192.168.50.101 -> 192.168.10.101): **Label 33, Exp 0, S 1, TTL 61**
+- **S 비트가 1**이라 이 레이블이 스택의 맨 아래(VPN 레이블)이고 레이블이 하나뿐임. PE1 - PE3는 직결 링크라 PHP로 전송 레이블이 이미 제거되어 있음
+- Label 26은 PE1의 `show bgp vpnv4 unicast all labels`에서 **192.168.50.0**(BR1, next hop 10.0.0.13)의 `nolabel/26`(PE3가 광고한 out label 26)과 일치. Label 33은 **192.168.10.101/32**(Host A 호스트 경로)의 In label **33**과 일치. 즉 PE1이 광고한 레이블을 PE3가 붙여 PE1로 보낸 것
+- 같은 출력의 다른 경로: 192.168.60.0은 `nolabel/27`, 192.168.10.0은 31, 192.168.20.0은 30, 10.0.31.0/31은 22 등
 
-![MPLS 라벨 스택 패킷](images/04-mpls-ldp/wireshark-mpls-label.png)
+![MPLS 헤더: PE1 -> PE3, Label 26](images/04-mpls-ldp/wireshark-mpls-pe1-to-pe3-label26.png)
+
+![MPLS 헤더: PE3 -> PE1, Label 33](images/04-mpls-ldp/wireshark-mpls-pe3-to-pe1-label33.png)
 
 ![PE1 VPNv4 라벨](images/04-mpls-ldp/pe1-vpnv4-labels.png)
 

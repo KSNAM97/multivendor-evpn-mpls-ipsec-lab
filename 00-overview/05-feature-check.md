@@ -36,12 +36,6 @@ GNS3 이미지에서 설계에 쓰는 기능이 되는지 장비에서 직접 �
 | VRF | 지원 | `ip vrf`, `rd` 수락 (이 버전은 `vrf definition`이 아니라 `ip vrf`) |
 | MPLS/LDP | 지원 | `mpls label protocol ldp`, 인터페이스 `mpls ip`, `show mpls interfaces` 동작 |
 | MP-BGP VPNv4 | 지원 | `router bgp` 아래 `address-family vpnv4` 수락 |
-| IPsec 프로파일, 터널 보호 | 지원 | `crypto ipsec transform-set`(esp-aes 256, esp-sha-hmac, transport), `crypto ipsec profile`, `tunnel protection ipsec profile` 수락 |
-| IKEv2 | **지원 안 됨** | `show crypto ?`에 `ikev2` 없음 → IKEv1(ISAKMP) 사용 |
-| ISAKMP `hash sha256` | **지원 안 됨** | `% Invalid input` → `hash sha`(SHA-1) 사용 |
-| ISAKMP `group 14`, `encryption aes 256` | 지원 | `show crypto isakmp policy`에 DH #14(2048bit), AES 256 표시 |
-| 터널 `/31` 주소, `ip mtu`, `ip tcp adjust-mss` | 지원 | 수락 |
-| 터널 실제 동작(IKE SA, IPsec SA) | 미확인 | 두 장비 연결 후 확인(4단계) |
 
 ## Cisco IOSv 스위치 (vios_l2-ADVENTERPRISEK9-M, IOS 15.2(CML_NIGHTLY_20180619))
 
@@ -101,20 +95,6 @@ multi-agent 설정과 reload 후 EVPN 동작:
 VRF, active gateway, 멀티섀시 LAG, BGP, VSX 하위 명령이 수락되는 모습:
 
 ![Aruba 설정 수락](images/feature-check/aruba-vrf-gateway-lag-bgp-vsx-accepted.png)
-
-### Cisco c7200 (IOS 12.4(24)T5)
-
-ISAKMP `hash sha256` 거부:
-
-![c7200 hash sha256 미지원](images/feature-check/c7200-isakmp-hash-sha256-invalid.png)
-
-IPsec 프로파일과 터널 보호 수락:
-
-![c7200 IPsec 프로파일 수락](images/feature-check/c7200-ipsec-profile-tunnel-accepted.png)
-
-설정 결과(`show ip vrf`, `show mpls interfaces`, `show crypto isakmp policy`):
-
-![c7200 설정 결과](images/feature-check/c7200-show-vrf-mpls-isakmp-policy.png)
 
 ### Cisco IOSv 스위치 (vios_l2)
 

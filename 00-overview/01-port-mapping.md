@@ -11,7 +11,7 @@
 - vEOS: `Management1`(관리) + `Ethernet1~`(데이터). GNS3 어댑터 0번이 Management1. GNS3 화면의 포트 이름은 템플릿의 Name format을 `Et{port1}`로 바꾸면 `Et1`로 표시됨
 - ArubaOS-CX: 어댑터 0번이 관리, 이후 `1/1/1~`
 - IOSv: 포트 이름이 4개 단위로 번호가 매겨짐(`Gi0/0 ~ Gi0/3`, `Gi1/0 ~ Gi1/3`, ...). DSW는 `Gi0/0 ~ Gi0/3`, `Gi1/0`(5포트), ASW1은 `Gi0/0 ~ Gi0/3`, `Gi1/0`, `Gi1/1`(6포트)를 씀
-- 계층 표기: **U** Underlay, **O** Overlay/DCI, **A** Access(호스트), **W** WAN, **T** IPsec 터널, **S** 스위치단(Branch, DC2), **M** 관리
+- 계층 표기: **U** Underlay, **O** Overlay/DCI, **A** Access(호스트), **W** 코어와 PE-CE 접속, **S** 스위치단(Branch, DC2), **M** 관리
 - 모든 QEMU 노드는 vCPU 1개로 시작하고, 불안정한 이미지만 2개로 올림
 - 벤더는 **Cisco, Arista, Aruba 3개**. Juniper(vQFX)는 이 환경에서 PFE 등록이 되지 않아 토폴로지에서 제외됨(문서 03의 멀티호밍 대응표에는 비교용으로만 남아 있음).
 - 라우터(c7200) 7대는 PE 3대(삼각형), Hub 2대, BGW 2대. 이중화와 부하 분산은 라우터 이중화와 스위치단(MLAG, VSX, EtherChannel)에서 처리
@@ -34,14 +34,16 @@
 | leaf1 | Et5 | A | Host A | eth0 |
 | leaf2 | Et5 | A | Host A | eth1 |
 | leaf3 | Et3-4 | U (MLAG peer-link) | leaf4 | Et3-4 |
-| leaf3 | Et5 | O (DCI, VRF TENANT-A) | PE1 | Gi2/0 |
 | leaf3 | Et6 | O (Hub1 연동, VRF TENANT-A) | Hub1 | Gi1/0 |
 | leaf3 | Et7 | A | Host B | eth0 |
-| leaf4 | Et5 | O (DCI, VRF TENANT-A) | PE1 | Gi3/0 |
+| leaf3 | Et8 | O (Hub2 연동, VRF TENANT-A) | Hub2 | Gi2/0 |
 | leaf4 | Et6 | O (Hub2 연동, VRF TENANT-A) | Hub2 | Gi1/0 |
 | leaf4 | Et7 | A | Host C | eth0 |
+| leaf4 | Et8 | O (Hub1 연동, VRF TENANT-A) | Hub1 | Gi2/0 |
 
-GNS3 어댑터 수(관리 포함): spine 5, leaf1/leaf2 6, leaf3/leaf4 8
+leaf3·4는 PE1에 직접 연결하지 않고 Hub 2대에 각각 연결함(교차 연결). leaf3·4가 VTEP을 공유하므로 Hub 한쪽 경로가 끊겨도 다른 Hub로 나갈 수 있어야 해서, 두 leaf 모두 Hub 2대에 연결함
+
+GNS3 어댑터 수(관리 포함): spine 5, leaf1/leaf2 6, leaf3/leaf4 9
 
 ## 2. Cisco
 
@@ -51,23 +53,21 @@ GNS3 어댑터 수(관리 포함): spine 5, leaf1/leaf2 6, leaf3/leaf4 8
 |---|---|---|---|---|
 | PE1 | Gi0/0 | W (코어) | PE2 | Gi0/0 |
 | PE1 | Gi1/0 | W (코어) | PE3 | Gi0/0 |
-| PE1 | Gi2/0 | O (DCI) | leaf3 (Arista) | Et5 |
-| PE1 | Gi3/0 | O (DCI) | leaf4 (Arista) | Et5 |
-| PE1 | Gi4/0 | W (WAN-UL) | Hub1 | Gi0/0 |
-| PE1 | Gi5/0 | W (WAN-UL) | Hub2 | Gi0/0 |
+| PE1 | Gi4/0 | O (PE-CE, VRF TENANT-A) | Hub1 | Gi0/0 |
+| PE1 | Gi5/0 | O (PE-CE, VRF TENANT-A) | Hub2 | Gi0/0 |
 | PE2 | Gi1/0 | W (코어) | PE3 | Gi1/0 |
-| PE2 | Gi2/0 | O (DCI) | CX1 (Aruba) | 1/1/1 |
-| PE2 | Gi3/0 | O (DCI) | CX2 (Aruba) | 1/1/1 |
-| PE3 | Gi2/0 | W (WAN-UL) | BGW1 | Gi0/0 |
-| PE3 | Gi3/0 | W (WAN-UL) | BGW2 | Gi0/0 |
+| PE2 | Gi2/0 | O (PE-CE, VRF PARTNER) | CX1 (Aruba) | 1/1/1 |
+| PE2 | Gi3/0 | O (PE-CE, VRF PARTNER) | CX2 (Aruba) | 1/1/1 |
+| PE3 | Gi2/0 (.100 서브인터페이스, VRF BR1) | O (PE-CE) | BGW1 | Gi0/0 (.100) |
+| PE3 | Gi3/0 (.100 서브인터페이스, VRF BR1) | O (PE-CE) | BGW2 | Gi0/0 (.100) |
 | Hub1 | Gi1/0 | O | leaf3 (Arista) | Et6 |
-| Hub1 | Tunnel0 | T | BGW1 | Tunnel0 (GRE over IPsec, 논리) |
+| Hub1 | Gi2/0 | O | leaf4 (Arista) | Et8 |
 | Hub2 | Gi1/0 | O | leaf4 (Arista) | Et6 |
-| Hub2 | Tunnel1 | T | BGW2 | Tunnel1 (GRE over IPsec, 논리) |
+| Hub2 | Gi2/0 | O | leaf3 (Arista) | Et8 |
 | BGW1 | Gi1/0 | S | DSW1 | Gi0/0 |
 | BGW2 | Gi1/0 | S | DSW2 | Gi0/0 |
 
-PE1, PE2, PE3는 서로 삼각형으로 연결되어 별도의 P 라우터 없이 코어 경로가 이중화됨. 관리 포트가 없는 c7200은 GNS3 콘솔(telnet)로 접속하고 관리망에는 연결하지 않음
+PE1 Gi2/0, Gi3/0은 사용하지 않음(비어 있음). PE1, PE2, PE3는 서로 삼각형으로 연결되어 별도의 P 라우터 없이 코어 경로가 이중화됨. 관리 포트가 없는 c7200은 GNS3 콘솔(telnet)로 접속하고 관리망에는 연결하지 않음
 
 ### 2-2. IOSv 스위치 (Branch 스위치단, 3대)
 
@@ -145,9 +145,9 @@ DSW1, DSW2의 Gi3/3은 관리 전용 VRF(MGMT)에 넣어 데이터 라우팅에 
 | DC1 MLAG peer-link | 4 (leaf1-2 쌍, leaf3-4 쌍 각 2) |
 | 호스트 연결 | 7 (A 2, B, C, D, F, G) |
 | 코어(PE 삼각형) | 3 |
-| DCI (PE-DC) | 4 (leaf3, leaf4, CX1, CX2) |
-| Hub 구간 | 4 (PE1-Hub1, PE1-Hub2, leaf3-Hub1, leaf4-Hub2) |
-| Branch WAN과 라우티드 업링크 | 4 (PE3-BGW1, PE3-BGW2, BGW1-DSW1, BGW2-DSW2) |
+| DCI (PE-DC) | 2 (PE2-CX1, PE2-CX2) |
+| Hub 구간 | 6 (PE1-Hub1, PE1-Hub2, leaf3-Hub1, leaf3-Hub2, leaf4-Hub1, leaf4-Hub2) |
+| Branch PE-CE와 라우티드 업링크 | 4 (PE3-BGW1, PE3-BGW2, BGW1-DSW1, BGW2-DSW2) |
 | Branch 스위치 | 6 (DSW 간 2, DSW1-ASW1 2, DSW2-ASW1 2) |
 | VSX ISL와 keepalive | 3 |
 | DC2 VSX LAG (CX3 연결) | 4 |

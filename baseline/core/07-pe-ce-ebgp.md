@@ -1,49 +1,38 @@
 # PE-CE eBGP
 
-PE가 DC와 Branch 쪽 장비와 경로를 교환하는 부분
+PE가 DC와 Branch 쪽 장비와 경로를 교환하는 부분. 모든 구역이 같은 방식(PE-CE eBGP)
 
 기준 문서: [00-overview](../../00-overview/README.md)
 
 선행 조건: [VRF](05-vrf.md), [MP-BGP VPNv4](06-mp-bgp-vpnv4.md)
 
-## TENANT-A (DC 연결)
+## PE-CE 접속
 
-| PE  | 상대    | 상대 AS | 링크                              | VRF      |
-| --- | ----- | ----- | ------------------------------- | -------- |
-| PE1 | leaf3 | 65100 | 10.0.20.0/31 (PE1 .0, leaf3 .1) | TENANT-A |
-| PE1 | leaf4 | 65100 | 10.0.20.2/31 (PE1 .2, leaf4 .3) | TENANT-A |
-| PE2 | CX1   | 65201 | 10.0.20.4/31 (PE2 .4, CX1 .5)   | TENANT-A |
-| PE2 | CX2   | 65201 | 10.0.20.6/31 (PE2 .6, CX2 .7)   | TENANT-A |
+| PE  | 상대   | 상대 AS | 링크                                     | VRF      |
+| --- | ---- | ----- | -------------------------------------- | -------- |
+| PE1 | Hub1 | 65010 | 10.0.30.0/31 (PE1 .0, Hub1 .1)         | TENANT-A |
+| PE1 | Hub2 | 65010 | 10.0.30.2/31 (PE1 .2, Hub2 .3)         | TENANT-A |
+| PE2 | CX1  | 65201 | 10.0.20.4/31 (PE2 .4, CX1 .5)          | PARTNER  |
+| PE2 | CX2  | 65201 | 10.0.20.6/31 (PE2 .6, CX2 .7)          | PARTNER  |
+| PE3 | BGW1 | 65020 | 10.0.60.0/31 (PE3 .0, BGW1 .1, `.100`) | BR1      |
+| PE3 | BGW2 | 65020 | 10.0.60.2/31 (PE3 .2, BGW2 .3, `.100`) | BR1      |
 
-## WAN-UL (IPsec 언더레이)
-
-| PE  | 상대   | 링크                             | VRF    | 방식                  |
-| --- | ---- | ------------------------------ | ------ | ------------------- |
-| PE1 | Hub1 | 10.0.30.0/31 (PE1 .0, Hub1 .1) | WAN-UL | 정적 (Hub 쪽 고정 경로)    |
-| PE1 | Hub2 | 10.0.30.2/31 (PE1 .2, Hub2 .3) | WAN-UL | 정적 (Hub 쪽 고정 경로)    |
-| PE3 | BGW1 | 10.0.30.4/31 (PE3 .4, BGW1 .5) | WAN-UL | eBGP (BGW AS 65020) |
-| PE3 | BGW2 | 10.0.30.6/31 (PE3 .6, BGW2 .7) | WAN-UL | eBGP (BGW AS 65020) |
-
-- WAN-UL은 Hub와 BGW 사이 터널의 출발지와 목적지 주소가 서로 도달되게 하는 용도
-
-### 방식을 구역별로 나눈 이유
-
-- 광고할 경로가 터널 양끝 주소(10.0.30.x) 몇 개뿐이라 동적 프로토콜이 꼭 필요하지 않음
-- Hub 쪽은 기존 구성을 유지하고 BGP가 늘지 않도록 **정적**. BGW 쪽은 다른 PE-CE와 같은 형식으로 통일하고 링크 장애를 BGP 타이머로 감지하도록 **eBGP**
-- 한 링크에는 한 방식만 사용. 같은 경로를 정적과 eBGP로 동시에 받으면 관리 거리(정적 1, eBGP 20) 때문에 BGP 경로가 라우팅 테이블에 들어가지 못함
+- DC1은 leaf3·4가 Hub 2대에 모두 연결되어 있고(교차 연결), Hub가 PE1과 eBGP를 맺음. leaf3·4와 Hub 사이도 eBGP ([DC1 Hub eBGP](../dc1/06-dci-hub-ebgp.md))
+- Branch는 BGW가 고객사 망 끝단(CE)이고, PE3와 BGW 사이는 물리 포트 하나에 dot1q 100 서브인터페이스를 만들어 VRF BR1에 넣음
+- PE1은 Hub 2대, PE2는 CX 2대, PE3는 BGW 2대와 각각 `maximum-paths 2`로 ECMP
 
 ### 경로 흐름
 
 | 구간 | 동작 |
 |---|---|
-| PE1 | 직결 링크(10.0.30.0/31, 10.0.30.2/31)를 VRF WAN-UL에서 `redistribute connected`로 VPNv4에 실음. Hub 쪽 추가 설정 없음 |
-| Hub1, Hub2 | BGW 터널 주소로 가는 정적 경로: Hub1은 10.0.30.5/32를 next-hop 10.0.30.0으로, Hub2는 10.0.30.7/32를 next-hop 10.0.30.2로 |
-| PE3 | 직결 링크(10.0.30.4/31, 10.0.30.6/31)를 `redistribute connected`로 VPNv4에 실음. BGW에는 eBGP로 PE1 쪽 경로(10.0.30.0/31, 10.0.30.2/31)를 전달 |
-| BGW1, BGW2 | PE3와 eBGP(AS 65000). PE3에서 받은 경로로 Hub 터널 주소(10.0.30.1, 10.0.30.3)에 도달. 광고할 경로 없음 |
+| DC1 -> 코어 | leaf3·4가 TENANT-A 경로(192.168.10.0/24, 192.168.20.0/24 등)를 Hub에 광고하고, Hub가 PE1에 전달. PE1이 VPNv4(RT 65000:1)로 PE2, PE3에 실음 |
+| DC2 -> 코어 | CX1·2가 192.168.110.0/24를 PE2에 광고. PE2가 VPNv4(RT 65000:2)로 실음 |
+| Branch -> 코어 | BGW가 192.168.50.0/24, 192.168.60.0/24만 PE3에 광고. PE3가 VPNv4(RT 65000:3)로 실음 |
+| 코어 -> Branch | PE3 VRF BR1이 RT 65000:1, 65000:2를 import해서 DC1과 DC2 경로를 BGW에 전달. BGW는 `prefix-list PARTNER-TO-BR in`으로 192.168.10.0/24, 192.168.20.0/24, 192.168.110.0/24만 받음 |
+| 코어 -> DC1, DC2 | PE1 VRF TENANT-A와 PE2 VRF PARTNER가 RT 65000:3(BR1)을 import해서 Branch 경로를 받음. DC1과 DC2는 서로 import하지 않음 |
 
 ### 주의
 
-- 터널 위 eBGP(Hub와 BGW)로는 10.0.30.0/24를 **광고하지 않음**. 터널 목적지가 터널 안에서 학습되면 재귀 경로로 터널이 내려감. 오버레이에는 TENANT-A와 Branch LAN 경로만 광고
-- BGW는 PE3에서 받은 AS 65000 경로와 Hub와의 터널 위 AS 65010 경로를 같은 BGP 프로세스(AS 65020)에서 처리. 이웃 주소가 서로 달라 충돌하지 않음
-
+- BGW가 자기 대역만 광고하므로 BR1을 거쳐 DC1과 DC2가 서로 통신하는 경로(transit)가 생기지 않음
+- CX 쪽 VRF 이름은 장비 로컬 이름이라 `TENANT-A`로 남아 있어도 PE2의 `PARTNER`와 달라도 동작에 영향 없음
 - BGP 타이머는 DC1과 같은 **keepalive 3초, hold 9초**(`timers 3 9`)로 통일함(기본 60초, 180초). PE와 CE 양쪽에 같은 값을 줌

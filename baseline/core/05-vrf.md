@@ -1,15 +1,19 @@
 # VRF
 
-고객(DC 테넌트, WAN 언더레이)별로 라우팅 테이블을 분리하는 단계. 코어 OSPF와 LDP는 global 테이블에서만 동작
+고객(DC1, DC2, Branch)별로 라우팅 테이블을 분리하는 단계. 코어 OSPF와 LDP는 global 테이블에서만 동작
 
 기준 문서: [00-overview](../../00-overview/README.md)
 
 ## VRF 정의
 
-| VRF      | 용도                             | RD       | RT                     | 정의하는 장비  |
-| -------- | ------------------------------ | -------- | ---------------------- | -------- |
-| TENANT-A | DC 테넌트 (DC1, DC2)              | 65000:1  | import/export 65000:1  | PE1, PE2 |
-| WAN-UL   | IPsec 터널 언더레이 (Hub와 BGW 간 도달성) | 65000:99 | import/export 65000:99 | PE1, PE3 |
+| VRF      | 용도     | RD      | RT export | RT import                 | 정의하는 장비 |
+| -------- | ------ | ------- | --------- | ------------------------- | ------- |
+| TENANT-A | DC1    | 65000:1 | 65000:1   | 65000:1, 65000:3          | PE1     |
+| PARTNER  | DC2    | 65000:2 | 65000:2   | 65000:2, 65000:3          | PE2     |
+| BR1      | Branch | 65000:3 | 65000:3   | 65000:1, 65000:2, 65000:3 | PE3     |
+
+- DC1(TENANT-A)과 DC2(PARTNER)는 서로의 RT를 import하지 않아 경로가 섞이지 않음. BR1만 양쪽을 import해서 Branch가 DC1, DC2와 통신
+- DC1과 DC2는 물리적으로 분리되지 않고 VRF와 RT, BGW의 prefix-list로 논리적으로 분리됨 ([PE3 - BGW eBGP](../br/07-pe3-bgw-ebgp.md))
 
 - RD: PE마다 같은 VRF의 경로를 구분하는 값. VPNv4 주소에 붙음
 - RT: 어느 VRF가 경로를 가져가고 내보낼지 정하는 값. 같은 VRF끼리 같은 값
@@ -20,10 +24,9 @@
 
 | 장비      | 인터페이스                   | VRF             | 상대           |
 | ------- | ----------------------- | --------------- | ------------ |
-| PE1     | Gi2/0, Gi3/0            | TENANT-A        | leaf3, leaf4 |
-| PE1     | Gi4/0, Gi5/0            | WAN-UL          | Hub1, Hub2   |
-| PE2     | Gi2/0, Gi3/0            | TENANT-A        | CX1, CX2     |
-| PE3     | Gi2/0, Gi3/0            | WAN-UL          | BGW1, BGW2   |
+| PE1     | Gi4/0, Gi5/0            | TENANT-A        | Hub1, Hub2   |
+| PE2     | Gi2/0, Gi3/0            | PARTNER         | CX1, CX2     |
+| PE3     | Gi2/0.100, Gi3/0.100    | BR1             | BGW1, BGW2   |
 | PE1~PE3 | Gi0/0, Gi1/0, loopback0 | global (VRF 없음) | 코어           |
 
 ## 작성 규칙

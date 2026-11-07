@@ -9,10 +9,10 @@
 | 관리망 | 192.168.100.0/24 |
 | 코어 루프백 | 10.0.0.0/24 |
 | 코어 링크 (PE 삼각형) | 10.0.10.0/24 |
-| DCI 링크 (PE-DC, VRF TENANT-A) | 10.0.20.0/24 |
-| WAN 언더레이 링크 (VRF WAN-UL) | 10.0.30.0/24 |
-| Hub-leaf 연동 링크 | 10.0.31.0/24 |
-| GRE 터널 | 10.0.40.0/24 |
+| DC2 PE-CE 링크 (PE2-CX, VRF PARTNER) | 10.0.20.0/24 (10.0.20.4~7만 사용) |
+| PE1-Hub 링크 (VRF TENANT-A) | 10.0.30.0/24 (10.0.30.0~3만 사용) |
+| Hub-leaf 연동 링크 | 10.0.31.0/24, 10.0.32.0/24 |
+| Branch PE-CE 링크 (PE3-BGW, VRF BR1) | 10.0.60.0/24 |
 | Branch 라우티드 링크 | 10.50.0.0/24 |
 | DC1 루프백 / VTEP / 링크 / MLAG | 10.1.0.0/24 / 10.1.1.0/24 / 10.1.10.0/24 / 10.1.254.0/24 |
 | DC2 루프백 / VSX keepalive | 10.2.0.0/24 / 10.2.254.0/24 (10.2.1.0/24 VTEP과 10.2.10.0/24 링크는 현재 미사용) |
@@ -25,10 +25,10 @@
 | 도메인 | AS | 구성 |
 |---|---|---|
 | MPLS 코어 | 65000 | OSPF + LDP. PE1~PE3 iBGP VPNv4(full mesh), PE-CE는 eBGP |
-| DC1 (spine1, spine2, leaf1~4) | 65100 | OSPF underlay + iBGP EVPN(루프백 간). spine1·2가 Route Reflector, leaf는 client. leaf3·4는 PE, Hub와 eBGP |
+| DC1 (spine1, spine2, leaf1~4) | 65100 | OSPF underlay + iBGP EVPN(루프백 간). spine1·2가 Route Reflector, leaf는 client. leaf3·4는 border leaf로 Hub 2대와 eBGP |
 | DC2 VSX 쌍 (CX1, CX2) | 65201 | 같은 AS, PE2와 eBGP. CX3(access)은 L2 전용이라 AS 없음 |
-| Hub1, Hub2 | 65010 | leaf3/leaf4와 eBGP, BGW와 터널 위 eBGP |
-| BGW1, BGW2 | 65020 | Hub와 터널 위 eBGP, Branch 내부는 OSPF |
+| Hub1, Hub2 | 65010 | leaf3·4와 eBGP, PE1과 eBGP(PE-CE) |
+| BGW1, BGW2 | 65020 | 고객사 망 끝단(CE). PE3와 eBGP, Branch 내부는 OSPF |
 
 DC1은 OSPF underlay로 구성. DC2는 VSX 쌍이 단일 VTEP이라 EVPN 대상이 없으므로 VSX LAG, active gateway, eBGP 연동을 시연하고, EVPN-VXLAN은 DC1(Arista)에서 시연
 
@@ -67,7 +67,7 @@ OSPF router-id는 `loopback0` 주소를 쓰고, **BGP router-id는 별도 대역
 | DC1 | spine1, spine2 | 10.1.0.1, 10.1.0.2 | **10.1.2.1, 10.1.2.2** | iBGP Route Reflector |
 | DC1 | leaf1 ~ leaf4 | 10.1.0.11 ~ 10.1.0.14 | **10.1.2.11 ~ 10.1.2.14** | EVPN RD 접두 |
 | 코어 | PE1 ~ PE3 | 10.0.0.11 ~ 10.0.0.13 | **10.0.1.11 ~ 10.0.1.13** | LDP router-id는 loopback0 |
-| WAN | Hub1, Hub2 | (OSPF 없음) | **10.0.1.21, 10.0.1.22** | 터널 위 eBGP |
+| DC1 외부 연결 | Hub1, Hub2 | (OSPF 없음) | **10.0.1.21, 10.0.1.22** | leaf3·4, PE1과 eBGP |
 | Branch | BGW1, BGW2 | 10.0.0.31, 10.0.0.32 | **10.0.1.31, 10.0.1.32** | |
 | Branch | DSW1, DSW2 | 10.0.0.41, 10.0.0.42 | (BGP 없음) | |
 | DC2 | CX1, CX2 | (OSPF 없음) | **10.2.2.1, 10.2.2.2** | PE2와 eBGP |
@@ -98,34 +98,35 @@ OSPF router-id는 `loopback0` 주소를 쓰고, **BGP router-id는 별도 대역
 | PE1 - PE3 | 10.0.10.2/31 | PE1 .2 | PE3 .3 |
 | PE2 - PE3 | 10.0.10.4/31 | PE2 .4 | PE3 .5 |
 
-**DCI (PE 측은 VRF TENANT-A)**
+**DC2 PE-CE (PE 측은 VRF PARTNER)**
 
 | 링크 | 서브넷 | PE측 | DC측 |
 |---|---|---|---|
-| PE1 - leaf3 | 10.0.20.0/31 | .0 | .1 |
-| PE1 - leaf4 | 10.0.20.2/31 | .2 | .3 |
 | PE2 - CX1 | 10.0.20.4/31 | .4 | .5 |
 | PE2 - CX2 | 10.0.20.6/31 | .6 | .7 |
 
-**WAN 언더레이 (VRF WAN-UL)와 터널**
+**DC1 PE-CE (PE1 측은 VRF TENANT-A)**
 
 | 링크 | 서브넷 | A측 | B측 |
 |---|---|---|---|
-| PE1 - Hub1 | 10.0.30.0/31 | PE1 .0 | Hub1 .1 |
-| PE1 - Hub2 | 10.0.30.2/31 | PE1 .2 | Hub2 .3 |
-| PE3 - BGW1 | 10.0.30.4/31 | PE3 .4 | BGW1 .5 |
-| PE3 - BGW2 | 10.0.30.6/31 | PE3 .6 | BGW2 .7 |
-| Tunnel0 (Hub1 - BGW1) | 10.0.40.0/31 | Hub1 .0 | BGW1 .1 |
-| Tunnel1 (Hub2 - BGW2) | 10.0.40.2/31 | Hub2 .2 | BGW2 .3 |
+| PE1 Gi4/0 - Hub1 Gi0/0 | 10.0.30.0/31 | PE1 .0 | Hub1 .1 |
+| PE1 Gi5/0 - Hub2 Gi0/0 | 10.0.30.2/31 | PE1 .2 | Hub2 .3 |
 
-터널 source와 destination은 Tunnel0이 `10.0.30.1` ↔ `10.0.30.5`, Tunnel1이 `10.0.30.3` ↔ `10.0.30.7`
+**Branch PE-CE (PE 측은 VRF BR1, .100 서브인터페이스, dot1q 100)**
 
-**Hub 내부 연동 (VRF TENANT-A, leaf 측)**
+| 링크 | 서브넷 | PE측 | BGW측 |
+|---|---|---|---|
+| PE3 Gi2/0.100 - BGW1 Gi0/0.100 | 10.0.60.0/31 | .0 | .1 |
+| PE3 Gi3/0.100 - BGW2 Gi0/0.100 | 10.0.60.2/31 | .2 | .3 |
+
+**Hub 연동 (leaf 측은 VRF TENANT-A, 교차 연결)**
 
 | 링크 | 서브넷 | leaf측 | Hub측 |
 |---|---|---|---|
-| leaf3 - Hub1 | 10.0.31.0/31 | .0 | .1 |
-| leaf4 - Hub2 | 10.0.31.2/31 | .2 | .3 |
+| leaf3 Et6 - Hub1 Gi1/0 | 10.0.31.0/31 | .0 | .1 |
+| leaf4 Et6 - Hub2 Gi1/0 | 10.0.31.2/31 | .2 | .3 |
+| leaf3 Et8 - Hub2 Gi2/0 | 10.0.32.0/31 | .0 | .1 |
+| leaf4 Et8 - Hub1 Gi2/0 | 10.0.32.2/31 | .2 | .3 |
 
 **Branch 라우티드 링크 (OSPF area 0)**
 
@@ -150,7 +151,7 @@ OSPF router-id는 `loopback0` 주소를 쓰고, **BGP router-id는 별도 대역
 | Branch | 50 | - | 192.168.50.0/24 | VRRP VIP .1 (DSW1 .2, DSW2 .3) | Host F .101 |
 | Branch | 60 | - | 192.168.60.0/24 | VRRP VIP .1 (DSW1 .2, DSW2 .3) | Host G .101 |
 
-- VRF 이름: **TENANT-A** (DC1, DC2, PE 공통). L3VNI는 **50001**
+- VRF 이름: DC1 **TENANT-A**(PE1), DC2 **PARTNER**(PE2), Branch **BR1**(PE3). L3VNI는 **50001**(DC1)
 - anycast gateway virtual MAC: `00:1c:73:00:00:99` (Arista)
 - VRRP: VLAN 50은 DSW1이 master, VLAN 60은 DSW2가 master (부하 분산)
 
@@ -158,20 +159,15 @@ OSPF router-id는 `loopback0` 주소를 쓰고, **BGP router-id는 별도 대역
 
 | 용도 | RD | RT |
 |---|---|---|
-| MPLS L3VPN TENANT-A (PE) | 65000:1 | import/export 65000:1 |
-| MPLS L3VPN WAN-UL (PE1, PE3) | 65000:99 | import/export 65000:99 |
+| MPLS L3VPN TENANT-A (PE1, DC1) | 65000:1 | export 65000:1, import 65000:1·65000:3 |
+| MPLS L3VPN PARTNER (PE2, DC2) | 65000:2 | export 65000:2, import 65000:2·65000:3 |
+| MPLS L3VPN BR1 (PE3, Branch) | 65000:3 | export 65000:3, import 65000:1·65000:2·65000:3 |
 | EVPN L2VNI VLAN 10 (DC1) | `<BGP router-id>:10010` | 10010:10010 |
 | EVPN L2VNI VLAN 20 (DC1) | `<BGP router-id>:10020` | 10020:10020 |
 | EVPN L3VNI TENANT-A (DC1) | `<BGP router-id>:50001` | 50001:50001 |
 
-## 6. IPsec 파라미터 (설계값)
+## 6. DC1과 DC2의 논리적 분리
 
-| 항목 | 값 |
-|---|---|
-| IKE | IKEv1 (ISAKMP). c7200 이미지에 IKEv2가 없음 |
-| 암호화 / 해시 / DH | AES-256 / SHA-1 (이 c7200 이미지의 ISAKMP는 sha256 미지원) / group 14 |
-| IPsec 모드 | GRE를 보호하는 transport 모드 |
-| 인증 | 사전 공유 키 (터널마다 1개, 실습 랩 전용 값은 [IPsec 키 관리](../baseline/br/08-ipsec-keys.md)) |
-| 터널 | Tunnel0(Hub1-BGW1), Tunnel1(Hub2-BGW2). 터널 위 eBGP, ECMP |
+DC1(TENANT-A)과 DC2(PARTNER)는 서로의 RT를 import하지 않아 경로가 섞이지 않음. BR1 VRF만 양쪽을 import해 Branch가 두 DC와 통신. BGW는 자기 대역(192.168.50.0/24, 192.168.60.0/24)만 PE3로 내보내서 BR1을 거쳐 DC1과 DC2가 서로 통신하지 않게 함. 물리 분리가 아니라 VRF와 RT, BGW prefix-list로 하는 논리적 분리
 
 이중화와 부하 분산 설계: [03-protocol-matrix.md](03-protocol-matrix.md) 3번 표

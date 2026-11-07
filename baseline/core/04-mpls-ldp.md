@@ -38,7 +38,7 @@ PHP(penultimate hop popping): 마지막 전 홉이 바깥 레이블을 먼저 �
 
 - LDP 이웃은 OSPF가 loopback0 경로를 배운 뒤에 맺어짐. OSPF가 FULL이 아니면 LDP도 올라오지 않음
 - c7200 이미지 IOS 12.4(24)T5는 MPLS와 LDP를 지원(확인됨)
-- 링크 MTU 1500에 레이블 4바이트씩 붙음. 이 랩의 호스트 트래픽은 작아서 문제없지만 IPsec 터널 구간 MTU는 [Branch 기준 문서](../br/09-ipsec-gre.md)에서 따로 다룸
+- 링크 MTU 1500에 레이블 4바이트씩 붙음. 이 랩의 호스트 트래픽은 작아서 문제없음. PE1 - PE3 직결 링크는 PHP로 VPN 레이블 1개만 붙음
 
 ## 다음 단계
 

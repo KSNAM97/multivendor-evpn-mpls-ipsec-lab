@@ -80,9 +80,9 @@ spine, Cisco 장비, CX에는 Loopback1이 없음(VXLAN이 없음).
 | Et2 | spine-leaf | 10.1.10.13/31 | spine2 Et3 (.12) | OSPF |
 | Et3-4 (Po1) | MLAG peer-link | (L2) | leaf4 Et3-4 | |
 | Vlan4094 | MLAG 제어 | 10.1.254.2/31 | leaf4 Vlan4094 (.3) | domain **MLAG2** |
-| Et5 | DCI | 10.0.20.1/31 | PE1 Gi2/0 (.0) | VRF TENANT-A |
 | Et6 | Hub1 연동 | 10.0.31.0/31 | Hub1 Gi1/0 (.1) | VRF TENANT-A |
 | Et7 | Host B | (L2, VLAN 10) | Host B eth0 | access 포트 |
+| Et8 | Hub2 연동 | 10.0.32.0/31 | Hub2 Gi2/0 (.1) | VRF TENANT-A |
 | Vlan10 | anycast gateway | 192.168.10.1/24 | - | **공유** |
 | Vlan20 | anycast gateway | 192.168.20.1/24 | - | **공유** (leaf3, leaf4) |
 
@@ -97,9 +97,9 @@ spine, Cisco 장비, CX에는 Loopback1이 없음(VXLAN이 없음).
 | Et2 | spine-leaf | 10.1.10.15/31 | spine2 Et4 (.14) | OSPF |
 | Et3-4 (Po1) | MLAG peer-link | (L2) | leaf3 Et3-4 | |
 | Vlan4094 | MLAG 제어 | 10.1.254.3/31 | leaf3 Vlan4094 (.2) | |
-| Et5 | DCI | 10.0.20.3/31 | PE1 Gi3/0 (.2) | VRF TENANT-A |
 | Et6 | Hub2 연동 | 10.0.31.2/31 | Hub2 Gi1/0 (.3) | VRF TENANT-A |
 | Et7 | Host C | (L2, VLAN 20) | Host C eth0 | access 포트 |
+| Et8 | Hub1 연동 | 10.0.32.2/31 | Hub1 Gi2/0 (.3) | VRF TENANT-A |
 | Vlan10 | anycast gateway | 192.168.10.1/24 | - | **공유** |
 | Vlan20 | anycast gateway | 192.168.20.1/24 | - | **공유** |
 
@@ -111,10 +111,8 @@ spine, Cisco 장비, CX에는 Loopback1이 없음(VXLAN이 없음).
 |---|---|---|---|---|
 | Gi0/0 | 코어 | 10.0.10.0/31 | PE2 Gi0/0 (.1) | global |
 | Gi1/0 | 코어 | 10.0.10.2/31 | PE3 Gi0/0 (.3) | global |
-| Gi2/0 | DCI | 10.0.20.0/31 | leaf3 Et5 (.1) | TENANT-A |
-| Gi3/0 | DCI | 10.0.20.2/31 | leaf4 Et5 (.3) | TENANT-A |
-| Gi4/0 | WAN 언더레이 | 10.0.30.0/31 | Hub1 Gi0/0 (.1) | WAN-UL |
-| Gi5/0 | WAN 언더레이 | 10.0.30.2/31 | Hub2 Gi0/0 (.3) | WAN-UL |
+| Gi4/0 | PE-CE | 10.0.30.0/31 | Hub1 Gi0/0 (.1) | TENANT-A |
+| Gi5/0 | PE-CE | 10.0.30.2/31 | Hub2 Gi0/0 (.3) | TENANT-A |
 
 ### PE2 (Loopback0 10.0.0.12/32)
 
@@ -122,8 +120,8 @@ spine, Cisco 장비, CX에는 Loopback1이 없음(VXLAN이 없음).
 |---|---|---|---|---|
 | Gi0/0 | 코어 | 10.0.10.1/31 | PE1 Gi0/0 (.0) | global |
 | Gi1/0 | 코어 | 10.0.10.4/31 | PE3 Gi1/0 (.5) | global |
-| Gi2/0 | DCI | 10.0.20.4/31 | CX1 1/1/1 (.5) | TENANT-A |
-| Gi3/0 | DCI | 10.0.20.6/31 | CX2 1/1/1 (.7) | TENANT-A |
+| Gi2/0 | PE-CE | 10.0.20.4/31 | CX1 1/1/1 (.5) | PARTNER |
+| Gi3/0 | PE-CE | 10.0.20.6/31 | CX2 1/1/1 (.7) | PARTNER |
 
 ### PE3 (Loopback0 10.0.0.13/32)
 
@@ -131,36 +129,34 @@ spine, Cisco 장비, CX에는 Loopback1이 없음(VXLAN이 없음).
 |---|---|---|---|---|
 | Gi0/0 | 코어 | 10.0.10.3/31 | PE1 Gi1/0 (.2) | global |
 | Gi1/0 | 코어 | 10.0.10.5/31 | PE2 Gi1/0 (.4) | global |
-| Gi2/0 | WAN 언더레이 | 10.0.30.4/31 | BGW1 Gi0/0 (.5) | WAN-UL |
-| Gi3/0 | WAN 언더레이 | 10.0.30.6/31 | BGW2 Gi0/0 (.7) | WAN-UL |
+| Gi2/0.100 (dot1q 100) | PE-CE | 10.0.60.0/31 | BGW1 Gi0/0.100 (.1) | BR1 |
+| Gi3/0.100 (dot1q 100) | PE-CE | 10.0.60.2/31 | BGW2 Gi0/0.100 (.3) | BR1 |
 
-## 3. WAN 출구와 Branch
+## 3. Hub와 Branch
 
-### Hub1, Hub2 (DC1 쪽 IPsec 장비, AS 65010)
+### Hub1, Hub2 (DC1 외부 연결, AS 65010)
 
-| 장비   | 인터페이스     | 역할             | IP                                              | 상대                |
-| ---- | --------- | -------------- | ----------------------------------------------- | ----------------- |
-| Hub1 | Loopback0 | router-id      | 10.0.0.21/32                                    | -                 |
-| Hub1 | Gi0/0     | WAN 언더레이       | 10.0.30.1/31                                    | PE1 Gi4/0 (.0)    |
-| Hub1 | Gi1/0     | leaf 연동        | 10.0.31.1/31                                    | leaf3 Et6 (.0)    |
-| Hub1 | Tunnel0   | GRE over IPsec | 10.0.40.0/31 (source 10.0.30.1, dest 10.0.30.5) | BGW1 Tunnel0 (.1) |
-| Hub2 | Loopback0 | router-id      | 10.0.0.22/32                                    | -                 |
-| Hub2 | Gi0/0     | WAN 언더레이       | 10.0.30.3/31                                    | PE1 Gi5/0 (.2)    |
-| Hub2 | Gi1/0     | leaf 연동        | 10.0.31.3/31                                    | leaf4 Et6 (.2)    |
-| Hub2 | Tunnel1   | GRE over IPsec | 10.0.40.2/31 (source 10.0.30.3, dest 10.0.30.7) | BGW2 Tunnel1 (.3) |
+| 장비 | 인터페이스 | 역할 | IP | 상대 |
+|---|---|---|---|---|
+| Hub1 | Loopback0 | router-id | 10.0.0.21/32 | - |
+| Hub1 | Gi0/0 | PE-CE | 10.0.30.1/31 | PE1 Gi4/0 (.0) |
+| Hub1 | Gi1/0 | leaf 연동 | 10.0.31.1/31 | leaf3 Et6 (.0) |
+| Hub1 | Gi2/0 | leaf 연동 | 10.0.32.3/31 | leaf4 Et8 (.2) |
+| Hub2 | Loopback0 | router-id | 10.0.0.22/32 | - |
+| Hub2 | Gi0/0 | PE-CE | 10.0.30.3/31 | PE1 Gi5/0 (.2) |
+| Hub2 | Gi1/0 | leaf 연동 | 10.0.31.3/31 | leaf4 Et6 (.2) |
+| Hub2 | Gi2/0 | leaf 연동 | 10.0.32.1/31 | leaf3 Et8 (.0) |
 
-### BGW1, BGW2 (Branch WAN 출구, AS 65020)
+### BGW1, BGW2 (Branch 고객사 망 끝단, AS 65020)
 
 | 장비 | 인터페이스 | 역할 | IP | 상대 |
 |---|---|---|---|---|
 | BGW1 | Loopback0 | router-id | 10.0.0.31/32 | - |
-| BGW1 | Gi0/0 | WAN 언더레이 | 10.0.30.5/31 | PE3 Gi2/0 (.4) |
+| BGW1 | Gi0/0.100 (dot1q 100) | PE-CE | 10.0.60.1/31 | PE3 Gi2/0.100 (.0) |
 | BGW1 | Gi1/0 | Branch 연동 | 10.50.0.0/31 | DSW1 Gi0/0 (.1) |
-| BGW1 | Tunnel0 | GRE over IPsec | 10.0.40.1/31 (source 10.0.30.5, dest 10.0.30.1) | Hub1 Tunnel0 (.0) |
 | BGW2 | Loopback0 | router-id | 10.0.0.32/32 | - |
-| BGW2 | Gi0/0 | WAN 언더레이 | 10.0.30.7/31 | PE3 Gi3/0 (.6) |
+| BGW2 | Gi0/0.100 (dot1q 100) | PE-CE | 10.0.60.3/31 | PE3 Gi3/0.100 (.2) |
 | BGW2 | Gi1/0 | Branch 연동 | 10.50.0.2/31 | DSW2 Gi0/0 (.3) |
-| BGW2 | Tunnel1 | GRE over IPsec | 10.0.40.3/31 (source 10.0.30.7, dest 10.0.30.3) | Hub2 Tunnel1 (.2) |
 
 ### DSW1, DSW2, ASW1 (Branch 스위치)
 
@@ -190,7 +186,7 @@ spine, Cisco 장비, CX에는 Loopback1이 없음(VXLAN이 없음).
 |---|---|---|---|---|---|
 | CX1 | mgmt | 관리 | 192.168.100.41/24 | MGMT-SW Et7 | |
 | CX1 | Loopback0 | router-id | 10.2.0.1/32 | - | |
-| CX1 | 1/1/1 | DCI | 10.0.20.5/31 | PE2 Gi2/0 (.4) | VRF TENANT-A |
+| CX1 | 1/1/1 | PE-CE | 10.0.20.5/31 | PE2 Gi2/0 (.4) | VRF TENANT-A (CX 로컬 이름, PE2는 PARTNER) |
 | CX1 | lag 256 (1/1/2-3) | VSX ISL | (L2) | CX2 lag 256 | |
 | CX1 | 1/1/4 | VSX keepalive | 10.2.254.0/31 | CX2 1/1/4 (.1) | VRF KEEPALIVE |
 | CX1 | lag 10 (1/1/5-6) | CX3 연결 | (L2 trunk, VLAN 110) | CX3 lag 10 | multi-chassis |
@@ -198,7 +194,7 @@ spine, Cisco 장비, CX에는 Loopback1이 없음(VXLAN이 없음).
 | CX1 | 1/1/7 | Host D 연결 | (L2, VLAN 110 access) | Host D eth1 | CX3 경유가 이미지 한계로 안 되어 직접 연결 |
 | CX2 | mgmt | 관리 | 192.168.100.42/24 | MGMT-SW Et8 | |
 | CX2 | Loopback0 | router-id | 10.2.0.2/32 | - | |
-| CX2 | 1/1/1 | DCI | 10.0.20.7/31 | PE2 Gi3/0 (.6) | VRF TENANT-A |
+| CX2 | 1/1/1 | PE-CE | 10.0.20.7/31 | PE2 Gi3/0 (.6) | VRF TENANT-A (CX 로컬 이름, PE2는 PARTNER) |
 | CX2 | lag 256 (1/1/2-3) | VSX ISL | (L2) | CX1 lag 256 | |
 | CX2 | 1/1/4 | VSX keepalive | 10.2.254.1/31 | CX1 1/1/4 (.0) | VRF KEEPALIVE |
 | CX2 | lag 10 (1/1/5-6) | CX3 연결 | (L2 trunk, VLAN 110) | CX3 lag 10 | multi-chassis |

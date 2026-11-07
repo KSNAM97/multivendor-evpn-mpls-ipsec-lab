@@ -28,7 +28,7 @@ PE 3대가 삼각형으로 연결된 MPLS 코어의 IGP. 루프백(LDP, iBGP 출
 | PE3 | `loopback 0` | 같음 | **passive** |
 | PE3 | `gigabitethernet 0/0`, `gigabitethernet 1/0` | PE1, PE2 링크 | 아니오 |
 
-**OSPF에 넣지 않는 인터페이스**: PE1의 `gigabitethernet 2/0`, `3/0`(DC1 leaf, VRF TENANT-A), `4/0`, `5/0`(Hub, VRF WAN-UL), PE2의 `2/0`, `3/0`(CX1·2, VRF TENANT-A), PE3의 `2/0`, `3/0`(BGW, VRF WAN-UL). 고객과 WAN 쪽 링크는 VRF 안에 있고 코어 OSPF에 광고하지 않음
+**OSPF에 넣지 않는 인터페이스**: PE1의 `gigabitethernet 4/0`, `5/0`(Hub, VRF TENANT-A), PE2의 `2/0`, `3/0`(CX1·2, VRF PARTNER), PE3의 `2/0.100`, `3/0.100`(BGW, VRF BR1). 고객 쪽 링크는 VRF 안에 있고 코어 OSPF에 광고하지 않음
 
 ## 루프백과 링크
 

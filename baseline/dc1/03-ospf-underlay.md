@@ -48,7 +48,7 @@ VTEP과 BGP 루프백의 도달성을 만드는 underlay
 | `vlan10`, `vlan20` (SVI) | 테넌트 경로는 EVPN으로 전달 (VRF TENANT-A) |
 | `vlan4094` | MLAG 제어 전용. 필요 시 우회 경로용으로 추가 검토 |
 | `port-channel1`, `ethernet3`, `ethernet4` | MLAG 피어 링크 (L2) |
-| leaf3, leaf4의 `ethernet5`, `ethernet6` | DCI, Hub 링크 (VRF TENANT-A, 이후 단계에서 eBGP) |
+| leaf3, leaf4의 `ethernet6`, `ethernet8` | Hub 링크 (VRF TENANT-A, 이후 단계에서 eBGP) |
 | `ethernet5`, `ethernet7` (호스트 포트) | L2 access |
 
 passive 인터페이스는 OSPF 광고는 되지만 hello를 보내지 않아서 이웃이 맺어지지 않음. 루프백은 이웃이 없으므로 passive로 두는 것이 맞음

@@ -39,7 +39,7 @@
 2. 노드를 켤 때 2~3개씩 켜고, GNS3 VM에서 `watch -n 2 free -m`으로 `available`이 **2GB 아래로 내려가지 않게** 봄
 3. 장비 이름(hostname)은 GNS3 노드 이름과 같게 함
 4. 설정이 끝나면 `write memory`로 저장하고, 설정을 `configs/` 폴더의 해당 파일에 보관
-5. **계정, enable 비밀번호와 IPsec 사전 공유 키는 공개된 실습 랩 전용 값.** 실제 환경에 재사용하지 않음. 키 목록은 [키 관리](../baseline/br/08-ipsec-keys.md)
+5. **계정, enable 비밀번호는 공개된 실습 랩 전용 값.** 실제 환경에 재사용하지 않음
 
 ## 문서 사용법
 

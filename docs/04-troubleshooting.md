@@ -12,8 +12,9 @@
 | 설정 | AOS-CX VRF의 BGP router-id가 SVI 주소로 선택됨 | `vrf` 하위에 router-id 지정 |
 | 설정 | IOSv 포트채널 멤버의 trunk 설정이 서로 달라 묶이지 않음 | `switchport trunk encapsulation dot1q` 포함 같은 설정 |
 | 설정 | IOSvL3 물리 포트에 IP와 VRF를 줄 때 거부됨 | `no switchport`를 먼저 입력 |
-| 설계 | BGW BGP가 Branch LAN을 PE3로 광고 | `prefix-list NONE out`, network는 터널 단계에서 광고 |
-| 시험 | TCP 처리량이 터널 없는 구간에서도 끊김 | ping과 UDP 저속 전송으로 검증 |
+| 설계 | leaf3·4가 VTEP을 공유하는데 Hub 1대씩만 연결해 Hub 한쪽 경로가 끊기면 트래픽이 블랙홀 | leaf3·4를 Hub 2대에 모두 연결(교차 연결) |
+| 시험 | 가상 라우터(Dynamips)는 케이블 없이도 인터페이스가 up/up이고 상대가 링크 down을 바로 인식하지 못함 | 링크 장애 감지는 BGP hold 9초가 기준. 시험 결과에 감지 시간이 포함됨 |
+| 시험 | PE2 `Gi1/0`을 내린 채로 남겨 PE2 - PE3 경로가 PE1 경유로 보임(Wireshark 캡처에서 발견) | `no shutdown`으로 복구 후 OSPF FULL, VPNv4 이웃 확인 |
 | 시험 | 혼잡 시험 중 PE1-PE2 BGP가 22초 끊김 | NETCTRL 클래스 추가 |
 
 ## 사례 1: LACP rate fast
@@ -23,13 +24,13 @@
 - 조치: `lag256`과 `lag10`에서 `no lacp rate` 입력, 이후 안정
 - 상세: [VSX LAG 검증](../verification/dc2/04-vsx-lag.md)
 
-## 사례 2: TCP만 끊기고 ping과 UDP는 정상
+## 사례 2: leaf3·4가 Hub 한쪽에만 연결되면 블랙홀
 
-- 증상: iperf3 TCP가 1초 단위 0 Bytes 구간이 반복되고 재전송 109회. 연결 설정(SYN)은 정상
-- 배제한 원인: 터널 카운터 손실 없음(BGW1 52개 송신, Hub1 52개 수신), 1400바이트 ping 50/50, UDP 200K 0% 손실, 두 번째 터널과 무관
-- 결정적 시험: 터널을 거치지 않는 Branch 내부(Host F → Host G)에서도 같은 증상
-- 판단: 호스트와 스위치 에뮬레이션이 TCP 버스트를 처리하지 못하는 환경 한계. MSS는 SYN-ACK 캡처로 검증하고 이후 시험은 ping과 UDP로 진행
-- 상세: [MTU와 MSS 검증](../verification/br/11-mtu-mss.md)
+- 증상: PE1 - Hub 링크 한쪽을 내리면 Host A → Host F 통신이 끊기고 복구되지 않음
+- 원인: leaf3·4가 VTEP(10.1.1.34)을 공유해서 spine이 어느 leaf로든 트래픽을 보낼 수 있는데, 각 leaf가 Hub 1대에만 연결되어 있었음. Hub 경로가 끊긴 쪽 leaf로 들어온 트래픽이 갈 곳이 없어 블랙홀이 됨
+- 조치: leaf3 `Et8` - Hub2 `Gi2/0`, leaf4 `Et8` - Hub1 `Gi2/0` 링크를 추가해 두 leaf를 Hub 2대에 모두 연결
+- 결과: Hub 링크 장애 시험에서 T1 손실 0, T1b 약 8.4초 손실 후 자동 복구
+- 상세: [DC1 Hub 검증](../verification/dc1/04-dci-hub-ebgp.md)
 
 ## 사례 3: 시험 입력 오류
 

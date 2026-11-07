@@ -31,16 +31,16 @@
 | leaf1 | Et5 | A | Host A | eth0 |
 | leaf2 | Et5 | A | Host A | eth1 |
 | leaf3 | Et3-4 | U (MLAG peer-link) | leaf4 | Et3-4 |
-| leaf3 | Et5 | O (DCI, VRF TENANT-A) | PE1 | Gi2/0 |
 | leaf3 | Et6 | O (Hub1 연동, VRF TENANT-A) | Hub1 | Gi1/0 |
 | leaf3 | Et7 | A | Host B | eth0 |
-| leaf4 | Et5 | O (DCI, VRF TENANT-A) | PE1 | Gi3/0 |
+| leaf3 | Et8 | O (Hub2 연동, VRF TENANT-A) | Hub2 | Gi2/0 |
 | leaf4 | Et6 | O (Hub2 연동, VRF TENANT-A) | Hub2 | Gi1/0 |
 | leaf4 | Et7 | A | Host C | eth0 |
-| Hub1 | Gi0/0 | W (WAN-UL) | PE1 | Gi4/0 |
-| Hub2 | Gi0/0 | W (WAN-UL) | PE1 | Gi5/0 |
+| leaf4 | Et8 | O (Hub1 연동, VRF TENANT-A) | Hub1 | Gi2/0 |
+| Hub1 | Gi0/0 | O (PE-CE) | PE1 | Gi4/0 |
+| Hub2 | Gi0/0 | O (PE-CE) | PE1 | Gi5/0 |
 
-GNS3 어댑터 수(관리 포함): spine 5, leaf1/leaf2 6, leaf3/leaf4 8. 관리 포트는 MGMT-SW Et1 ~ Et6에 연결
+GNS3 어댑터 수(관리 포함): spine 5, leaf1/leaf2 6, leaf3/leaf4 9. 관리 포트는 MGMT-SW Et1 ~ Et6에 연결
 
 ## 3. IP 주소
 

@@ -2,7 +2,7 @@
 
 장비별 포트와 IP 전체: [IP와 포트 매칭표](../../00-overview/07-ip-port-matrix.md)
 
-Branch의 VLAN, IP 대역, 터널 주소
+Branch의 VLAN, IP 대역, PE-CE 링크 주소
 
 기준 문서: [00-overview/06-vlan-ip-plan](../../00-overview/06-vlan-ip-plan.md)
 
@@ -26,16 +26,14 @@ Branch의 VLAN, IP 대역, 터널 주소
 | DSW1 | 10.0.0.41/32 |
 | DSW2 | 10.0.0.42/32 |
 
-## 링크와 터널
+## 링크
 
 | 용도                    | 서브넷          | A측      | B측      | 비고                                |
 | --------------------- | ------------ | ------- | ------- | --------------------------------- |
-| PE3 - BGW1            | 10.0.30.4/31 | PE3 .4  | BGW1 .5 | VRF WAN-UL                        |
-| PE3 - BGW2            | 10.0.30.6/31 | PE3 .6  | BGW2 .7 | VRF WAN-UL                        |
+| PE3 - BGW1            | 10.0.60.0/31 | PE3 .0  | BGW1 .1 | VRF BR1, .100 서브인터페이스      |
+| PE3 - BGW2            | 10.0.60.2/31 | PE3 .2  | BGW2 .3 | VRF BR1, .100 서브인터페이스      |
 | BGW1 - DSW1           | 10.50.0.0/31 | BGW1 .0 | DSW1 .1 | OSPF area 0                       |
 | BGW2 - DSW2           | 10.50.0.2/31 | BGW2 .2 | DSW2 .3 | OSPF area 0                       |
-| Tunnel0 (Hub1 - BGW1) | 10.0.40.0/31 | Hub1 .0 | BGW1 .1 | source/dest 10.0.30.1 ↔ 10.0.30.5 |
-| Tunnel1 (Hub2 - BGW2) | 10.0.40.2/31 | Hub2 .2 | BGW2 .3 | source/dest 10.0.30.3 ↔ 10.0.30.7 |
 
 - `10.50.0.0/24`(링크)와 `192.168.50.0/24`(VLAN 50 LAN)는 번호가 같아 보이지만 다른 대역
 
@@ -43,7 +41,6 @@ Branch의 VLAN, IP 대역, 터널 주소
 
 | 노드 | AS |
 |---|---|
-| Hub1, Hub2 | 65010 |
 | BGW1, BGW2 | 65020 |
 
 ## VLAN이 있는 장비
@@ -53,18 +50,16 @@ Branch의 VLAN, IP 대역, 터널 주소
 | 50 | DSW1 (SVI .2, master), DSW2 (SVI .3), ASW1 (L2만) | VRRP VIP .1. Host F는 ASW1 Gi1/0 |
 | 60 | DSW1 (SVI .2), DSW2 (SVI .3, master), ASW1 (L2만) | VRRP VIP .1. Host G는 ASW1 Gi1/1 |
 
-BGW와 Hub에는 VLAN이 없음(라우티드 링크만 사용).
+BGW에는 VLAN이 없음(라우티드 링크만 사용).
 
 ## 장비별 포트와 IP
 
 | 장비   | 포트                 | IP                           | 상대                      |
 | ---- | ------------------ | ---------------------------- | ----------------------- |
-| BGW1 | Gi0/0              | 10.0.30.5/31                 | PE3 Gi2/0               |
+| BGW1 | Gi0/0.100          | 10.0.60.1/31                 | PE3 Gi2/0.100           |
 | BGW1 | Gi1/0              | 10.50.0.0/31                 | DSW1 Gi0/0              |
-| BGW1 | Tunnel0            | 10.0.40.1/31                 | Hub1 Tunnel0            |
-| BGW2 | Gi0/0              | 10.0.30.7/31                 | PE3 Gi3/0               |
+| BGW2 | Gi0/0.100          | 10.0.60.3/31                 | PE3 Gi3/0.100           |
 | BGW2 | Gi1/0              | 10.50.0.2/31                 | DSW2 Gi0/0              |
-| BGW2 | Tunnel1            | 10.0.40.3/31                 | Hub2 Tunnel1            |
 | DSW1 | Gi0/0              | 10.50.0.1/31                 | BGW1 Gi1/0              |
 | DSW1 | Po1 (Gi0/1-2)      | L2 trunk                     | DSW2 Po1 (Gi0/2, Gi0/1) |
 | DSW1 | Po2 (Gi0/3, Gi1/0) | L2 trunk                     | ASW1 Po2 (Gi0/0-1)      |

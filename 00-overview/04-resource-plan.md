@@ -27,7 +27,7 @@ Arista를 높은 값(2,040MB)으로 가정한 보수적 계획
 | 1. DC1 패브릭 | Arista 6, 호스트 A·B·C | 약 14GB |
 | 2. 코어와 DC1 연동 | Arista 6, PE1·PE2·PE3, Host A·B·C | 약 15GB |
 | 3. DC1 + DC2 | Arista 4(spine1, leaf1, leaf2, leaf3), PE1~PE3, Aruba 3 | 약 16GB |
-| 4. Branch와 IPsec | Arista 3(spine1, leaf3, leaf4), c7200 7, IOSv 3 | 약 12GB |
+| 4. Branch | Arista 3(spine1, leaf3, leaf4), c7200 7, IOSv 3 | 약 12GB |
 
 - Arista RAM 축소가 안정적으로 확인되면 3단계에서 Arista 6대를 모두 켜는 것도 가능
 - 단계가 바뀔 때는 이전 단계 노드를 모두 정지한 뒤 켬. 정지하지 않은 노드가 메모리를 계속 차지

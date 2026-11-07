@@ -4,7 +4,7 @@
 
 **핵심**
 
-- 확인 순서: 같은 VLAN(L2VNI), 다른 VLAN(L3VNI), DC 간(MPLS L3VPN), Branch(IPsec).
+- 확인 순서: 같은 VLAN(L2VNI), 다른 VLAN(L3VNI), DC 간(DC1과 DC2는 통신 안 됨), Branch(MPLS L3VPN VRF BR1).
 - tcpdump는 설치되어 있지 않을 수 있음(인터넷 필요).
 
 **확인 명령**: `ping -c 3 <대상>`, `traceroute -n <대상>`, `ip neigh`
@@ -26,14 +26,14 @@ ping -c 3 192.168.10.102
 # 3. 다른 VLAN (L3VNI): Host A -> Host C
 ping -c 3 192.168.20.101
 
-# 4. 다른 지역 (DC1 -> DC2): Host A -> Host D (MPLS L3VPN)
+# 4. 다른 지역 (DC1 -> DC2): Host A -> Host D. 통신 안 되는 것이 정상 (VRF와 RT, BGW prefix-list로 분리)
 ping -c 3 192.168.110.101
 
-# 5. Branch (GRE over IPsec): Host A -> Host F
+# 5. Branch (MPLS L3VPN, VRF BR1): Host A -> Host F, Host D -> Host F
 ping -c 3 192.168.50.101
 
-# 6. 경로 확인
-traceroute -n 192.168.110.101
+# 6. 경로 확인 (Host A에서 Host F)
+traceroute -n 192.168.50.101
 
 # 7. 패킷 캡처로 DSCP(tos) 확인 (tcpdump 설치 필요: apt install tcpdump, 인터넷 필요)
 tcpdump -ni eth0 -v icmp

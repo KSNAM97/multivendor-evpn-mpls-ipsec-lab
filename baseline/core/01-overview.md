@@ -13,7 +13,7 @@
 | IGP | OSPF area 0 |
 | 레이블 | MPLS, LDP (코어 링크) |
 | VPN | MP-BGP VPNv4 (PE 간 iBGP full mesh, AS 65000) |
-| PE-CE | eBGP (AS 65000 ↔ DC1 AS 65100, DC2 AS 65201, WAN-UL은 고정 경로 또는 eBGP) |
+| PE-CE | eBGP (AS 65000 ↔ DC1 Hub AS 65010, DC2 AS 65201, Branch AS 65020). VRF TENANT-A(DC1), PARTNER(DC2), BR1(Branch) |
 
 ## 2. 포트 매핑
 
@@ -21,15 +21,13 @@
 |---|---|---|---|---|
 | PE1 | Gi0/0 | W (코어) | PE2 | Gi0/0 |
 | PE1 | Gi1/0 | W (코어) | PE3 | Gi0/0 |
-| PE1 | Gi2/0 | O (DCI) | leaf3 (Arista) | Et5 |
-| PE1 | Gi3/0 | O (DCI) | leaf4 (Arista) | Et5 |
-| PE1 | Gi4/0 | W (WAN-UL) | Hub1 | Gi0/0 |
-| PE1 | Gi5/0 | W (WAN-UL) | Hub2 | Gi0/0 |
+| PE1 | Gi4/0 | O (PE-CE, VRF TENANT-A) | Hub1 | Gi0/0 |
+| PE1 | Gi5/0 | O (PE-CE, VRF TENANT-A) | Hub2 | Gi0/0 |
 | PE2 | Gi1/0 | W (코어) | PE3 | Gi1/0 |
-| PE2 | Gi2/0 | O (DCI) | CX1 (Aruba) | 1/1/1 |
-| PE2 | Gi3/0 | O (DCI) | CX2 (Aruba) | 1/1/1 |
-| PE3 | Gi2/0 | W (WAN-UL) | BGW1 | Gi0/0 |
-| PE3 | Gi3/0 | W (WAN-UL) | BGW2 | Gi0/0 |
+| PE2 | Gi2/0 | O (PE-CE, VRF PARTNER) | CX1 (Aruba) | 1/1/1 |
+| PE2 | Gi3/0 | O (PE-CE, VRF PARTNER) | CX2 (Aruba) | 1/1/1 |
+| PE3 | Gi2/0.100 | O (PE-CE, VRF BR1) | BGW1 | Gi0/0.100 |
+| PE3 | Gi3/0.100 | O (PE-CE, VRF BR1) | BGW2 | Gi0/0.100 |
 
 c7200 슬롯 구성: `slot0 = C7200-IO-GE-E (Gi0/0)`, `slot1~5 = PA-GE`. 관리 포트가 없으므로 GNS3 콘솔로 접속
 
@@ -46,14 +44,12 @@ c7200 슬롯 구성: `slot0 = C7200-IO-GE-E (Gi0/0)`, `slot1~5 = PA-GE`. 관리 
 | PE1 - PE2 | 10.0.10.0/31 | PE1 .0 | PE2 .1 | global |
 | PE1 - PE3 | 10.0.10.2/31 | PE1 .2 | PE3 .3 | global |
 | PE2 - PE3 | 10.0.10.4/31 | PE2 .4 | PE3 .5 | global |
-| PE1 - leaf3 | 10.0.20.0/31 | PE1 .0 | leaf3 .1 | TENANT-A |
-| PE1 - leaf4 | 10.0.20.2/31 | PE1 .2 | leaf4 .3 | TENANT-A |
-| PE2 - CX1 | 10.0.20.4/31 | PE2 .4 | CX1 .5 | TENANT-A |
-| PE2 - CX2 | 10.0.20.6/31 | PE2 .6 | CX2 .7 | TENANT-A |
-| PE1 - Hub1 | 10.0.30.0/31 | PE1 .0 | Hub1 .1 | WAN-UL |
-| PE1 - Hub2 | 10.0.30.2/31 | PE1 .2 | Hub2 .3 | WAN-UL |
-| PE3 - BGW1 | 10.0.30.4/31 | PE3 .4 | BGW1 .5 | WAN-UL |
-| PE3 - BGW2 | 10.0.30.6/31 | PE3 .6 | BGW2 .7 | WAN-UL |
+| PE2 - CX1 | 10.0.20.4/31 | PE2 .4 | CX1 .5 | PARTNER |
+| PE2 - CX2 | 10.0.20.6/31 | PE2 .6 | CX2 .7 | PARTNER |
+| PE1 - Hub1 | 10.0.30.0/31 | PE1 .0 | Hub1 .1 | TENANT-A |
+| PE1 - Hub2 | 10.0.30.2/31 | PE1 .2 | Hub2 .3 | TENANT-A |
+| PE3 - BGW1 | 10.0.60.0/31 | PE3 .0 | BGW1 .1 | BR1 (`.100` 서브인터페이스) |
+| PE3 - BGW2 | 10.0.60.2/31 | PE3 .2 | BGW2 .3 | BR1 (`.100` 서브인터페이스) |
 
 ## 7. 확인이 필요한 항목
 

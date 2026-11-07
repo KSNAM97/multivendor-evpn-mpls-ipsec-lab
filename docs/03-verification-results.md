@@ -1,6 +1,6 @@
 # 검증 결과
 
-기준: 구간별로 기대 결과를 먼저 적고 CLI 출력과 패킷 캡처로 확인. 날짜는 2026-10-22와 2026-10-23
+기준: 구간별로 기대 결과를 먼저 적고 CLI 출력과 패킷 캡처로 확인. 날짜는 2026-10-22, 2026-10-23, 2026-11-07
 
 ## 구간별 결과
 
@@ -12,11 +12,8 @@
 | MPLS 코어 | OSPF, LDP, VRF, VPNv4, PE-CE eBGP | 성공 | [코어 검증](../verification/core/04-mpls-ldp.md) |
 | DC2 | VSX, 멀티 섀시 LAG, Active Gateway, VRF eBGP | 성공 (제한: LAG 위 VLAN 데이터가 이미지 한계로 전달되지 않아 Host D를 CX1에 직접 연결) | [DC2 검증](../verification/dc2/04-vsx-lag.md) |
 | Branch L2, L3 | MSTP, EtherChannel, VRRP, OSPF | 성공 | [Branch 검증](../verification/br/04-mstp-etherchannel.md) |
-| WAN-UL | PE3-BGW eBGP, Hub-BGW 언더레이 ping | 성공 | [검증](../verification/br/07-wan-ebgp.md) |
-| GRE over IPsec | ISAKMP SA, IPsec SA, 터널 2개 up, IKE와 ESP 캡처 | 성공 | [검증](../verification/br/09-ipsec-gre.md) |
-| 터널 위 eBGP와 통신 | 이웃 4쌍 Established, Host A ↔ F, F → D | 성공 | [검증](../verification/br/10-bgp-over-tunnel.md) |
-| MTU와 MSS | IP 1400 통과, 1428 차단, SYN-ACK MSS 1360 | 성공 (TCP 처리량은 판정에서 제외) | [검증](../verification/br/11-mtu-mss.md) |
-| 이중화 장애 시험 | BGW1 WAN 단절 감지와 복구 | 부분 성공 | [검증](../verification/br/12-ipsec-failover.md) |
+| PE-CE와 VRF 분리 | PE1·PE2 이웃, VRF BR1 경로, PE1 - PE3 MPLS 헤더(Label 26, 33), Host A ↔ F, Host D ↔ F | 성공 (최종 구성 화면 증빙 일부 추가 예정) | [PE-CE 검증](../verification/core/07-pe-ce-ebgp.md), [MPLS 검증](../verification/core/04-mpls-ldp.md) |
+| DC1 Hub 이중화 장애 시험 | Hub 링크(T1, T1b)와 코어 링크(T2) 차단과 자동 복구 | 성공 (손실 0, 약 8.4초, 약 12.6초) | [Hub 검증](../verification/dc1/04-dci-hub-ebgp.md) |
 
 ## 대표 증빙
 
@@ -26,24 +23,24 @@
 
 ![VXLAN 캡처](../verification/dc1/images/03-evpn-vxlan/wireshark-vxlan-vni10010.png)
 
-### IPsec: ESP 패킷
+### MPLS 헤더: PE1 -> PE3 (Host A와 Host F ping)
 
-바깥 IP는 Hub와 BGW의 언더레이 주소이고 안쪽 GRE와 BGP는 암호화되어 보이지 않음
+PE1 `Gi1/0` - PE3 `Gi0/0` 링크, 필터 `mpls`. 직결 링크라 전송 레이블은 PHP로 제거되고 VPN 레이블 1개(Label 26, S=1)만 붙음. PE1의 `show bgp vpnv4 unicast all labels`에서 192.168.50.0의 레이블 26과 일치
 
-![ESP 패킷](../verification/br/images/09-ipsec-gre/wireshark-esp-packet.png)
+![MPLS 헤더](../verification/core/images/04-mpls-ldp/wireshark-mpls-pe1-to-pe3-label26.png)
 
-### 장애 시험: BGW1 로그 타임라인
+### 장애 시험: DC1 Hub 이중화
 
-| 이벤트 | 1회차 | 2회차 |
+| 시험 | 내린 링크 | 결과 |
 |---|---|---|
-| shutdown → Hub1 BGP down (hold 만료) | 8.8초 | 8.8초 |
-| shutdown → Tunnel0 down | 16.4초 | 14.9초 |
-| link up → 터널 위 BGP up | 10.5초 | 11.1초 |
+| T1 | PE1 `Gi4/0` (PE1 - Hub1) | 300/300 응답, 손실 0 |
+| T1b | PE1 `Gi5/0` (PE1 - Hub2) | 258/300 응답, 약 8.4초 손실 후 복구 |
+| T2 | PE2 `Gi1/0` (코어 링크) | 237/300 응답, 약 12.6초 손실 후 복구, next hop이 PE1 경유로 바뀜 |
 
-![BGW1 로그](../verification/br/images/12-ipsec-failover/bgw1-log-timeline.png)
+세 시험 모두 링크를 올리면 자동으로 복구됨. 화면 증빙은 추가 예정
 
 ### Branch ↔ DC 통신
 
-Host F → Host A traceroute가 DSW1, BGW1, 터널 0(10.0.40.0), leaf3을 거쳐 도달
+Host A → Host F ping 4/4 응답(손실 0%). DC1과 DC2는 분리되어 Host A → Host D는 응답이 없는 것이 정상
 
-![traceroute](../verification/host/images/03-connectivity/host-f-traceroute-host-a.png)
+![ping](../verification/host/images/03-connectivity/host-a-ping-host-f.png)

@@ -40,6 +40,8 @@
 
 ### VPNv4 경로 전달 (PE-CE 구성 뒤)
 
+> 아래 증빙은 이전 구성(PE1 - leaf 직결, DC1과 DC2가 같은 VRF TENANT-A)에서 찍은 것. 최종 구성에서는 PE1이 Hub와, PE2가 VRF PARTNER로 CX와 접속하고 DC1과 DC2는 서로 경로를 받지 않음. 최종 구성의 경로는 [PE-CE 검증](07-pe-ce-ebgp.md)
+
 - PE2에서 show ip route vrf TENANT-A: 192.168.10.0/24, 192.168.20.0/24가 **B [200/0] via 10.0.0.11**(PE1 loopback0), iBGP VPNv4로 학습 (DC1 경로가 코어를 통해 전달됨)
 - PE1과 leaf를 잇는 링크 서브넷 10.0.20.0/31, 10.0.20.2/31도 같은 방식으로 학습됨. leaf의 
 edistribute connected가 링크 /31까지 광고하기 때문이며 동작에는 문제없음
@@ -82,6 +84,8 @@ edistribute connected가 링크 /31까지 광고하기 때문이며 동작에는
 ![PE1 BGP OPEN의 Capability 펼침](images/06-mp-bgp-vpnv4/wireshark-bgp-open-afi.png)
 
 ## 장애 시험 결과: PE1 - PE2 직결 링크 정지 (2026-10-25)
+
+> 이 시험은 이전 구성(2026-10-25, DC1과 DC2가 같은 VRF로 통신하던 때)에서 측정한 것. 코어 링크 장애 후 OSPF와 BGP 재수렴 동작과 시간 구조는 같지만, 최종 구성의 코어 링크 시험(PE2 Gi1/0, 손실 약 12.6초)은 [DC1 Hub 검증](../dc1/04-dci-hub-ebgp.md)의 장애 시험 결과를 참고
 
 PE1 `GigabitEthernet0/0`(PE2 직결)을 `shutdown`하고 Host A -> Host D `ping -D 192.168.110.101`을 유지. Host A와 PE의 시각은 PC 시계(캡처 파일)와 PE1 로그(UTC)로 대조함
 

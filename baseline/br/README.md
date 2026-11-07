@@ -12,7 +12,4 @@
 | 04 | MSTP와 EtherChannel | [MSTP와 EtherChannel](04-mstp-etherchannel.md) |
 | 05 | SVI와 VRRP | [SVI와 VRRP](05-vrrp-svi.md) |
 | 06 | Branch OSPF | [Branch OSPF](06-ospf-branch.md) |
-| 07 | PE3 - BGW eBGP (WAN-UL) | [PE3 - BGW eBGP](07-wan-ebgp.md). PE3 쪽은 [코어 PE-CE 기준](../core/07-pe-ce-ebgp.md) |
-| 08 | IPsec 키 관리 | [IPsec 키 관리](08-ipsec-keys.md): 실습 랩 전용 키 값과 입력 명령 |
-| 09 | GRE over IPsec | [GRE over IPsec](09-ipsec-gre.md) |
-| 10 | 터널 위 eBGP | [터널 위 eBGP](10-bgp-over-tunnel.md) |
+| 07 | PE3 - BGW eBGP (VRF BR1) | [PE3 - BGW eBGP](07-pe3-bgw-ebgp.md). PE3 쪽은 [코어 PE-CE 기준](../core/07-pe-ce-ebgp.md) |

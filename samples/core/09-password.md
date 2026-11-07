@@ -39,7 +39,7 @@ mpls ldp neighbor 10.0.0.12 password <LDP-KEY>
 router bgp 65000
  neighbor 10.0.0.12 password <BGP-KEY>
  address-family ipv4 vrf TENANT-A
-  neighbor 10.0.20.1 password <PE-CE-KEY>
+  neighbor 10.0.30.1 password <PE-CE-KEY>
  exit-address-family
 !
 ```

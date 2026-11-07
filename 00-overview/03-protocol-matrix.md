@@ -11,8 +11,7 @@
 | L3 (Underlay) | OSPF (DC1, 코어, Branch) | VTEP, 코어 루프백 도달성 |
 | Overlay (DC) | VXLAN + iBGP EVPN | DC1 내부 L2/L3 가상 네트워크 |
 | Overlay (WAN) | MPLS (OSPF + LDP) + MP-BGP VPNv4 | DC 사이 L3VPN |
-| WAN 언더레이 (VRF WAN-UL) | 정적 경로(PE1 - Hub), eBGP(PE3 - BGW) | 터널 양끝 주소(10.0.30.x) 도달성. 구역별 방식은 [코어 PE-CE 기준](../baseline/core/07-pe-ce-ebgp.md) |
-| 보안 터널 | GRE over IPsec (IKEv1) x2 + eBGP | Branch 연결 (이중 터널) |
+| PE-CE (VRF) | eBGP (PE1 - Hub, PE2 - CX, PE3 - BGW) | 고객 구역 연결. 구역별 방식은 [코어 PE-CE 기준](../baseline/core/07-pe-ce-ebgp.md) |
 | 부하 분산 | ECMP, BGP multipath, LACP 해시, MSTP 인스턴스 분산 | 경로와 링크 분산 |
 
 ## 2. 벤더별 적용 범위
@@ -21,7 +20,7 @@
 |---|---|---|
 | Arista | vEOS 6대 | DC1: OSPF underlay, MLAG x2, iBGP EVPN-VXLAN(L2/L3VNI), border leaf의 PE와 Hub 연동 |
 | Aruba | CX 3대 | DC2: VSX 쌍(CX1, CX2) + access(CX3), active gateway, PE와 eBGP |
-| Cisco c7200 | 7대 | MPLS 코어 PE 삼각형(OSPF, LDP, MP-BGP), Hub와 BGW 이중 터널, IPsec |
+| Cisco c7200 | 7대 | MPLS 코어 PE 삼각형(OSPF, LDP, MP-BGP), PE-CE eBGP(Hub, CX, BGW) |
 | Cisco IOSv | 3대 | Branch 스위치단 (VLAN, MSTP, EtherChannel, VRRP, OSPF) |
 
 벤더는 Cisco, Arista, Aruba 3개. Juniper(vQFX)는 이 GNS3 환경에서 PFE가 FPC로 등록되지 않아 제외됨
@@ -34,7 +33,7 @@
 |---|---|---|---|
 | spine1, spine2 | Arista | 2대가 동일 역할 | leaf 방향 OSPF ECMP, iBGP Route Reflector, ECMP |
 | leaf1, leaf2 | Arista | **MLAG** 쌍 + anycast gateway | 호스트 LACP 해시, spine 2개로 ECMP |
-| leaf3, leaf4 | Arista | **MLAG** 쌍 (border) | PE1로 2링크, Hub1과 Hub2로 각각 연결 |
+| leaf3, leaf4 | Arista | **MLAG** 쌍 (border) | Hub1과 Hub2에 모두 연결(교차 연결), 두 Hub로 ECMP |
 | CX1, CX2 | Aruba | **VSX** 쌍 + active gateway | CX3 4링크 VSX LAG 해시, PE2 두 경로 |
 | CX3 | Aruba | access (CX1, CX2에 VSX LAG 연결) | 4링크 LAG 해시 |
 | DSW1, DSW2 | Cisco IOSv | **EtherChannel(LACP)** Po1 (DSW 간), VRRP, MSTP root 분담 | VLAN 50은 DSW1 master, VLAN 60은 DSW2 master |
@@ -45,8 +44,8 @@
 | 구간 | 이중화 | 부하 분산 |
 |---|---|---|
 | 코어 | PE1, PE2, PE3 삼각형 (한 링크 장애 시 우회) | OSPF/LDP ECMP |
-| DC1 WAN 출구 | Hub1, Hub2 (각각 leaf3, leaf4에 연결, PE1에 이중 연결) | 두 Hub로 eBGP multipath(ECMP) |
-| Branch WAN 출구 | BGW1, BGW2 (PE3에 이중 연결, 각각 DSW1, DSW2에 연결) | 터널 2개(Tunnel0, Tunnel1) ECMP |
+| DC1 외부 출구 | Hub1, Hub2 (leaf3, leaf4 모두에 연결, PE1에 이중 연결) | 두 Hub로 eBGP multipath(ECMP) |
+| Branch 외부 출구 | BGW1, BGW2 (PE3에 이중 연결, 각각 DSW1, DSW2에 연결) | PE3 두 경로 eBGP multipath(ECMP) |
 
 - DC2(Aruba)는 VSX 쌍이 단일 VTEP이라 EVPN 대상이 없으므로 VSX LAG, active gateway, eBGP 연동을 시연. EVPN-VXLAN은 DC1(Arista)에서 시연
 - Cisco IOSv에는 MLAG(vPC, StackWise Virtual)가 없음. 그래서 EtherChannel과 MSTP 조합으로 이중화
@@ -62,16 +61,14 @@
 | iBGP EVPN | O (AS 65100, spine이 RR) | O | - | - | - | - | - | - |
 | iBGP VPNv4 | - | - | O (full mesh) | - | - | - | - | - |
 | eBGP (PE-CE) | - | leaf3,4 | O | - | - | - | - | CX1,2 |
-| eBGP (WAN-UL, PE3 - BGW) | - | - | PE3 | - | O | - | - | - |
-| eBGP (Hub) | - | leaf3,4 | - | O | O | - | - | - |
-| 정적 경로 (Hub - BGW 터널 주소) | - | - | PE1 (redistribute connected) | O | - | - | - | - |
+| eBGP (PE3 - BGW, VRF BR1) | - | - | PE3 | - | O | - | - | - |
+| eBGP (Hub) | - | leaf3,4 | PE1 | O | - | - | - | - |
 | VXLAN | - | O | - | - | - | - | - | - |
 | MLAG / VSX | - | MLAG | - | - | - | - | - | VSX |
 | LACP / EtherChannel | - | O | - | - | - | O | O | O |
 | MSTP | O (mode mstp) | O (mode mstp) | - | - | - | O | O | - |
 | VRRP | - | - | - | - | - | O | - | - |
-| GRE + IPsec | - | - | - | O | O | - | - | - |
-| VRF | - | O | O | - | - | - | - | O |
+| VRF | - | O | O (TENANT-A, PARTNER, BR1) | - | - | - | - | O |
 | ECMP / multipath | O | O | O | O | O | - | - | O |
 
 ## 5. 단계별 목표 프로토콜
@@ -80,8 +77,8 @@
 |---|---|---|
 | 1 | DC1: OSPF underlay + MLAG x2 + iBGP EVPN-VXLAN | Host A, B, C 간 L2/L3 통신, spine ECMP과 MLAG 장애 전환 확인 |
 | 2 | MPLS 코어(PE 삼각형) + DC1 DCI | PE1 VRF 경유 경로 광고, 코어 링크 장애 우회 |
-| 3 | DC2(Aruba) 연동 | DC1과 DC2 간 TENANT-A 통신, VSX 장애 전환 |
-| 4 | Hub, BGW 이중 GRE over IPsec + Branch 스위치단 | 터널 위 eBGP와 ECMP, VRRP, MSTP 인스턴스별 blocking, EtherChannel 장애 전환 |
+| 3 | DC2(Aruba) 연동 | VRF PARTNER 경유 DC2 연결, VSX 장애 전환 |
+| 4 | Branch(BR1) 연동 + Branch 스위치단 | VRF BR1 경유 DC1·DC2와 통신(DC1과 DC2는 서로 분리), VRRP, MSTP 인스턴스별 blocking, EtherChannel 장애 전환 |
 | 5 | 장애 주입과 트러블슈팅 문서화 | 시나리오별 증상, 원인, 조치 기록 |
 
 단계마다 필요한 노드만 켬. 4단계에서는 DC2를 끌 수 있음
@@ -103,7 +100,6 @@
 
 | 항목 | 확인 방법 |
 |---|---|
-| c7200 이미지의 IPsec 지원 | 확인됨: `isakmp`, `ipsec` 있음, `ikev2` 없음(IKEv1), ISAKMP `hash sha256` 미지원(SHA-1 사용), `group 14` 지원 |
 | c7200 MPLS/LDP, VRF 지원 | 확인됨: IOS 12.4(24)T5에서 `ip vrf`, `mpls ip`, `address-family vpnv4` 수락 |
 | c7200 슬롯 구성 (PE1은 6포트) | GNS3 템플릿에서 PA-GE 슬롯 추가 |
 | IOSvL3의 스위치 기능 (SVI, EtherChannel, VRRP) | `show vlan`, `show etherchannel`, `show vrrp` |
@@ -123,7 +119,7 @@ OSPF, BGP, LACP의 협상 조건은 **DC1 기준으로 전 구간을 통일**. �
 | 프로토콜 | 값 | 적용 범위 |
 |---|---|---|
 | OSPF | point-to-point, **hello 1초, dead 4초**, loopback은 passive | DC1 spine-leaf, 코어 PE 링크, Branch BGW-DSW 링크 |
-| BGP | **keepalive 3초, hold 9초** (`timers 3 9`) | DC1 iBGP(EVPN), 코어 PE 간 iBGP(VPNv4), PE-CE eBGP(leaf3·4, CX ↔ PE), WAN-UL eBGP(PE3 ↔ BGW), 터널 위 eBGP(Hub ↔ BGW) |
+| BGP | **keepalive 3초, hold 9초** (`timers 3 9`) | DC1 iBGP(EVPN), 코어 PE 간 iBGP(VPNv4), PE-CE eBGP(Hub ↔ PE1, Hub ↔ leaf3·4, CX ↔ PE2, BGW ↔ PE3) |
 | LACP | **fast**(1초 간격). 단 DC2 VSX LAG는 에뮬레이션에서 흔들려 **기본(slow)** 사용 | DC1 호스트 포트(leaf `lacp timer fast`, 호스트 `lacp_rate fast`). Branch EtherChannel은 IOSvL3가 `lacp rate fast`를 받지 않아 **기본(30초)** |
 | router-id | OSPF는 loopback0 주소, **BGP는 별도 대역** | 전 구간 ([IP 설계](02-ip-addressing.md) 3-1-1) |
 

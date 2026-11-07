@@ -1,108 +1,54 @@
-# DCI와 Hub 연동 검증
+# DC1 외부 연결 검증 (leaf - Hub - PE1)
 
 **선행 조건**: [EVPN-VXLAN 검증](03-evpn-vxlan.md)이 끝나 있고, MPLS 코어(PE1)가 올라와 있어야 함([core 검증](../core/06-mp-bgp-vpnv4.md))
 
-기준 문서: [06-dci-hub-ebgp.md](../../baseline/dc1/06-dci-hub-ebgp.md) / 샘플: [09-pe-ce-ebgp.md](../../samples/dc1/09-pe-ce-ebgp.md)
+기준 문서: [06-dci-hub-ebgp.md](../../baseline/dc1/06-dci-hub-ebgp.md) / 샘플: [09-pe-ce-ebgp.md](../../samples/dc1/09-pe-ce-ebgp.md), [Hub 가이드](../../guide/06-hub.md)
 
 ## 확인 항목
 
 | 순서 | 장비 | 명령 | 기대 결과 | 안 될 때 확인 |
 |---|---|---|---|---|
-| 1 | leaf3 | `ping vrf TENANT-A 10.0.20.0` | PE1 응답 | 링크 IP, VRF 인터페이스 |
-| 2 | leaf3 | `show ip bgp summary vrf TENANT-A` | PE1(65000)과 Hub1(65010)이 **Established** | AS 번호, 주소, address-family ipv4의 activate |
-| 3 | leaf3 | `show ip route vrf TENANT-A` | 다른 지역(DC2, Branch) 경로가 PE1, Hub 경유로 보임 | 원격 지역 설정(3단계 이후) |
-| 4 | Host A | `ping -c 3 192.168.110.101` | Host D 응답 (DC1에서 DC2로, 3단계 이후) | PE-CE eBGP, VPNv4 RT |
-| 5 | leaf3 | `show ip bgp neighbors <PE1 주소> vrf TENANT-A \| include hold` | `Hold time is 9`, `keepalive interval is 3 seconds` | 양쪽 `timers 3 9` |
+| 1 | Hub1 | `ping 10.0.30.0` (PE1 `Gi4/0`), `ping 10.0.31.0` (leaf3), `ping 10.0.32.2` (leaf4) | 모두 응답 | 링크 IP, 인터페이스 up |
+| 2 | Hub2 | `ping 10.0.30.2` (PE1 `Gi5/0`), `ping 10.0.31.2` (leaf4), `ping 10.0.32.0` (leaf3) | 모두 응답 | 같은 점검 |
+| 3 | Hub1 | `show ip bgp summary` | PE1(10.0.30.0, AS 65000), leaf3(10.0.31.0), leaf4(10.0.32.2) (AS 65100)가 **Established** | AS 번호, 주소, address-family activate |
+| 4 | Hub2 | `show ip bgp summary` | PE1(10.0.30.2), leaf4(10.0.31.2), leaf3(10.0.32.0)가 **Established** | 같은 점검 |
+| 5 | leaf3 | `show ip bgp summary vrf TENANT-A` | Hub1(10.0.31.1)과 Hub2(10.0.32.1)(AS 65010)가 **Established**, router identifier 10.1.2.13 | VRF 안 `router-id`, address-family activate |
+| 6 | leaf4 | `show ip bgp summary vrf TENANT-A` | Hub2(10.0.31.3)와 Hub1(10.0.32.3)가 **Established**, router identifier 10.1.2.14 | 같은 점검 |
+| 7 | leaf3 | `show ip route vrf TENANT-A` | Branch 경로(192.168.50.0/24, 192.168.60.0/24)가 Hub 2대를 next hop으로 ECMP(2경로) | PE1 TENANT-A import RT 65000:3 |
+| 8 | Host A | `ping -c 3 192.168.50.101` | Host F 응답 (DC1 -> Branch) | PE-CE eBGP, VPNv4 RT |
+| 9 | Host A | `ping -c 3 192.168.110.101` | **응답 없음**(정상). DC1과 DC2는 분리 | TENANT-A import RT에 65000:2가 없어야 함 |
+| 10 | leaf3 | `show ip bgp neighbors 10.0.31.1 vrf TENANT-A \| include hold` | `Hold time is 9`, `keepalive interval is 3 seconds` | 양쪽 `timers 3 9` |
 
-## 장애 시험
+## 장애 시험 (2026-11-07)
 
-| 동작 | 기대 결과 |
-|---|---|
-| leaf3 - PE1 링크 shut | leaf4 - PE1 링크로 통신 유지 |
-| Hub1 정지 | Hub2를 통해 통신 유지 |
+Host A에서 Host F(192.168.50.101)로 ping 300개를 보내면서 링크를 내림. 복구는 모두 자동
 
-## 증빙 (PE1 연동)
+| 시험 | 내린 링크 | 결과 | 설명 |
+|---|---|---|---|
+| T1 | PE1 `Gi4/0` (PE1 - Hub1) | 300/300 응답, 손실 0, 최대 RTT 1557 ms | PE1은 Hub2로 우회. Dynamips는 상대 쪽이 링크 down을 바로 인식하지 못해 BGP hold 9초가 감지 기준이지만, 이 시험에서는 경로가 이미 ECMP로 두 Hub를 쓰고 있어 손실이 없었음 |
+| T1b | PE1 `Gi5/0` (PE1 - Hub2) | 258/300 응답, 손실 약 8.4초 | Hub2 경로를 쓰던 흐름이 hold 9초 안에 Hub1로 옮겨 감 |
+| T2 | PE2 `Gi1/0` (PE2 - PE3 코어 링크) | 237/300 응답(오류 2개 포함), 손실 약 12.6초 | 이 링크가 끊기면 PE2 -> PE3 next hop이 PE1(10.0.10.0)을 경유하도록 바뀜. OSPF dead 4초 이후 BGP, LDP가 재수렴 |
 
-### leaf3, leaf4 VRF 경로
+- 세 시험 모두 링크를 올리면 경로가 자동으로 복구됨(별도 조치 없음)
+- 이 결과의 전제: leaf3·4가 Hub 2대에 모두 연결(교차 연결). leaf3·4가 VTEP을 공유하는데 각 leaf가 Hub 1대에만 연결되어 있으면 Hub 한쪽 경로가 끊길 때 그 Hub에 연결된 leaf로 들어온 트래픽이 블랙홀이 되어 복구되지 않음(교차 연결 이전 구성에서 확인)
 
-- leaf3: `show ip route vrf TENANT-A`에 10.0.20.0/31(Ethernet5), 192.168.10.0/24(Vlan10), 192.168.20.0/24(Vlan20)가 직결(C)
-- leaf4: 10.0.20.2/31(Ethernet5), 192.168.10.0/24, 192.168.20.0/24가 직결(C)
-- 설정 입력 전에는 10.0.20.x 직결 경로가 없었고(ethernet5 미설정), 입력 뒤 생김
-- BGP로 받은 경로(B E)는 아직 없음. PE2 쪽(DC2) 경로가 들어오는 3단계 이후 확인. leaf3의 `show ip route vrf TENANT-A summary`도 bgp External 0
+## 증빙
 
-![leaf3 VRF 경로](images/04-dci-hub-ebgp/leaf3-route-vrf.png)
+이전 구성(leaf3·4 - PE1 직결, Hub 정적 경로)에서 찍은 화면은 삭제함. 최종 구성의 항목 1 ~ 7, 10 화면과 T1, T1b, T2 화면(ping 통계, 로그)은 추가해야 함
 
-![leaf3 경로 요약](images/04-dci-hub-ebgp/leaf3-route-summary.png)
+PE1에서 확인한 값(2026-11-07): `show ip route vrf TENANT-A 192.168.50.0`이 BGP(내부) 경로, next hop 10.0.0.13(PE3), tag 65020. `show bgp vpnv4 unicast all labels`에 RD 65000:1과 65000:3이 함께 보이고 192.168.10.0, 192.168.20.0은 Hub 2대(10.0.30.1, 10.0.30.3)를 next hop으로 가짐
 
-![leaf4 VRF 경로](images/04-dci-hub-ebgp/leaf4-route-vrf.png)
+## 패킷 캡처 (Wireshark)
 
-### leaf3 BGP 요약
-
-- `show ip bgp summary vrf TENANT-A`: 이웃 10.0.20.0(PE1) AS 65000, State **Estab**, Up 00:03:23, PfxRcd 0, PfxAcc 0 (PE1이 보낼 외부 경로가 아직 없어서 0)
-- **router identifier가 192.168.20.1**로 표시됨. VRF 안 BGP router-id가 지정되지 않아 VLAN 20 anycast 주소가 자동 선택된 것으로, leaf3과 leaf4가 같은 값을 갖게 됨. 설계값은 10.1.2.13(leaf3), 10.1.2.14(leaf4)이므로 `vrf TENANT-A` 안에 `router-id`를 지정해야 함. 아래 Hub 연동 뒤 화면에서 설계값으로 바뀐 것을 확인
-
-![leaf3 BGP 요약](images/04-dci-hub-ebgp/leaf3-bgp-summary.png)
-
-## 증빙 (Hub 연동)
-
-### Hub 링크 ping
-
-- Hub1 `ping 10.0.30.0`(PE1 `Gi4/0`): 5/5, 28/36/56 ms
-- Hub2 `ping 10.0.31.2`(leaf4): 5/5, 20/28/32 ms
-- 확인 중 Hub1에서 `10.0.30.2`(PE1 `Gi5/0`, Hub2 쪽 링크), Hub2에서 `10.0.31.0`(leaf3 쪽 링크)로 보낸 ping은 0/5. 해당 주소는 Hub 자신의 링크가 아니고 Hub에 그 주소로 가는 경로도 없으므로 정상(Hub1은 PE1 10.0.30.0, leaf3 10.0.31.0, Hub2는 PE1 10.0.30.2, leaf4 10.0.31.2로 확인)
-
-![Hub1에서 PE1 ping](images/04-dci-hub-ebgp/hub1-ping-pe1.png)
-
-![Hub2에서 leaf4 ping](images/04-dci-hub-ebgp/hub2-ping-leaf4.png)
-
-### Hub1 정적 경로
-
-- `show ip route 10.0.30.5`: **10.0.30.5/32**, Known via **static**, distance 1, metric 0, next-hop **10.0.30.0**(PE1 `Gi4/0`). BGW1 터널 주소로 가는 경로
-- 처음에 `ip route 10.0.30.5 255.255.255.255 10.0.30.1`을 입력하면 `%Invalid next hop address (it's this router)`로 거부됨. 10.0.30.1이 Hub1 자신의 주소라서 next-hop은 PE1 쪽 주소 10.0.30.0이어야 함
-- Hub1에는 DC2(192.168.110.0/24)와 DC1(192.168.10.0/24, 192.168.20.0/24) 경로가 leaf3(10.0.31.0)에서 BGP로 들어와 있음. BGW1(10.0.30.5)이 구성되기 전이라 `ping 10.0.30.5`는 아직 확인 전
-
-![Hub1 정적 경로](images/04-dci-hub-ebgp/hub1-static-route.png)
-
-### Hub2 정적 경로와 PE1에서 Hub ping
-
-- Hub2 `show ip route 10.0.30.7`: **10.0.30.7/32**, Known via **static**, distance 1, metric 0, next-hop **10.0.30.2**(PE1 `Gi5/0`)
-- PE1 `ping vrf WAN-UL 10.0.30.1`(Hub1): 5/5, 28/40/64 ms. `ping vrf WAN-UL 10.0.30.3`(Hub2): 5/5, 28/31/36 ms ([core 07 검증](../core/07-pe-ce-ebgp.md) 항목 4)
-
-![Hub2 정적 경로](images/04-dci-hub-ebgp/hub2-static-route.png)
-
-### BGP 타이머 (hold 9, keepalive 3)
-
-- Hub1 `show ip bgp neighbors 10.0.31.0 | include hold`: **hold time is 9, keepalive interval is 3 seconds**, 설정값(Configured)도 9와 3
-- Hub2 `... neighbors 10.0.31.2 ...`: 같은 값
-- leaf3 `show ip bgp neighbors 10.0.31.1 vrf TENANT-A | include hold`, leaf4 `... 10.0.31.3 ...`: **Configured hold time is 9, keepalive interval is 3 seconds**. EOS 출력은 협상된 값을 `Effective minimum hold time is 3 seconds`로 보여 줌(상대의 최소 hold 허용값). IOS처럼 `hold time is 9` 줄은 나오지 않음
-
-![Hub1 hold 타이머](images/04-dci-hub-ebgp/hub1-hold.png)
-
-![Hub2 hold 타이머](images/04-dci-hub-ebgp/hub2-hold.png)
-
-![leaf3 hold 타이머](images/04-dci-hub-ebgp/leaf3-hold-hub.png)
-
-![leaf4 hold 타이머](images/04-dci-hub-ebgp/leaf4-hold-hub.png)
-
-### leaf와 Hub eBGP
-
-- leaf3 `show ip bgp summary vrf TENANT-A`: **router identifier 10.1.2.13**(VRF router-id 적용), 이웃 10.0.20.0(PE1) AS 65000 **Estab** 00:33:16 PfxRcd 3, 이웃 **10.0.31.1(Hub1) AS 65010 Estab** 00:02:04, PfxRcd 0
-- leaf4: **router identifier 10.1.2.14**, 이웃 10.0.20.2(PE1) Estab 00:32:51 PfxRcd 3, 이웃 **10.0.31.3(Hub2) AS 65010 Estab** 00:01:37, PfxRcd 0
-- Hub1 `show ip bgp summary`: router identifier **10.0.1.21**, local AS **65010**, 이웃 **10.0.31.0(leaf3) AS 65100**, Up 00:02:32, State/PfxRcd **7**
-- Hub2: router identifier **10.0.1.22**, 이웃 **10.0.31.2(leaf4) AS 65100**, Up 00:02:26, PfxRcd **7**
-- Hub가 leaf에서 경로 7개를 받음. leaf가 Hub에서 받는 경로는 0개인데, Hub가 아직 광고할 경로를 정하지 않았고 터널 위 Branch 경로도 없기 때문
-
-![leaf3 BGP 요약 (Hub 이웃 포함)](images/04-dci-hub-ebgp/leaf3-bgp-summary-hub.png)
-
-![leaf4 BGP 요약 (Hub 이웃 포함)](images/04-dci-hub-ebgp/leaf4-bgp-summary-hub.png)
-
-![Hub1 BGP 요약](images/04-dci-hub-ebgp/hub1-bgp-summary.png)
-
-![Hub2 BGP 요약](images/04-dci-hub-ebgp/hub2-bgp-summary.png)
+| 캡처 링크 | 표시 필터 | 볼 것 |
+|---|---|---|
+| PE1 `Gi4/0` - Hub1 `Gi0/0` | `bgp` | OPEN: AS 65000과 65010, Hold Time 9, BGP Identifier(PE1 10.0.1.11, Hub1 10.0.1.21), UPDATE에 192.168.10.0/24, 192.168.20.0/24 |
+| leaf3 `ethernet6` - Hub1 `Gi1/0` | `bgp` | AS 65100과 65010, Hold Time 9 |
 
 ## 결과 기록
 
 | 일시 | 결과 (성공, 실패) | 비고 |
 |---|---|---|
-| 2026-10-22 | 부분 성공 | PE1 쪽에서 leaf3, leaf4 Established와 ECMP 확인([core 07 검증](../core/07-pe-ce-ebgp.md)). leaf3 `show ip bgp summary vrf TENANT-A`에서 PE1 Estab 확인(항목 2의 PE1 부분). VRF router-id 수정 필요(위 참조). 항목 1(leaf에서 PE1 ping), 5(hold)는 미확인. 항목 3, 4와 Hub 구간은 이후 |
-| 2026-10-22 | 성공 (Hub 연동) | 항목 2의 Hub 부분 완료. leaf3-Hub1(10.0.31.0/.1), leaf4-Hub2(10.0.31.2/.3) eBGP **Established**, VRF router-id가 10.1.2.13, 10.1.2.14로 적용됨. Hub는 leaf에서 경로 7개 수신, leaf가 Hub에서 받는 경로는 0(Hub 광고 설정 이후). Hub1, Hub2 정적 경로(BGW 터널 주소 방향), PE1에서 Hub1, Hub2 ping 5/5, 모든 leaf-Hub, Hub-leaf 세션의 hold 9와 keepalive 3까지 확인. 터널과 Hub ↔ BGW ping은 BGW 구성 뒤 |
+| 2026-10-22 | 이전 구성 | leaf3·4 - PE1 직결, Hub 정적 경로 구성에서 확인. 최종 구성으로 변경됨 |
+| 2026-11-07 | 성공 (장애 시험) | T1 손실 0, T1b 약 8.4초, T2 약 12.6초, 모두 자동 복구. Host A ↔ Host F ping 통과 |
+| 2026-11-07 | 확인 필요 | 항목 1 ~ 7, 10 화면 증빙을 최종 구성에서 다시 찍어 추가 |
