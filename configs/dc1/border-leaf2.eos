@@ -1,0 +1,121 @@
+!
+hostname BORDER-LEAF2
+!
+service routing protocols model multi-agent
+!
+username admin privilege 15 role network-admin secret admin1234
+!
+management console
+   idle-timeout 0
+!
+management ssh
+   idle-timeout 0
+   no shutdown
+!
+interface management1
+   ip address 192.168.100.26/24
+!
+interface loopback0
+   description ROUTER-ID
+   ip address 10.1.0.16/32
+!
+interface loopback1
+   description VTEP
+   ip address 10.1.1.16/32
+!
+logging buffered 64000
+clock timezone Asia/Seoul
+!
+ip routing
+!
+vrf instance TENANT-A
+!
+ip routing vrf TENANT-A
+!
+interface ethernet1
+   description Hub2 to Gi1/0
+   no switchport
+   vrf TENANT-A
+   ip address 10.0.31.2/31
+   no shutdown
+!
+interface ethernet2
+   description spine1 to ethernet6
+   no switchport
+   ip address 10.1.10.19/31
+   no shutdown
+!
+interface ethernet3
+   description spine2 to ethernet6
+   no switchport
+   ip address 10.1.10.23/31
+   no shutdown
+!
+interface vxlan1
+   vxlan source-interface loopback1
+   vxlan udp-port 4789
+   vxlan vrf TENANT-A vni 50001
+!
+ip access-list MGMT-ACL
+   10 permit tcp 192.168.100.0/24 any eq ssh
+   20 permit icmp 192.168.100.0/24 any
+   30 permit ospf any any
+   40 permit tcp 10.1.0.0/24 any eq bgp
+   50 permit tcp 10.1.0.0/24 eq bgp any
+   60 permit icmp 10.0.0.0/8 any
+   70 deny ip any any log
+!
+system control-plane
+   ip access-group MGMT-ACL in
+!
+router ospf 1
+   router-id 10.1.0.16
+   passive-interface loopback0
+   passive-interface loopback1
+   max-lsa 12000
+!
+interface loopback0
+   ip ospf area 0.0.0.0
+!
+interface loopback1
+   ip ospf area 0.0.0.0
+!
+interface ethernet2
+   ip ospf network point-to-point
+   ip ospf area 0.0.0.0
+   ip ospf hello-interval 1
+   ip ospf dead-interval 4
+!
+interface ethernet3
+   ip ospf network point-to-point
+   ip ospf area 0.0.0.0
+   ip ospf hello-interval 1
+   ip ospf dead-interval 4
+!
+router bgp 65100
+   router-id 10.1.2.16
+   no bgp default ipv4-unicast
+   maximum-paths 4 ecmp 4
+   neighbor SPINES peer group
+   neighbor SPINES remote-as 65100
+   neighbor SPINES timers 3 9
+   neighbor SPINES update-source loopback0
+   neighbor SPINES send-community extended
+   neighbor 10.1.0.1 peer group SPINES
+   neighbor 10.1.0.2 peer group SPINES
+   !
+   address-family evpn
+      neighbor SPINES activate
+   !
+   vrf TENANT-A
+      rd 10.1.2.16:50001
+      route-target import evpn 50001:50001
+      route-target export evpn 50001:50001
+      router-id 10.1.2.16
+      neighbor 10.0.31.3 remote-as 65010
+      neighbor 10.0.31.3 timers 3 9
+      redistribute connected
+      !
+      address-family ipv4
+         neighbor 10.0.31.3 activate
+!

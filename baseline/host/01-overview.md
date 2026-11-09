@@ -50,6 +50,6 @@
 | CX3 | `1/1/5` (Host D `eth0`, 미사용) | 같음 | CX3 경유 연결은 이미지 한계로 쓰지 않음 |
 
 - 호스트 한 대만 연결되는 포트라서 STP 수렴을 기다리지 않게 하고, `bpduguard`로 스위치가 잘못 연결되는 경우를 막음
-- **스위치끼리 연결되는 포트에는 쓰지 않음**: MLAG 피어링크, spine-leaf 링크, leaf3·4의 PE1·Hub 링크, DSW-ASW 트렁크.
+- **스위치끼리 연결되는 포트에는 쓰지 않음**: MLAG 피어링크, spine-leaf 링크, border leaf의 Hub 링크, DSW-ASW 트렁크.
 - `portfast`를 켜면 "portfast should only be enabled on ports connected to a single host" 경고가 나오는데, 정상 출력
 - 확인: `show spanning-tree interface <포트> detail`에서 edge 포트로 표시되고 `forwarding`이어야 함. 포트채널은 호스트가 연결되어 멤버가 올라와야 STP 정보가 나옴

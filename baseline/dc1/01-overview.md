@@ -9,7 +9,7 @@
 | 항목 | 내용 |
 |---|---|
 | 역할 | EVPN-VXLAN 패브릭(L2VNI, L3VNI), MLAG 이중화, WAN 출구(Hub) 연동 |
-| 장비 | Arista vEOS 6대 (spine1, spine2, leaf1~leaf4), Cisco c7200 2대 (Hub1, Hub2), 호스트 3대 (A, B, C) |
+| 장비 | Arista vEOS 8대 (spine1, spine2, leaf1~leaf4, border-leaf1, border-leaf2), Cisco c7200 2대 (Hub1, Hub2), 호스트 3대 (A, B, C) |
 | Underlay | OSPF process 1, area 0, 점대점 /31 |
 | Overlay | iBGP EVPN (DC1 전체 AS 65100, spine1·2가 Route Reflector, leaf는 client), 루프백 간 |
 | 멀티호밍 | MLAG 2쌍: leaf1/leaf2(서버 leaf), leaf3/leaf4(border leaf) |
@@ -31,16 +31,18 @@
 | leaf1 | Et5 | A | Host A | eth0 |
 | leaf2 | Et5 | A | Host A | eth1 |
 | leaf3 | Et3-4 | U (MLAG peer-link) | leaf4 | Et3-4 |
-| leaf3 | Et6 | O (Hub1 연동, VRF TENANT-A) | Hub1 | Gi1/0 |
 | leaf3 | Et7 | A | Host B | eth0 |
-| leaf3 | Et8 | O (Hub2 연동, VRF TENANT-A) | Hub2 | Gi2/0 |
-| leaf4 | Et6 | O (Hub2 연동, VRF TENANT-A) | Hub2 | Gi1/0 |
 | leaf4 | Et7 | A | Host C | eth0 |
-| leaf4 | Et8 | O (Hub1 연동, VRF TENANT-A) | Hub1 | Gi2/0 |
-| Hub1 | Gi0/0 | O (PE-CE) | PE1 | Gi4/0 |
+| border-leaf1 | Et2 | U | spine1 | Et5 |
+| border-leaf1 | Et3 | U | spine2 | Et5 |
+| border-leaf2 | Et2 | U | spine1 | Et6 |
+| border-leaf2 | Et3 | U | spine2 | Et6 |
+| border-leaf1 | Et1 | O (Hub1 연동, VRF TENANT-A) | Hub1 | Gi1/0 |
+| border-leaf2 | Et1 | O (Hub2 연동, VRF TENANT-A) | Hub2 | Gi1/0 |
+| Hub1 | Gi0/0 | O (PE-CE) | PE1 | Gi2/0 |
 | Hub2 | Gi0/0 | O (PE-CE) | PE1 | Gi5/0 |
 
-GNS3 어댑터 수(관리 포함): spine 5, leaf1/leaf2 6, leaf3/leaf4 9. 관리 포트는 MGMT-SW Et1 ~ Et6에 연결
+GNS3 어댑터 수(관리 포함): spine 7, leaf1/leaf2 6, leaf3/leaf4 9, border-leaf1·2 4(Et1~Et3 사용). 관리 포트는 MGMT-SW Et1 ~ Et6에 연결(border leaf의 Management1은 연결하지 않음)
 
 ## 3. IP 주소
 

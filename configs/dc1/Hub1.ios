@@ -36,18 +36,13 @@ interface loopback 0
     ip address 10.0.0.21 255.255.255.255
 !
 interface gigabitethernet 0/0
-    description PE1 to Gi4/0
+    description PE1 to Gi2/0
     ip address 10.0.30.1 255.255.255.254
     no shutdown
 !
 interface gigabitethernet 1/0
-    description leaf3 to Et6
+    description BORDER-LEAF1 to Et1
     ip address 10.0.31.1 255.255.255.254
-    no shutdown
-!
-interface gigabitethernet 2/0
-    description leaf4 to Et8
-    ip address 10.0.32.3 255.255.255.254
     no shutdown
 !
 router bgp 65010
@@ -58,12 +53,9 @@ router bgp 65010
     neighbor 10.0.30.0 timers 3 9
     neighbor 10.0.31.0 remote-as 65100
     neighbor 10.0.31.0 timers 3 9
-    neighbor 10.0.32.2 remote-as 65100
-    neighbor 10.0.32.2 timers 3 9
     !
     address-family ipv4
         neighbor 10.0.30.0 activate
         neighbor 10.0.31.0 activate
-        neighbor 10.0.32.2 activate
     exit-address-family
 !

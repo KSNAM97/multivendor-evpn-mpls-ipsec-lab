@@ -41,8 +41,7 @@ VLAN, VNI, IP 대역, AS 번호를 한곳에 정리한 문서
 | 10.0.10.0/24 | PE 코어 링크 | PE 삼각형 /31 3개 |
 | 10.0.20.0/24 | DC2 PE-CE 링크 (VRF PARTNER) | PE2-CX1, PE2-CX2 (10.0.20.4~7) |
 | 10.0.30.0/24 | PE1-Hub 링크 (VRF TENANT-A) | PE1-Hub1, PE1-Hub2 (10.0.30.0~3) |
-| 10.0.31.0/24 | leaf-Hub 연동 링크 | leaf3-Hub1, leaf4-Hub2 |
-| 10.0.32.0/24 | Hub-leaf 교차 연동 링크 | leaf3-Hub2, leaf4-Hub1 |
+| 10.0.31.0/24 | border leaf-Hub 연동 링크 | border-leaf1-Hub1(10.0.31.0/31), border-leaf2-Hub2(10.0.31.2/31) |
 | 10.0.60.0/24 | Branch PE-CE 링크 (VRF BR1) | PE3-BGW1, PE3-BGW2 |
 | 10.50.0.0/24 | Branch 라우티드 링크 | BGW1-DSW1, BGW2-DSW2 |
 | 10.1.0.0/24 | DC1 Loopback0 | spine .1·.2, leaf .11~.14 |

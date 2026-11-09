@@ -12,11 +12,11 @@
 | 2 | 같은 VLAN (L2VNI) | Host A -> Host B | `ping -c 3 192.168.10.102` | 응답 (VNI 10010) | [EVPN 검증](../dc1/03-evpn-vxlan.md)의 항목 3 ~ 6 |
 | 3 | 다른 VLAN (L3VNI) | Host A -> Host C | `ping -c 3 192.168.20.101` | 응답 (VNI 50001, VRF TENANT-A) | L3VNI, RT, SVI |
 | 4 | DC1 -> DC2 | Host A -> Host D | `ping -c 3 192.168.110.101` | **응답 없음**(정상). DC1과 DC2는 분리 | TENANT-A와 PARTNER가 서로의 RT를 import하지 않아야 함 |
-| 5 | DC1 -> Branch | Host A -> Host F | `ping -c 4 192.168.50.101` | 4/4 응답 (leaf3·4, Hub, PE1, MPLS L3VPN(VRF BR1), PE3, BGW, DSW 경유) | Hub, PE-CE eBGP, VPNv4 RT |
+| 5 | DC1 -> Branch | Host A -> Host F | `ping -c 4 192.168.50.101` | 4/4 응답 (leaf, border leaf, Hub, PE1, MPLS L3VPN(VRF BR1), PE3, BGW, DSW 경유) | Hub, PE-CE eBGP, VPNv4 RT |
 | 6 | Branch 내부 | Host F -> Host G | `ping -c 3 192.168.60.101` | 응답 (DSW SVI 간 라우팅) | VRRP, SVI |
 | 7 | DC2 -> Branch | Host D -> Host F | `ping -c 4 192.168.50.101` | 4/4 응답 (CX, PE2, MPLS L3VPN, PE3, BGW, DSW 경유) | PE-CE eBGP, VRF BR1 import RT 65000:2 |
 | 8 | Branch -> DC1, DC2 | Host F -> Host A, Host F -> Host D | `ping -c 4 192.168.10.101`, `ping -c 4 192.168.110.101` | 모두 4/4 응답 | BGW `PARTNER-TO-BR` in 필터 |
-| 9 | 경로 | Host A -> Host F | `traceroute -n 192.168.50.101` | leaf, Hub(10.0.31.x 또는 10.0.32.x)를 지나 Branch로 | 라우팅 |
+| 9 | 경로 | Host A -> Host F | `traceroute -n 192.168.50.101` | leaf, border leaf, Hub(10.0.31.x)를 지나 Branch로 | 라우팅 |
 
 ## 증빙
 

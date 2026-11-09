@@ -35,10 +35,10 @@ VTEP과 BGP 루프백의 도달성을 만드는 underlay
 | 장비 | 인터페이스 | 용도 | 네트워크 타입 | passive |
 |---|---|---|---|---|
 | spine1, spine2 | `loopback0` | OSPF router-id, BGP 출발지 | loopback | **passive** |
-| spine1, spine2 | `ethernet1` ~ `ethernet4` | leaf1 ~ leaf4 링크 | point-to-point, hello 1 / dead 4 | 아니오 (이웃을 맺음) |
+| spine1, spine2 | `ethernet1` ~ `ethernet6` | leaf1 ~ leaf4, border-leaf1·2 링크 | point-to-point, hello 1 / dead 4 | 아니오 (이웃을 맺음) |
 | leaf1 ~ leaf4 | `loopback0` | OSPF router-id, BGP 출발지 | loopback | **passive** |
 | leaf1 ~ leaf4 | `loopback1` | VTEP (MLAG 쌍이 같은 주소 공유) | loopback | **passive** |
-| leaf1 ~ leaf4 | `ethernet1`, `ethernet2` | spine1, spine2 링크 | point-to-point, hello 1 / dead 4 | 아니오 (이웃을 맺음) |
+| leaf1 ~ leaf4, border-leaf1·2 | `ethernet1`, `ethernet2` (border leaf는 `ethernet2`, `ethernet3`) | spine1, spine2 링크 | point-to-point, hello 1 / dead 4 | 아니오 (이웃을 맺음) |
 
 **OSPF에 넣지 않는 인터페이스**
 
@@ -48,7 +48,7 @@ VTEP과 BGP 루프백의 도달성을 만드는 underlay
 | `vlan10`, `vlan20` (SVI) | 테넌트 경로는 EVPN으로 전달 (VRF TENANT-A) |
 | `vlan4094` | MLAG 제어 전용. 필요 시 우회 경로용으로 추가 검토 |
 | `port-channel1`, `ethernet3`, `ethernet4` | MLAG 피어 링크 (L2) |
-| leaf3, leaf4의 `ethernet6`, `ethernet8` | Hub 링크 (VRF TENANT-A, 이후 단계에서 eBGP) |
+| border-leaf1, border-leaf2의 `ethernet1` | Hub 링크 (VRF TENANT-A, 이후 단계에서 eBGP) |
 | `ethernet5`, `ethernet7` (호스트 포트) | L2 access |
 
 passive 인터페이스는 OSPF 광고는 되지만 hello를 보내지 않아서 이웃이 맺어지지 않음. 루프백은 이웃이 없으므로 passive로 두는 것이 맞음
@@ -61,10 +61,14 @@ passive 인터페이스는 OSPF 광고는 되지만 hello를 보내지 않아서
 | spine1 - leaf2 | 10.1.10.2/31 | .2 | .3 |
 | spine1 - leaf3 | 10.1.10.4/31 | .4 | .5 |
 | spine1 - leaf4 | 10.1.10.6/31 | .6 | .7 |
+| spine1 - border-leaf1 | 10.1.10.16/31 | .16 | .17 |
+| spine1 - border-leaf2 | 10.1.10.18/31 | .18 | .19 |
 | spine2 - leaf1 | 10.1.10.8/31 | .8 | .9 |
 | spine2 - leaf2 | 10.1.10.10/31 | .10 | .11 |
 | spine2 - leaf3 | 10.1.10.12/31 | .12 | .13 |
 | spine2 - leaf4 | 10.1.10.14/31 | .14 | .15 |
+| spine2 - border-leaf1 | 10.1.10.20/31 | .20 | .21 |
+| spine2 - border-leaf2 | 10.1.10.22/31 | .22 | .23 |
 
 ## 이중화와 부하 분산
 

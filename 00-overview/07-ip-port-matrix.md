@@ -29,6 +29,8 @@ spine, Cisco 장비, CX에는 Loopback1이 없음(VXLAN이 없음).
 | Et2 | spine-leaf | 10.1.10.2/31 | leaf2 Et1 (.3) | OSPF |
 | Et3 | spine-leaf | 10.1.10.4/31 | leaf3 Et1 (.5) | OSPF |
 | Et4 | spine-leaf | 10.1.10.6/31 | leaf4 Et1 (.7) | OSPF |
+| Et5 | spine-border leaf | 10.1.10.16/31 | border-leaf1 Et2 (.17) | OSPF |
+| Et6 | spine-border leaf | 10.1.10.18/31 | border-leaf2 Et2 (.19) | OSPF |
 
 ### spine2 (관리 192.168.100.12/24)
 
@@ -40,6 +42,8 @@ spine, Cisco 장비, CX에는 Loopback1이 없음(VXLAN이 없음).
 | Et2 | spine-leaf | 10.1.10.10/31 | leaf2 Et2 (.11) | OSPF |
 | Et3 | spine-leaf | 10.1.10.12/31 | leaf3 Et2 (.13) | OSPF |
 | Et4 | spine-leaf | 10.1.10.14/31 | leaf4 Et2 (.15) | OSPF |
+| Et5 | spine-border leaf | 10.1.10.20/31 | border-leaf1 Et3 (.21) | OSPF |
+| Et6 | spine-border leaf | 10.1.10.22/31 | border-leaf2 Et3 (.23) | OSPF |
 
 ### leaf1 (MLAG 쌍: leaf2, AS 65100)
 
@@ -69,7 +73,7 @@ spine, Cisco 장비, CX에는 Loopback1이 없음(VXLAN이 없음).
 | Et5 (Po10) | Host A (mlag 10) | (L2, VLAN 10) | Host A eth1 | |
 | Vlan10 | anycast gateway | 192.168.10.1/24 | - | VRF TENANT-A, **공유** |
 
-### leaf3 (MLAG 쌍: leaf4, AS 65100, border)
+### leaf3 (MLAG 쌍: leaf4, AS 65100)
 
 | 인터페이스 | 역할 | IP | 상대 | 비고 |
 |---|---|---|---|---|
@@ -80,13 +84,11 @@ spine, Cisco 장비, CX에는 Loopback1이 없음(VXLAN이 없음).
 | Et2 | spine-leaf | 10.1.10.13/31 | spine2 Et3 (.12) | OSPF |
 | Et3-4 (Po1) | MLAG peer-link | (L2) | leaf4 Et3-4 | |
 | Vlan4094 | MLAG 제어 | 10.1.254.2/31 | leaf4 Vlan4094 (.3) | domain **MLAG2** |
-| Et6 | Hub1 연동 | 10.0.31.0/31 | Hub1 Gi1/0 (.1) | VRF TENANT-A |
 | Et7 | Host B | (L2, VLAN 10) | Host B eth0 | access 포트 |
-| Et8 | Hub2 연동 | 10.0.32.0/31 | Hub2 Gi2/0 (.1) | VRF TENANT-A |
 | Vlan10 | anycast gateway | 192.168.10.1/24 | - | **공유** |
 | Vlan20 | anycast gateway | 192.168.20.1/24 | - | **공유** (leaf3, leaf4) |
 
-### leaf4 (MLAG 쌍: leaf3, AS 65100, border)
+### leaf4 (MLAG 쌍: leaf3, AS 65100)
 
 | 인터페이스 | 역할 | IP | 상대 | 비고 |
 |---|---|---|---|---|
@@ -97,11 +99,31 @@ spine, Cisco 장비, CX에는 Loopback1이 없음(VXLAN이 없음).
 | Et2 | spine-leaf | 10.1.10.15/31 | spine2 Et4 (.14) | OSPF |
 | Et3-4 (Po1) | MLAG peer-link | (L2) | leaf3 Et3-4 | |
 | Vlan4094 | MLAG 제어 | 10.1.254.3/31 | leaf3 Vlan4094 (.2) | |
-| Et6 | Hub2 연동 | 10.0.31.2/31 | Hub2 Gi1/0 (.3) | VRF TENANT-A |
 | Et7 | Host C | (L2, VLAN 20) | Host C eth0 | access 포트 |
-| Et8 | Hub1 연동 | 10.0.32.2/31 | Hub1 Gi2/0 (.3) | VRF TENANT-A |
 | Vlan10 | anycast gateway | 192.168.10.1/24 | - | **공유** |
 | Vlan20 | anycast gateway | 192.168.20.1/24 | - | **공유** |
+
+### border-leaf1 (단독 VTEP, AS 65100)
+
+| 인터페이스 | 역할 | IP | 상대 | 비고 |
+|---|---|---|---|---|
+| Management1 | 관리 | 192.168.100.25/24 | 연결 없음 | |
+| Loopback0 | router-id, BGP | 10.1.0.15/32 | - | |
+| **Loopback1** | **VTEP** | **10.1.1.15/32** | - | 단독 (MLAG 없음) |
+| Et1 | Hub1 연동 | 10.0.31.0/31 | Hub1 Gi1/0 (.1) | VRF TENANT-A |
+| Et2 | spine-border leaf | 10.1.10.17/31 | spine1 Et5 (.16) | OSPF |
+| Et3 | spine-border leaf | 10.1.10.21/31 | spine2 Et5 (.20) | OSPF |
+
+### border-leaf2 (단독 VTEP, AS 65100)
+
+| 인터페이스 | 역할 | IP | 상대 | 비고 |
+|---|---|---|---|---|
+| Management1 | 관리 | 192.168.100.26/24 | 연결 없음 | |
+| Loopback0 | router-id, BGP | 10.1.0.16/32 | - | |
+| **Loopback1** | **VTEP** | **10.1.1.16/32** | - | 단독 (MLAG 없음) |
+| Et1 | Hub2 연동 | 10.0.31.2/31 | Hub2 Gi1/0 (.3) | VRF TENANT-A |
+| Et2 | spine-border leaf | 10.1.10.19/31 | spine1 Et6 (.18) | OSPF |
+| Et3 | spine-border leaf | 10.1.10.23/31 | spine2 Et6 (.22) | OSPF |
 
 ## 2. MPLS 코어 Cisco c7200
 
@@ -111,7 +133,7 @@ spine, Cisco 장비, CX에는 Loopback1이 없음(VXLAN이 없음).
 |---|---|---|---|---|
 | Gi0/0 | 코어 | 10.0.10.0/31 | PE2 Gi0/0 (.1) | global |
 | Gi1/0 | 코어 | 10.0.10.2/31 | PE3 Gi0/0 (.3) | global |
-| Gi4/0 | PE-CE | 10.0.30.0/31 | Hub1 Gi0/0 (.1) | TENANT-A |
+| Gi2/0 | PE-CE | 10.0.30.0/31 | Hub1 Gi0/0 (.1) | TENANT-A |
 | Gi5/0 | PE-CE | 10.0.30.2/31 | Hub2 Gi0/0 (.3) | TENANT-A |
 
 ### PE2 (Loopback0 10.0.0.12/32)
@@ -139,13 +161,11 @@ spine, Cisco 장비, CX에는 Loopback1이 없음(VXLAN이 없음).
 | 장비 | 인터페이스 | 역할 | IP | 상대 |
 |---|---|---|---|---|
 | Hub1 | Loopback0 | router-id | 10.0.0.21/32 | - |
-| Hub1 | Gi0/0 | PE-CE | 10.0.30.1/31 | PE1 Gi4/0 (.0) |
-| Hub1 | Gi1/0 | leaf 연동 | 10.0.31.1/31 | leaf3 Et6 (.0) |
-| Hub1 | Gi2/0 | leaf 연동 | 10.0.32.3/31 | leaf4 Et8 (.2) |
+| Hub1 | Gi0/0 | PE-CE | 10.0.30.1/31 | PE1 Gi2/0 (.0) |
+| Hub1 | Gi1/0 | border leaf 연동 | 10.0.31.1/31 | border-leaf1 Et1 (.0) |
 | Hub2 | Loopback0 | router-id | 10.0.0.22/32 | - |
 | Hub2 | Gi0/0 | PE-CE | 10.0.30.3/31 | PE1 Gi5/0 (.2) |
-| Hub2 | Gi1/0 | leaf 연동 | 10.0.31.3/31 | leaf4 Et6 (.2) |
-| Hub2 | Gi2/0 | leaf 연동 | 10.0.32.1/31 | leaf3 Et8 (.0) |
+| Hub2 | Gi1/0 | border leaf 연동 | 10.0.31.3/31 | border-leaf2 Et1 (.2) |
 
 ### BGW1, BGW2 (Branch 고객사 망 끝단, AS 65020)
 

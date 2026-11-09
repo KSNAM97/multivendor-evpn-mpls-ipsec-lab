@@ -25,7 +25,7 @@ iBGP EVPN(spine이 Route Reflector)으로 MAC/IP 경로를 교환하는 오버�
 
 - iBGP는 next-hop을 바꾸지 않으므로 spine에 `next-hop-unchanged`가 필요 없고, 루프백 간 세션이지만 `ebgp-multihop`도 필요 없음
 - keepalive(상대에게 살아 있음을 알리는 주기)가 3초이고, hold(이 시간 동안 keepalive가 없으면 이웃을 끊는 한도)가 9초. 링크가 끊겨도 BGP 이웃은 최대 9초 뒤에 내려가므로, 평소에는 OSPF(dead 4초)가 먼저 경로를 바꿈.
-- 사이트 밖(leaf3·4와 PE1, Hub)과는 별도 단계(DCI와 Hub 연동)에서 eBGP를 맺음. 이때 DC1은 AS 65100으로 보임
+- 사이트 밖(border leaf, Hub, PE1)과는 별도 단계(DCI와 Hub 연동)에서 eBGP를 맺음. 이때 DC1은 AS 65100으로 보임
 
 ## 장비별 iBGP 이웃
 

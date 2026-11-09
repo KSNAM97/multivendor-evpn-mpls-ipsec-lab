@@ -88,7 +88,7 @@ ping vrf BR1 10.0.60.3
 ### PE1
 
 `show ip interface brief`, `show ip vrf interfaces`, `show ip vrf`, `show running-config interface gigabitethernet 0/0` 출력
-- 이 화면은 이전 구성(leaf 직결, WAN-UL)에서 찍은 것. 최종 구성은 Gi0/0, Gi1/0, Gi4/0, Gi5/0만 사용하고 Gi4/0, Gi5/0은 VRF TENANT-A 소속(Hub1, Hub2). Gi2/0, Gi3/0, Gi6/0은 미사용
+- 이 화면은 이전 구성(leaf 직결, WAN-UL)에서 찍은 것. 최종 구성은 Gi0/0, Gi1/0, Gi2/0, Gi5/0만 사용하고 Gi2/0, Gi5/0은 VRF TENANT-A 소속(Hub1, Hub2). Gi2/0, Gi3/0, Gi6/0은 미사용
 - 최종 구성 화면으로 교체 필요
 
 ![PE1 인터페이스 IP](images/02-interface-ip/pe1-interface-ip.png)

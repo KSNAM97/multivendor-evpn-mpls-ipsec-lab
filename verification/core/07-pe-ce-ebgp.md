@@ -29,7 +29,7 @@
 | 캡처 링크 | 표시 필터 | 볼 것 |
 |---|---|---|
 | PE1 `Gi1/0` - PE3 `Gi0/0` | `mpls` | Host A와 Host F ping 때 VPN 레이블 1개(S=1). PE1 -> PE3는 Label 26(BR1 192.168.50.0), PE3 -> PE1은 Label 33(192.168.10.101/32, PE1 표의 in label)과 일치. 직결 링크라 PHP로 전송 레이블은 보이지 않음 |
-| PE1 `Gi4/0` - Hub1 `Gi0/0` | `bgp` | OPEN: AS 65000과 65010, Hold Time 9, UPDATE에 192.168.10.0/24, 192.168.20.0/24 |
+| PE1 `Gi2/0` - Hub1 `Gi0/0` | `bgp` | OPEN: AS 65000과 65010, Hold Time 9, UPDATE에 192.168.10.0/24, 192.168.20.0/24 |
 
 ## 결과 기록
 

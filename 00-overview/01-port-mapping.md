@@ -18,7 +18,7 @@
 
 ---
 
-## 1. Arista vEOS 4.29.2F (DC1 패브릭, 6대)
+## 1. Arista vEOS 4.29.2F (DC1 패브릭, 8대)
 
 | 노드 | 포트 | 계층 | 상대 노드 | 상대 포트 |
 |---|---|---|---|---|
@@ -26,24 +26,26 @@
 | spine1 | Et2 | U | leaf2 | Et1 |
 | spine1 | Et3 | U | leaf3 | Et1 |
 | spine1 | Et4 | U | leaf4 | Et1 |
+| spine1 | Et5 | U | border-leaf1 | Et2 |
+| spine1 | Et6 | U | border-leaf2 | Et2 |
 | spine2 | Et1 | U | leaf1 | Et2 |
 | spine2 | Et2 | U | leaf2 | Et2 |
 | spine2 | Et3 | U | leaf3 | Et2 |
 | spine2 | Et4 | U | leaf4 | Et2 |
+| spine2 | Et5 | U | border-leaf1 | Et3 |
+| spine2 | Et6 | U | border-leaf2 | Et3 |
 | leaf1 | Et3-4 | U (MLAG peer-link) | leaf2 | Et3-4 |
 | leaf1 | Et5 | A | Host A | eth0 |
 | leaf2 | Et5 | A | Host A | eth1 |
 | leaf3 | Et3-4 | U (MLAG peer-link) | leaf4 | Et3-4 |
-| leaf3 | Et6 | O (Hub1 연동, VRF TENANT-A) | Hub1 | Gi1/0 |
 | leaf3 | Et7 | A | Host B | eth0 |
-| leaf3 | Et8 | O (Hub2 연동, VRF TENANT-A) | Hub2 | Gi2/0 |
-| leaf4 | Et6 | O (Hub2 연동, VRF TENANT-A) | Hub2 | Gi1/0 |
 | leaf4 | Et7 | A | Host C | eth0 |
-| leaf4 | Et8 | O (Hub1 연동, VRF TENANT-A) | Hub1 | Gi2/0 |
+| border-leaf1 | Et1 | O (Hub1 연동, VRF TENANT-A) | Hub1 | Gi1/0 |
+| border-leaf2 | Et1 | O (Hub2 연동, VRF TENANT-A) | Hub2 | Gi1/0 |
 
-leaf3·4는 PE1에 직접 연결하지 않고 Hub 2대에 각각 연결함(교차 연결). leaf3·4가 VTEP을 공유하므로 Hub 한쪽 경로가 끊겨도 다른 Hub로 나갈 수 있어야 해서, 두 leaf 모두 Hub 2대에 연결함
+외부 연결은 전용 border leaf(border-leaf1, border-leaf2)가 맡음. border-leaf1은 Hub1, border-leaf2는 Hub2에 1대1로 연결하고(교차 연결 없음), 두 border leaf는 MLAG 없이 VTEP을 각각 가짐. leaf1~4는 서버 접속만 담당하고 Hub에 연결하지 않음. border leaf의 Management1은 연결하지 않음
 
-GNS3 어댑터 수(관리 포함): spine 5, leaf1/leaf2 6, leaf3/leaf4 9
+GNS3 어댑터 수(관리 포함): spine 7, leaf1/leaf2 6, leaf3/leaf4 9, border-leaf1/2 4(Et1~Et3 사용)
 
 ## 2. Cisco
 
@@ -53,21 +55,19 @@ GNS3 어댑터 수(관리 포함): spine 5, leaf1/leaf2 6, leaf3/leaf4 9
 |---|---|---|---|---|
 | PE1 | Gi0/0 | W (코어) | PE2 | Gi0/0 |
 | PE1 | Gi1/0 | W (코어) | PE3 | Gi0/0 |
-| PE1 | Gi4/0 | O (PE-CE, VRF TENANT-A) | Hub1 | Gi0/0 |
+| PE1 | Gi2/0 | O (PE-CE, VRF TENANT-A) | Hub1 | Gi0/0 |
 | PE1 | Gi5/0 | O (PE-CE, VRF TENANT-A) | Hub2 | Gi0/0 |
 | PE2 | Gi1/0 | W (코어) | PE3 | Gi1/0 |
 | PE2 | Gi2/0 | O (PE-CE, VRF PARTNER) | CX1 (Aruba) | 1/1/1 |
 | PE2 | Gi3/0 | O (PE-CE, VRF PARTNER) | CX2 (Aruba) | 1/1/1 |
 | PE3 | Gi2/0 (.100 서브인터페이스, VRF BR1) | O (PE-CE) | BGW1 | Gi0/0 (.100) |
 | PE3 | Gi3/0 (.100 서브인터페이스, VRF BR1) | O (PE-CE) | BGW2 | Gi0/0 (.100) |
-| Hub1 | Gi1/0 | O | leaf3 (Arista) | Et6 |
-| Hub1 | Gi2/0 | O | leaf4 (Arista) | Et8 |
-| Hub2 | Gi1/0 | O | leaf4 (Arista) | Et6 |
-| Hub2 | Gi2/0 | O | leaf3 (Arista) | Et8 |
+| Hub1 | Gi1/0 | O | border-leaf1 (Arista) | Et1 |
+| Hub2 | Gi1/0 | O | border-leaf2 (Arista) | Et1 |
 | BGW1 | Gi1/0 | S | DSW1 | Gi0/0 |
 | BGW2 | Gi1/0 | S | DSW2 | Gi0/0 |
 
-PE1 Gi2/0, Gi3/0은 사용하지 않음(비어 있음). PE1, PE2, PE3는 서로 삼각형으로 연결되어 별도의 P 라우터 없이 코어 경로가 이중화됨. 관리 포트가 없는 c7200은 GNS3 콘솔(telnet)로 접속하고 관리망에는 연결하지 않음
+PE1 Gi3/0, Gi4/0은 사용하지 않음(비어 있음). PE1, PE2, PE3는 서로 삼각형으로 연결되어 별도의 P 라우터 없이 코어 경로가 이중화됨. 관리 포트가 없는 c7200은 GNS3 콘솔(telnet)로 접속하고 관리망에는 연결하지 않음
 
 ### 2-2. IOSv 스위치 (Branch 스위치단, 3대)
 
@@ -141,12 +141,13 @@ DSW1, DSW2의 Gi3/3은 관리 전용 VRF(MGMT)에 넣어 데이터 라우팅에 
 
 | 구간 | 링크 수 |
 |---|---|
-| DC1 spine-leaf | 8 |
+| DC1 spine-leaf | 8 (leaf1~4) |
+| DC1 spine-border leaf | 4 (border-leaf1·2 각 2) |
 | DC1 MLAG peer-link | 4 (leaf1-2 쌍, leaf3-4 쌍 각 2) |
 | 호스트 연결 | 7 (A 2, B, C, D, F, G) |
 | 코어(PE 삼각형) | 3 |
 | DCI (PE-DC) | 2 (PE2-CX1, PE2-CX2) |
-| Hub 구간 | 6 (PE1-Hub1, PE1-Hub2, leaf3-Hub1, leaf3-Hub2, leaf4-Hub1, leaf4-Hub2) |
+| Hub 구간 | 4 (PE1-Hub1, PE1-Hub2, border-leaf1-Hub1, border-leaf2-Hub2) |
 | Branch PE-CE와 라우티드 업링크 | 4 (PE3-BGW1, PE3-BGW2, BGW1-DSW1, BGW2-DSW2) |
 | Branch 스위치 | 6 (DSW 간 2, DSW1-ASW1 2, DSW2-ASW1 2) |
 | VSX ISL와 keepalive | 3 |

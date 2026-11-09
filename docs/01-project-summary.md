@@ -16,7 +16,7 @@
 | Branch | Cisco c7200, IOSv | BGW 2, DSW 2, ASW 1 | MSTP, EtherChannel, VRRP, OSPF, PE3와 VRF BR1 eBGP |
 | 호스트 | Ubuntu Docker Guest | Host A, B, C, D, F, G | 연결 시험, 트래픽 생성 |
 
-- 네트워크 장비 19대, 호스트 6대
+- 네트워크 장비 21대, 호스트 6대
 - 작업 기간: 2026.10.05 ~ 11.06, 1인 수행
 - 환경: GNS3 VM 22GB. 노드별 메모리와 단계별로 켜는 노드는 [리소스 계획](../00-overview/04-resource-plan.md)
 
@@ -49,6 +49,6 @@
 | EVPN-VXLAN | DC1 leaf, spine | [기준](../baseline/dc1/05-evpn-vxlan.md), [검증](../verification/dc1/03-evpn-vxlan.md) |
 | MLAG, VSX | DC1 leaf 쌍, DC2 CX 쌍 | [DC1 검증](../verification/dc1/02-mlag.md), [DC2 검증](../verification/dc2/03-vsx.md) |
 | MPLS L3VPN | PE1~PE3 | [LDP 검증](../verification/core/04-mpls-ldp.md), [VPNv4 검증](../verification/core/06-mp-bgp-vpnv4.md) |
-| PE-CE eBGP | Hub-PE1(leaf3·4 교차 연결), CX1·2-PE2, BGW-PE3 | [검증](../verification/core/07-pe-ce-ebgp.md) |
+| PE-CE eBGP | Hub-PE1(border leaf 1대1 연결), CX1·2-PE2, BGW-PE3 | [검증](../verification/core/07-pe-ce-ebgp.md) |
 | VRF와 RT 분리 | TENANT-A, PARTNER, BR1 | [VRF 검증](../verification/core/05-vrf.md) |
 | VRRP, MSTP, EtherChannel | Branch DSW, ASW | [MSTP 검증](../verification/br/04-mstp-etherchannel.md), [VRRP 검증](../verification/br/05-vrrp-svi.md) |

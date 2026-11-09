@@ -33,7 +33,8 @@
 |---|---|---|---|
 | spine1, spine2 | Arista | 2대가 동일 역할 | leaf 방향 OSPF ECMP, iBGP Route Reflector, ECMP |
 | leaf1, leaf2 | Arista | **MLAG** 쌍 + anycast gateway | 호스트 LACP 해시, spine 2개로 ECMP |
-| leaf3, leaf4 | Arista | **MLAG** 쌍 (border) | Hub1과 Hub2에 모두 연결(교차 연결), 두 Hub로 ECMP |
+| leaf3, leaf4 | Arista | **MLAG** 쌍 + anycast gateway | 호스트 해시, spine 2개로 ECMP |
+| border-leaf1, border-leaf2 | Arista | 장비 2대가 같은 역할(MLAG 없음, VTEP 각각) | leaf에서 EVPN type-5 경로가 2개(ECMP), 각각 Hub1, Hub2로 나감 |
 | CX1, CX2 | Aruba | **VSX** 쌍 + active gateway | CX3 4링크 VSX LAG 해시, PE2 두 경로 |
 | CX3 | Aruba | access (CX1, CX2에 VSX LAG 연결) | 4링크 LAG 해시 |
 | DSW1, DSW2 | Cisco IOSv | **EtherChannel(LACP)** Po1 (DSW 간), VRRP, MSTP root 분담 | VLAN 50은 DSW1 master, VLAN 60은 DSW2 master |
@@ -44,7 +45,7 @@
 | 구간 | 이중화 | 부하 분산 |
 |---|---|---|
 | 코어 | PE1, PE2, PE3 삼각형 (한 링크 장애 시 우회) | OSPF/LDP ECMP |
-| DC1 외부 출구 | Hub1, Hub2 (leaf3, leaf4 모두에 연결, PE1에 이중 연결) | 두 Hub로 eBGP multipath(ECMP) |
+| DC1 외부 출구 | border-leaf1-Hub1, border-leaf2-Hub2 (각각 PE1에 연결, 교차 연결 없음) | PE1에서 두 Hub로 eBGP multipath(ECMP) |
 | Branch 외부 출구 | BGW1, BGW2 (PE3에 이중 연결, 각각 DSW1, DSW2에 연결) | PE3 두 경로 eBGP multipath(ECMP) |
 
 - DC2(Aruba)는 VSX 쌍이 단일 VTEP이라 EVPN 대상이 없으므로 VSX LAG, active gateway, eBGP 연동을 시연. EVPN-VXLAN은 DC1(Arista)에서 시연
@@ -62,7 +63,7 @@
 | iBGP VPNv4 | - | - | O (full mesh) | - | - | - | - | - |
 | eBGP (PE-CE) | - | leaf3,4 | O | - | - | - | - | CX1,2 |
 | eBGP (PE3 - BGW, VRF BR1) | - | - | PE3 | - | O | - | - | - |
-| eBGP (Hub) | - | leaf3,4 | PE1 | O | - | - | - | - |
+| eBGP (Hub) | - | border-leaf1,2 | PE1 | O | - | - | - | - |
 | VXLAN | - | O | - | - | - | - | - | - |
 | MLAG / VSX | - | MLAG | - | - | - | - | - | VSX |
 | LACP / EtherChannel | - | O | - | - | - | O | O | O |
@@ -119,7 +120,7 @@ OSPF, BGP, LACP의 협상 조건은 **DC1 기준으로 전 구간을 통일**. �
 | 프로토콜 | 값 | 적용 범위 |
 |---|---|---|
 | OSPF | point-to-point, **hello 1초, dead 4초**, loopback은 passive | DC1 spine-leaf, 코어 PE 링크, Branch BGW-DSW 링크 |
-| BGP | **keepalive 3초, hold 9초** (`timers 3 9`) | DC1 iBGP(EVPN), 코어 PE 간 iBGP(VPNv4), PE-CE eBGP(Hub ↔ PE1, Hub ↔ leaf3·4, CX ↔ PE2, BGW ↔ PE3) |
+| BGP | **keepalive 3초, hold 9초** (`timers 3 9`) | DC1 iBGP(EVPN), 코어 PE 간 iBGP(VPNv4), PE-CE eBGP(Hub ↔ PE1, Hub ↔ border leaf, CX ↔ PE2, BGW ↔ PE3) |
 | LACP | **fast**(1초 간격). 단 DC2 VSX LAG는 에뮬레이션에서 흔들려 **기본(slow)** 사용 | DC1 호스트 포트(leaf `lacp timer fast`, 호스트 `lacp_rate fast`). Branch EtherChannel은 IOSvL3가 `lacp rate fast`를 받지 않아 **기본(30초)** |
 | router-id | OSPF는 loopback0 주소, **BGP는 별도 대역** | 전 구간 ([IP 설계](02-ip-addressing.md) 3-1-1) |
 

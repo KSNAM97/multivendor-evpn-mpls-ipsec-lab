@@ -11,7 +11,7 @@
 | 코어 링크 (PE 삼각형) | 10.0.10.0/24 |
 | DC2 PE-CE 링크 (PE2-CX, VRF PARTNER) | 10.0.20.0/24 (10.0.20.4~7만 사용) |
 | PE1-Hub 링크 (VRF TENANT-A) | 10.0.30.0/24 (10.0.30.0~3만 사용) |
-| Hub-leaf 연동 링크 | 10.0.31.0/24, 10.0.32.0/24 |
+| Hub-border leaf 연동 링크 | 10.0.31.0/24 (10.0.31.0~3만 사용) |
 | Branch PE-CE 링크 (PE3-BGW, VRF BR1) | 10.0.60.0/24 |
 | Branch 라우티드 링크 | 10.50.0.0/24 |
 | DC1 루프백 / VTEP / 링크 / MLAG | 10.1.0.0/24 / 10.1.1.0/24 / 10.1.10.0/24 / 10.1.254.0/24 |
@@ -25,9 +25,9 @@
 | 도메인 | AS | 구성 |
 |---|---|---|
 | MPLS 코어 | 65000 | OSPF + LDP. PE1~PE3 iBGP VPNv4(full mesh), PE-CE는 eBGP |
-| DC1 (spine1, spine2, leaf1~4) | 65100 | OSPF underlay + iBGP EVPN(루프백 간). spine1·2가 Route Reflector, leaf는 client. leaf3·4는 border leaf로 Hub 2대와 eBGP |
+| DC1 (spine1, spine2, leaf1~4, border-leaf1·2) | 65100 | OSPF underlay + iBGP EVPN(루프백 간). spine1·2가 Route Reflector, leaf와 border leaf는 client. border-leaf1·2가 각각 Hub1·Hub2와 eBGP |
 | DC2 VSX 쌍 (CX1, CX2) | 65201 | 같은 AS, PE2와 eBGP. CX3(access)은 L2 전용이라 AS 없음 |
-| Hub1, Hub2 | 65010 | leaf3·4와 eBGP, PE1과 eBGP(PE-CE) |
+| Hub1, Hub2 | 65010 | border leaf, PE1과 eBGP(PE-CE) |
 | BGW1, BGW2 | 65020 | 고객사 망 끝단(CE). PE3와 eBGP, Branch 내부는 OSPF |
 
 DC1은 OSPF underlay로 구성. DC2는 VSX 쌍이 단일 VTEP이라 EVPN 대상이 없으므로 VSX LAG, active gateway, eBGP 연동을 시연하고, EVPN-VXLAN은 DC1(Arista)에서 시연
@@ -44,6 +44,8 @@ DC1은 OSPF underlay로 구성. DC2는 VSX 쌍이 단일 VTEP이라 EVPN 대상�
 | leaf2 | Arista | 192.168.100.22 | 10.1.0.12/32 | Lo1 10.1.1.12/32 (leaf1과 공유) |
 | leaf3 | Arista | 192.168.100.23 | 10.1.0.13/32 | Lo1 10.1.1.34/32 (leaf4와 공유) |
 | leaf4 | Arista | 192.168.100.24 | 10.1.0.14/32 | Lo1 10.1.1.34/32 (leaf3과 공유) |
+| border-leaf1 | Arista | 192.168.100.25 (미연결) | 10.1.0.15/32 | Lo1 10.1.1.15/32 (단독) |
+| border-leaf2 | Arista | 192.168.100.26 (미연결) | 10.1.0.16/32 | Lo1 10.1.1.16/32 (단독) |
 | PE1 | Cisco | (콘솔) | 10.0.0.11/32 | - |
 | PE2 | Cisco | (콘솔) | 10.0.0.12/32 | - |
 | PE3 | Cisco | (콘솔) | 10.0.0.13/32 | - |
@@ -66,8 +68,9 @@ OSPF router-id는 `loopback0` 주소를 쓰고, **BGP router-id는 별도 대역
 |---|---|---|---|---|
 | DC1 | spine1, spine2 | 10.1.0.1, 10.1.0.2 | **10.1.2.1, 10.1.2.2** | iBGP Route Reflector |
 | DC1 | leaf1 ~ leaf4 | 10.1.0.11 ~ 10.1.0.14 | **10.1.2.11 ~ 10.1.2.14** | EVPN RD 접두 |
+| DC1 | border-leaf1, border-leaf2 | 10.1.0.15, 10.1.0.16 | **10.1.2.15, 10.1.2.16** | EVPN RD 접두 |
 | 코어 | PE1 ~ PE3 | 10.0.0.11 ~ 10.0.0.13 | **10.0.1.11 ~ 10.0.1.13** | LDP router-id는 loopback0 |
-| DC1 외부 연결 | Hub1, Hub2 | (OSPF 없음) | **10.0.1.21, 10.0.1.22** | leaf3·4, PE1과 eBGP |
+| DC1 외부 연결 | Hub1, Hub2 | (OSPF 없음) | **10.0.1.21, 10.0.1.22** | border leaf, PE1과 eBGP |
 | Branch | BGW1, BGW2 | 10.0.0.31, 10.0.0.32 | **10.0.1.31, 10.0.1.32** | |
 | Branch | DSW1, DSW2 | 10.0.0.41, 10.0.0.42 | (BGP 없음) | |
 | DC2 | CX1, CX2 | (OSPF 없음) | **10.2.2.1, 10.2.2.2** | PE2와 eBGP |
@@ -83,10 +86,14 @@ OSPF router-id는 `loopback0` 주소를 쓰고, **BGP router-id는 별도 대역
 | spine1 - leaf2 | 10.1.10.2/31 | .2 | .3 |
 | spine1 - leaf3 | 10.1.10.4/31 | .4 | .5 |
 | spine1 - leaf4 | 10.1.10.6/31 | .6 | .7 |
+| spine1 - border-leaf1 | 10.1.10.16/31 | .16 | .17 |
+| spine1 - border-leaf2 | 10.1.10.18/31 | .18 | .19 |
 | spine2 - leaf1 | 10.1.10.8/31 | .8 | .9 |
 | spine2 - leaf2 | 10.1.10.10/31 | .10 | .11 |
 | spine2 - leaf3 | 10.1.10.12/31 | .12 | .13 |
 | spine2 - leaf4 | 10.1.10.14/31 | .14 | .15 |
+| spine2 - border-leaf1 | 10.1.10.20/31 | .20 | .21 |
+| spine2 - border-leaf2 | 10.1.10.22/31 | .22 | .23 |
 | leaf1 - leaf2 (MLAG, Vlan4094) | 10.1.254.0/31 | .0 | .1 |
 | leaf3 - leaf4 (MLAG, Vlan4094) | 10.1.254.2/31 | .2 | .3 |
 
@@ -109,7 +116,7 @@ OSPF router-id는 `loopback0` 주소를 쓰고, **BGP router-id는 별도 대역
 
 | 링크 | 서브넷 | A측 | B측 |
 |---|---|---|---|
-| PE1 Gi4/0 - Hub1 Gi0/0 | 10.0.30.0/31 | PE1 .0 | Hub1 .1 |
+| PE1 Gi2/0 - Hub1 Gi0/0 | 10.0.30.0/31 | PE1 .0 | Hub1 .1 |
 | PE1 Gi5/0 - Hub2 Gi0/0 | 10.0.30.2/31 | PE1 .2 | Hub2 .3 |
 
 **Branch PE-CE (PE 측은 VRF BR1, .100 서브인터페이스, dot1q 100)**
@@ -119,14 +126,12 @@ OSPF router-id는 `loopback0` 주소를 쓰고, **BGP router-id는 별도 대역
 | PE3 Gi2/0.100 - BGW1 Gi0/0.100 | 10.0.60.0/31 | .0 | .1 |
 | PE3 Gi3/0.100 - BGW2 Gi0/0.100 | 10.0.60.2/31 | .2 | .3 |
 
-**Hub 연동 (leaf 측은 VRF TENANT-A, 교차 연결)**
+**Hub 연동 (border leaf 측은 VRF TENANT-A, 1대1 연결)**
 
-| 링크 | 서브넷 | leaf측 | Hub측 |
+| 링크 | 서브넷 | border leaf측 | Hub측 |
 |---|---|---|---|
-| leaf3 Et6 - Hub1 Gi1/0 | 10.0.31.0/31 | .0 | .1 |
-| leaf4 Et6 - Hub2 Gi1/0 | 10.0.31.2/31 | .2 | .3 |
-| leaf3 Et8 - Hub2 Gi2/0 | 10.0.32.0/31 | .0 | .1 |
-| leaf4 Et8 - Hub1 Gi2/0 | 10.0.32.2/31 | .2 | .3 |
+| border-leaf1 Et1 - Hub1 Gi1/0 | 10.0.31.0/31 | .0 | .1 |
+| border-leaf2 Et1 - Hub2 Gi1/0 | 10.0.31.2/31 | .2 | .3 |
 
 **Branch 라우티드 링크 (OSPF area 0)**
 

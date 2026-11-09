@@ -48,7 +48,7 @@ interface gigabitethernet 1/0
     ip address 10.0.10.2 255.255.255.254
     no shutdown
 !
-interface gigabitethernet 4/0
+interface gigabitethernet 2/0
     description Hub1 to Gi0/0
     ip vrf forwarding TENANT-A
     ip address 10.0.30.0 255.255.255.254

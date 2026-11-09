@@ -38,7 +38,7 @@ DC1(Arista)의 VLAN, VNI, IP 대역
 |---|---|---|
 | spine-leaf | 10.1.10.0/24 | /31 8개 ([OSPF underlay](03-ospf-underlay.md)) |
 | MLAG peer | 10.1.254.0/24 | leaf1-2 10.1.254.0/31, leaf3-4 10.1.254.2/31 ([MLAG](04-mlag.md)) |
-| leaf-Hub (VRF TENANT-A) | 10.0.31.0/24, 10.0.32.0/24 | leaf3-Hub1 10.0.31.0/31, leaf4-Hub2 10.0.31.2/31, leaf3-Hub2 10.0.32.0/31, leaf4-Hub1 10.0.32.2/31 |
+| border leaf-Hub (VRF TENANT-A) | 10.0.31.0/24 | border-leaf1-Hub1 10.0.31.0/31, border-leaf2-Hub2 10.0.31.2/31 |
 | PE1-Hub (PE1 쪽 VRF TENANT-A) | 10.0.30.0/24 | PE1-Hub1 10.0.30.0/31, PE1-Hub2 10.0.30.2/31 |
 
 ## AS
@@ -71,7 +71,9 @@ spine에는 VLAN이 없음(라우티드 링크만 사용).
 | leaf1, leaf2 | Et3-4 (Po1), Vlan4094 | 10.1.254.0/31, 10.1.254.1/31             | 서로                                  |
 | leaf3, leaf4 | Et3-4 (Po1), Vlan4094 | 10.1.254.2/31, 10.1.254.3/31             | 서로                                  |
 | leaf1, leaf2 | Et5 (Po10)            | L2 VLAN 10                               | Host A eth0, eth1                   |
-| leaf3        | Et6 / Et7 / Et8       | 10.0.31.0/31 / L2 VLAN 10 / 10.0.32.0/31 | Hub1 Gi1/0 / Host B / Hub2 Gi2/0    |
-| leaf4        | Et6 / Et7 / Et8       | 10.0.31.2/31 / L2 VLAN 20 / 10.0.32.2/31 | Hub2 Gi1/0 / Host C / Hub1 Gi2/0    |
+| leaf3        | Et7                   | L2 VLAN 10                               | Host B                              |
+| leaf4        | Et7                   | L2 VLAN 20                               | Host C                              |
+| border-leaf1 | Et1 / Et2 / Et3       | 10.0.31.0/31 / 10.1.10.17/31 / 10.1.10.21/31 | Hub1 Gi1/0 / spine1 Et5 / spine2 Et5 |
+| border-leaf2 | Et1 / Et2 / Et3       | 10.0.31.2/31 / 10.1.10.19/31 / 10.1.10.23/31 | Hub2 Gi1/0 / spine1 Et6 / spine2 Et6 |
 
 한곳에 모은 전체 표는 [IP와 포트 매칭표](../../00-overview/07-ip-port-matrix.md)

@@ -10,7 +10,7 @@
 | 2 | 같은 VLAN (DC1) | Host A -> Host B `192.168.10.102` | VXLAN L2VNI 10010 (leaf1·2 -> leaf3·4) | EVPN-VXLAN |
 | 3 | 다른 VLAN (DC1) | Host A -> Host C `192.168.20.101` | VXLAN L3VNI 50001 (VRF TENANT-A, symmetric IRB) | EVPN-VXLAN |
 | 4 | DC1 -> DC2 | Host A -> Host D `192.168.110.101` | **통신 안 됨(정상)**. VRF TENANT-A와 PARTNER가 서로 RT를 import하지 않고 BGW가 자기 대역만 광고 | VRF 분리 |
-| 5 | DC1 -> Branch | Host A -> Host F `192.168.50.101` | leaf3·4 -> Hub -> PE1 -> MPLS L3VPN(VRF BR1) -> PE3 -> BGW -> DSW -> ASW1 | Hub, PE-CE eBGP, MPLS 코어, Branch |
+| 5 | DC1 -> Branch | Host A -> Host F `192.168.50.101` | leaf -> border leaf -> Hub -> PE1 -> MPLS L3VPN(VRF BR1) -> PE3 -> BGW -> DSW -> ASW1 | Hub, PE-CE eBGP, MPLS 코어, Branch |
 | 5-1 | DC2 -> Branch | Host D -> Host F `192.168.50.101` | CX1·2 -> PE2 -> MPLS L3VPN(VRF BR1) -> PE3 -> BGW -> DSW -> ASW1 | PE-CE eBGP, MPLS 코어, Branch |
 | 6 | Branch 내부 | Host F -> Host G `192.168.60.101` | DSW의 SVI 간 라우팅 (VRRP) | Branch SVI, VRRP |
 

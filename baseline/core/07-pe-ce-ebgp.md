@@ -17,7 +17,7 @@ PE가 DC와 Branch 쪽 장비와 경로를 교환하는 부분. 모든 구역이
 | PE3 | BGW1 | 65020 | 10.0.60.0/31 (PE3 .0, BGW1 .1, `.100`) | BR1      |
 | PE3 | BGW2 | 65020 | 10.0.60.2/31 (PE3 .2, BGW2 .3, `.100`) | BR1      |
 
-- DC1은 leaf3·4가 Hub 2대에 모두 연결되어 있고(교차 연결), Hub가 PE1과 eBGP를 맺음. leaf3·4와 Hub 사이도 eBGP ([DC1 Hub eBGP](../dc1/06-dci-hub-ebgp.md))
+- DC1은 border-leaf1이 Hub1, border-leaf2가 Hub2에 각각 연결되어 있고(1대1), Hub가 PE1과 eBGP를 맺음. border leaf와 Hub 사이도 eBGP ([DC1 Hub eBGP](../dc1/06-dci-hub-ebgp.md))
 - Branch는 BGW가 고객사 망 끝단(CE)이고, PE3와 BGW 사이는 물리 포트 하나에 dot1q 100 서브인터페이스를 만들어 VRF BR1에 넣음
 - PE1은 Hub 2대, PE2는 CX 2대, PE3는 BGW 2대와 각각 `maximum-paths 2`로 ECMP
 
@@ -25,7 +25,7 @@ PE가 DC와 Branch 쪽 장비와 경로를 교환하는 부분. 모든 구역이
 
 | 구간 | 동작 |
 |---|---|
-| DC1 -> 코어 | leaf3·4가 TENANT-A 경로(192.168.10.0/24, 192.168.20.0/24 등)를 Hub에 광고하고, Hub가 PE1에 전달. PE1이 VPNv4(RT 65000:1)로 PE2, PE3에 실음 |
+| DC1 -> 코어 | border leaf가 TENANT-A 경로(192.168.10.0/24, 192.168.20.0/24 등)를 Hub에 광고하고, Hub가 PE1에 전달. PE1이 VPNv4(RT 65000:1)로 PE2, PE3에 실음 |
 | DC2 -> 코어 | CX1·2가 192.168.110.0/24를 PE2에 광고. PE2가 VPNv4(RT 65000:2)로 실음 |
 | Branch -> 코어 | BGW가 192.168.50.0/24, 192.168.60.0/24만 PE3에 광고. PE3가 VPNv4(RT 65000:3)로 실음 |
 | 코어 -> Branch | PE3 VRF BR1이 RT 65000:1, 65000:2를 import해서 DC1과 DC2 경로를 BGW에 전달. BGW는 `prefix-list PARTNER-TO-BR in`으로 192.168.10.0/24, 192.168.20.0/24, 192.168.110.0/24만 받음 |

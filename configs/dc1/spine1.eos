@@ -48,6 +48,18 @@ interface ethernet4
    ip address 10.1.10.6/31
    no shutdown
 !
+interface ethernet5
+   description border-leaf1 to ethernet2
+   no switchport
+   ip address 10.1.10.16/31
+   no shutdown
+!
+interface ethernet6
+   description border-leaf2 to ethernet2
+   no switchport
+   ip address 10.1.10.18/31
+   no shutdown
+!
 ip access-list MGMT-ACL
    10 permit tcp 192.168.100.0/24 any eq ssh
    20 permit icmp 192.168.100.0/24 any
@@ -93,6 +105,18 @@ interface ethernet4
    ip ospf hello-interval 1
    ip ospf dead-interval 4
 !
+interface ethernet5
+   ip ospf network point-to-point
+   ip ospf area 0.0.0.0
+   ip ospf hello-interval 1
+   ip ospf dead-interval 4
+!
+interface ethernet6
+   ip ospf network point-to-point
+   ip ospf area 0.0.0.0
+   ip ospf hello-interval 1
+   ip ospf dead-interval 4
+!
 router bgp 65100
    router-id 10.1.2.1
    bgp cluster-id 10.1.0.100
@@ -108,6 +132,8 @@ router bgp 65100
    neighbor 10.1.0.12 peer group LEAFS
    neighbor 10.1.0.13 peer group LEAFS
    neighbor 10.1.0.14 peer group LEAFS
+   neighbor 10.1.0.15 peer group LEAFS
+   neighbor 10.1.0.16 peer group LEAFS
    !
    address-family evpn
       neighbor LEAFS activate

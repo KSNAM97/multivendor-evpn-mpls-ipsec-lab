@@ -21,7 +21,7 @@
 |---|---|---|---|---|
 | PE1 | Gi0/0 | W (코어) | PE2 | Gi0/0 |
 | PE1 | Gi1/0 | W (코어) | PE3 | Gi0/0 |
-| PE1 | Gi4/0 | O (PE-CE, VRF TENANT-A) | Hub1 | Gi0/0 |
+| PE1 | Gi2/0 | O (PE-CE, VRF TENANT-A) | Hub1 | Gi0/0 |
 | PE1 | Gi5/0 | O (PE-CE, VRF TENANT-A) | Hub2 | Gi0/0 |
 | PE2 | Gi1/0 | W (코어) | PE3 | Gi1/0 |
 | PE2 | Gi2/0 | O (PE-CE, VRF PARTNER) | CX1 (Aruba) | 1/1/1 |

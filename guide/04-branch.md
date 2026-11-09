@@ -6,7 +6,7 @@ BGW 2대가 PE3의 VRF BR1과 eBGP를 맺고, Host F·G가 DC1(Host A)과 DC2(Ho
 
 ## 켜는 노드
 
-Arista 3대(spine1, leaf3, leaf4), Hub1, Hub2, PE1, PE2, PE3, BGW1, BGW2, IOSv 3대(DSW1, DSW2, ASW1), Host A 또는 B, Host F, G. DC2(PE2, CX)를 함께 확인하려면 CX1~3과 Host D도 켬. 약 12GB 예상.
+Arista 3대(spine1, border-leaf1, border-leaf2), Hub1, Hub2, PE1, PE2, PE3, BGW1, BGW2, IOSv 3대(DSW1, DSW2, ASW1), Host A 또는 B, Host F, G. DC2(PE2, CX)를 함께 확인하려면 CX1~3과 Host D도 켬. 약 12GB 예상.
 
 ## 순서
 

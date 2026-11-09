@@ -10,8 +10,8 @@ Cisco, Arista, Aruba를 섞어 DC 2곳과 Branch를 MPLS L3VPN 코어에 PE-CE e
 
 | 항목 | 내용 |
 |---|---|
-| 규모 | 네트워크 장비 19대, 호스트 6대, 3개 벤더 |
-| 구성 | DC1(Arista EVPN-VXLAN, Hub 2대로 외부 연결), MPLS 코어(Cisco PE 3대), DC2(Aruba VSX), Branch(Cisco, BGW가 고객사 망 끝단) |
+| 규모 | 네트워크 장비 21대, 호스트 6대, 3개 벤더 |
+| 구성 | DC1(Arista EVPN-VXLAN, border leaf 2대와 Hub 2대로 외부 연결), MPLS 코어(Cisco PE 3대), DC2(Aruba VSX), Branch(Cisco, BGW가 고객사 망 끝단) |
 | 핵심 기술 | EVPN-VXLAN, MLAG, VSX, MPLS L3VPN(LDP, MP-BGP VPNv4, VRF와 RT 분리), PE-CE eBGP, VRRP, MSTP |
 | 검증 | 구간마다 기대 결과를 먼저 적고 CLI show 출력과 Wireshark 패킷으로 대조. 검증 캡처 약 222장 |
 | 작업 기간 | 2026.10.05 ~ 11.06, 1인 수행 |
@@ -21,7 +21,7 @@ Cisco, Arista, Aruba를 섞어 DC 2곳과 Branch를 MPLS L3VPN 코어에 PE-CE e
 
 - **EVPN-VXLAN**: leaf 쌍이 VTEP 주소를 공유. Host A → Host B는 L2VNI 10010, Host A → Host C는 L3VNI 50001로 확인(VXLAN 패킷 캡처 포함)
 - **MPLS L3VPN**: VRF 3개(TENANT-A는 DC1, PARTNER는 DC2, BR1은 Branch)와 RT로 고객 구역을 분리. BR1만 DC1과 DC2를 import하고, DC1과 DC2는 서로 통신하지 않음(BGW prefix-list 포함). PE1은 Hub, PE2는 CX, PE3는 BGW와 PE-CE eBGP로 접속. PE1 - PE3 구간 MPLS 헤더 캡처(VPN 레이블 26, 33)
-- **DC1 Hub 이중화**: leaf3·4가 VTEP을 공유하므로 두 leaf를 Hub 2대에 모두 연결(교차 연결). Hub 링크 장애 시 T1 손실 0, T1b 약 8.4초, 코어 링크 T2 약 12.6초, 모두 자동 복구
+- **DC1 외부 연결 이중화**: 전용 border leaf 2대(border-leaf1·Hub1, border-leaf2·Hub2 1대1 연결, MLAG 없이 VTEP 각각). Hub 링크 장애 시험 T1(손실 0, 요청 경로 전환), T1b(47개, 약 9.4초 환산), 코어 링크 T2는 3회 측정에서 손실 70~236개(약 14~47초 이상)로 편차가 큼. 자동 복구 확인
 - **트러블슈팅**: 가상 이미지의 LAG 데이터 경로 한계, `lacp rate fast` 불안정, 혼잡 중 BGP 단절 등을 확인하고 설계 변경이나 클래스 추가로 대응
 
 ## 문서 안내
@@ -55,7 +55,7 @@ verification/       검증 (프로토콜별. 선행 조건, 확인 명령, 기�
 
 | 폴더 | 지역 | 장비 |
 |---|---|---|
-| `dc1` | DC1 (Arista 패브릭 + 외부 연결 Hub) | spine1, spine2, leaf1~leaf4, Hub1, Hub2 |
+| `dc1` | DC1 (Arista 패브릭 + 외부 연결 Hub) | spine1, spine2, leaf1~leaf4, border-leaf1, border-leaf2, Hub1, Hub2 |
 | `dc2` | DC2 (Aruba) | CX1, CX2, CX3 |
 | `core` | MPLS 코어 | PE1, PE2, PE3 |
 | `br` | Branch (Cisco) | BGW1, BGW2, DSW1, DSW2, ASW1 |

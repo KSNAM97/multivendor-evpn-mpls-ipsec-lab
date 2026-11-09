@@ -38,7 +38,7 @@
 | LDP 세션 | 같은 링크 | `ldp` | Hello(UDP 646), 이후 TCP 646 세션과 Label Mapping |
 | MPLS 라벨 스택 | PE1 `Gi1/0` - PE3 `Gi0/0` | `mpls` | Host A와 Host F ping 때 직결 링크에서는 PHP로 VPN 라벨 1개(S=1)만 보임. PE1 -> PE3는 BR1 라벨(`show bgp vpnv4 unicast all labels`의 192.168.50.0 out label), PE3 -> PE1은 PE1이 광고한 라벨. 라벨 2개(전송, VPN)는 PE2를 거치는 우회 경로(장애 시험)에서 보임 |
 | VPNv4 iBGP | 같은 링크 | `bgp` | OPEN의 AFI/SAFI VPNv4, UPDATE의 RD(65000:1)와 Route Target |
-| PE-CE eBGP (DC1) | PE1 `Gi4/0` - Hub1 `Gi0/0` | `bgp` | AS 65000과 65010, Hold Time 9, BGP Identifier(PE1 10.0.1.11, Hub1 10.0.1.21), UPDATE에 192.168.10.0/24, 192.168.20.0/24 |
+| PE-CE eBGP (DC1) | PE1 `Gi2/0` - Hub1 `Gi0/0` | `bgp` | AS 65000과 65010, Hold Time 9, BGP Identifier(PE1 10.0.1.11, Hub1 10.0.1.21), UPDATE에 192.168.10.0/24, 192.168.20.0/24 |
 
 ## Branch
 
