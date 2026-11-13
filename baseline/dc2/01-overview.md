@@ -28,7 +28,7 @@
 | CX1 | 1/1/7 | A | Host E | eth1 |
 | CX3 | 1/1/5 | A (미사용) | Host E | eth0 |
 
-관리 포트는 MGMT-SW Et7 ~ Et9에 연결
+관리 포트는 연결하지 않음(별도 관리망 없음, 콘솔로 접속)
 
 - Host E는 `eth1`을 CX1 `1/1/7`에 연결해 사용. CX3 경유(`eth0`)는 이 이미지(AOS-CX Virtual 10.07)에서 `lag10` 위로 VLAN 110 데이터가 전달되지 않아 쓰지 않음 ([active gateway 검증](../../verification/dc2/05-active-gateway.md))
 

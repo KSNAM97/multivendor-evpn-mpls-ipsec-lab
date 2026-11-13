@@ -42,7 +42,7 @@
 | Hub1 | Gi0/0 | O (PE-CE) | PE1 | Gi2/0 |
 | Hub2 | Gi0/0 | O (PE-CE) | PE1 | Gi5/0 |
 
-GNS3 어댑터 수(관리 포함): spine 7, leaf1/leaf2 6, leaf3/leaf4 9, border-leaf1·2 4(Et1~Et3 사용). 관리 포트는 MGMT-SW Et1 ~ Et6에 연결(border leaf의 Management1은 연결하지 않음)
+GNS3 어댑터 수(관리 포함): spine 7, leaf1/leaf2 6, leaf3/leaf4 9, border-leaf1·2 4(Et1~Et3 사용). 관리 포트는 DC1 전용 MGMT-SW(VLAN 900)에 연결(spine1 Gi0/2, spine2 Gi0/3, leaf1~4 Gi1/0~1/3, border-leaf1·2 Gi0/0·Gi0/1)
 
 ## 3. IP 주소
 

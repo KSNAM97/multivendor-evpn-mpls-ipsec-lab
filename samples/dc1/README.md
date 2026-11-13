@@ -10,5 +10,5 @@
 - [iBGP EVPN-VXLAN (leaf)](07-evpn-vxlan-leaf.md): leaf에서 L2VNI, L3VNI(VRF)와 anycast gateway를 구성
 - [iBGP EVPN Route Reflector (spine)](08-evpn-spine.md): spine이 Route Reflector로 leaf 경로를 모아서 전달
 - [border leaf와 PE의 VRF eBGP](09-pe-ce-ebgp.md): border leaf가 MPLS 코어(PE1)와 TENANT-A VRF 경로를 교환
-- [MGMT-SW (관리망 L2 스위치)](11-mgmt-sw.md): 관리 포트를 모으는 스위치의 설정과 ZTP 끄는 순서
+- [MGMT-SW (DC1 관리 전용 L2 스위치)](11-mgmt-sw.md): DC1 관리 포트를 VLAN 900에 모으는 IOSv 스위치 설정
 - [관리 접속 제한 (control-plane ACL)](10-mgmt-acl.md): 관리망에서 오는 SSH, ping만 허용하고 나머지 접속은 차단

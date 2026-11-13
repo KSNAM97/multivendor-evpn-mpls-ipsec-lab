@@ -63,12 +63,12 @@ BGW에는 VLAN이 없음(라우티드 링크만 사용).
 | DSW1 | Gi0/0              | 10.50.0.1/31                 | BGW1 Gi1/0              |
 | DSW1 | Po1 (Gi0/1-2)      | L2 trunk                     | DSW2 Po1 (Gi0/2, Gi0/1) |
 | DSW1 | Po2 (Gi0/3, Gi1/0) | L2 trunk                     | ASW1 Po2 (Gi0/0-1)      |
-| DSW1 | Gi3/3              | 192.168.100.44/24 (VRF MGMT) | MGMT-SW Et10            |
+| DSW1 | Gi3/3              | 192.168.100.44/24 (VRF MGMT) | 연결 안 함(콘솔)   |
 | DSW2 | Gi0/0              | 10.50.0.3/31                 | BGW2 Gi1/0              |
 | DSW2 | Po3 (Gi0/3, Gi1/0) | L2 trunk                     | ASW1 Po3 (Gi0/2-3)      |
-| DSW2 | Gi3/3              | 192.168.100.45/24 (VRF MGMT) | MGMT-SW Et11            |
+| DSW2 | Gi3/3              | 192.168.100.45/24 (VRF MGMT) | 연결 안 함(콘솔)   |
 | ASW1 | Gi1/0, Gi1/1       | L2 access (VLAN 50, 60)      | Host F, Host G          |
-| ASW1 | Gi3/3, Vlan100     | 192.168.100.46/24 (VLAN 100) | MGMT-SW Et12            |
+| ASW1 | Gi3/3, Vlan100     | 192.168.100.46/24 (VLAN 100) | 연결 안 함(콘솔)   |
 
 Loopback0만 있고 Loopback1은 없음
 

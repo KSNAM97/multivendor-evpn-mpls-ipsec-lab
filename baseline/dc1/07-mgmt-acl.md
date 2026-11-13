@@ -40,7 +40,8 @@
 | DSW1, DSW2, ASW1 (Cisco IOSv) | 192.168.100.44 ~ .46 | vty `access-class`로 제한할 예정 | 미작성 |
 | CX1, CX2, CX3 (Aruba) | 192.168.100.41 ~ .43 | mgmt 인터페이스 ACL로 제한할 예정 | 미작성 |
 | PE1~PE3, Hub1, Hub2, BGW1, BGW2 (c7200) | 없음 | 관리망에 연결하지 않고 콘솔로만 접속 | 해당 없음 |
-| MGMT-SW (vEOS) | 없음 | `Management1` 미사용, 기본 L2 스위치 | 해당 없음 |
+| MGMT-SW (Cisco IOSv) | 없음(VTY `login local`, SSH) | VLAN 900 L2 스위치, `Vlan900` 192.168.100.2 | 해당 없음 |
+| CX1~3, DSW1·2, ASW1 | 없음 | 별도 관리망이 없어 관리 포트를 연결하지 않고 콘솔로만 접속 | 해당 없음 |
 
 ## 알려진 동작
 

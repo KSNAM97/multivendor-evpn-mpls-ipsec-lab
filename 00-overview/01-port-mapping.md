@@ -116,25 +116,21 @@ Host E는 어댑터를 2개로 두고 `eth1`을 CX1 `1/1/7`(VLAN 110 access)에 
 
 ## 5. 관리망 (M)
 
-MGMT-SW는 Arista vEOS 1대이고, 설정 없이 기본 L2 스위치(VLAN 1)로 씀. 장비의 관리 포트를 한곳에 모으고, 마지막 Et13을 Cloud1(PC 연결)에 연결. 어댑터는 20개(Management1 + Et1~Et19)이고 Et14~Et19는 비어 있음. 그림에는 데이터 평면만 표시됨. c7200(PE, Hub, BGW)은 관리 포트가 없어 콘솔로만 접속
+DC1은 누리데이터에서 임대한 망이라 **누리데이터 관리 전용** 관리망을 따로 둠. MGMT-SW는 Cisco IOSv 스위치 1대이고 VLAN 900(native, 서브넷 192.168.100.0/24)에 DC1 장비의 관리 포트와 관리 PC(MGMT-PC)만 모음. 청명정밀의 DC2(Aruba CX)와 개발지사(DSW, ASW1), 코어(c7200)에는 별도 관리망이 없고 콘솔로만 접속
 
 | MGMT-SW 포트 | 연결 | 관리 IP |
 |---|---|---|
-| Et1 | spine1 Management1 | 192.168.100.11 |
-| Et2 | spine2 Management1 | 192.168.100.12 |
-| Et3 | leaf1 Management1 | 192.168.100.21 |
-| Et4 | leaf2 Management1 | 192.168.100.22 |
-| Et5 | leaf3 Management1 | 192.168.100.23 |
-| Et6 | leaf4 Management1 | 192.168.100.24 |
-| Et7 | CX1 mgmt | 192.168.100.41 |
-| Et8 | CX2 mgmt | 192.168.100.42 |
-| Et9 | CX3 mgmt | 192.168.100.43 |
-| Et10 | DSW1 Gi3/3 | 192.168.100.44 |
-| Et11 | DSW2 Gi3/3 | 192.168.100.45 |
-| Et12 | ASW1 Gi3/3 | 192.168.100.46 |
-| Et13 | Cloud1 eth0 (PC 연결) | PC 쪽 192.168.100.1 |
+| Gi0/0 | border-leaf1 Management1 | 192.168.100.25 |
+| Gi0/1 | border-leaf2 Management1 | 192.168.100.26 |
+| Gi0/2 | spine1 Management1 | 192.168.100.11 |
+| Gi0/3 | spine2 Management1 | 192.168.100.12 |
+| Gi1/0 | leaf1 Management1 | 192.168.100.21 |
+| Gi1/1 | leaf2 Management1 | 192.168.100.22 |
+| Gi1/2 | leaf3 Management1 | 192.168.100.23 |
+| Gi1/3 | leaf4 Management1 | 192.168.100.24 |
+| Gi3/3 | MGMT-PC eth0 | 192.168.100.10 |
 
-DSW1, DSW2의 Gi3/3은 관리 전용 VRF(MGMT)에 넣어 데이터 라우팅에 섞이지 않게 함. ASW1(IOSvL2)은 물리 포트에 IP를 줄 수 없어서 Gi3/3을 access VLAN 100에 두고 `Vlan100` SVI(192.168.100.46)로 관리
+MGMT-SW 자신의 관리 주소는 `Vlan900` 192.168.100.2. DC2와 개발지사 장비의 `mgmt`·`Gi3/3` 관리 주소(CX1~3 .41~.43, DSW1·2 .44·.45, ASW1 .46)는 이전 구성의 값이고 현재는 연결하지 않음
 
 ---
 ## 6. 링크 요약 (데이터 링크 47개 + 관리 13개)
@@ -152,14 +148,14 @@ DSW1, DSW2의 Gi3/3은 관리 전용 VRF(MGMT)에 넣어 데이터 라우팅에 
 | Branch 스위치 | 6 (DSW 간 2, DSW1-ASW1 2, DSW2-ASW1 2) |
 | VSX ISL와 keepalive | 3 |
 | DC2 VSX LAG (CX3 연결) | 4 |
-| 관리망 | 13 (MGMT-SW, 장비 12 + Cloud 1) |
+| 관리망 | 9 (MGMT-SW, DC1 장비 8 + MGMT-PC 1) |
 
 ## 7. 노드 수
 
 | 구분 | 수 |
 |---|---|
-| Arista vEOS | 7 (spine, leaf 6 + MGMT-SW 1) |
-| Cloud | 1 |
+| Arista vEOS | 6 (spine, leaf) + border leaf 2 |
+| Cisco IOSv (MGMT-SW 포함) | 4 |
 | Aruba CX | 3 |
 | Cisco IOSv | 3 |
 | Cisco c7200 | 7 |
