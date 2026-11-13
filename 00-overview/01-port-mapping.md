@@ -38,8 +38,8 @@
 | leaf1 | Et5 | A | Host A | eth0 |
 | leaf2 | Et5 | A | Host A | eth1 |
 | leaf3 | Et3-4 | U (MLAG peer-link) | leaf4 | Et3-4 |
-| leaf3 | Et7 | A | Host B | eth0 |
-| leaf4 | Et7 | A | Host C | eth0 |
+| leaf3 | Et7 | A | Host C | eth0 |
+| leaf4 | Et7 | A | Host D | eth0 |
 | border-leaf1 | Et1 | O (Hub1 연동, VRF TENANT-A) | Hub1 | Gi1/0 |
 | border-leaf2 | Et1 | O (Hub2 연동, VRF TENANT-A) | Hub2 | Gi1/0 |
 
@@ -93,12 +93,12 @@ ASW1은 DSW1과 DSW2에 각각 2링크 EtherChannel로 연결됨. IOSv에는 MLA
 | CX1 | 1/1/5-6 | S (VSX LAG)       | CX3    | 1/1/1-2 |
 | CX2 | 1/1/1   | O (DCI)           | PE2    | Gi3/0   |
 | CX2 | 1/1/5-6 | S (VSX LAG)       | CX3    | 1/1/3-4 |
-| CX1 | 1/1/7   | A                 | Host D | eth1    |
-| CX3 | 1/1/5   | A (미사용)          | Host D | eth0    |
+| CX1 | 1/1/7   | A                 | Host E | eth1    |
+| CX3 | 1/1/5   | A (미사용)          | Host E | eth0    |
 
 CX1/CX2는 VSX 쌍(분배 계층과 border 겸용)이고, CX3은 access 스위치. CX3의 4개 링크(CX1 2개, CX2 2개)는 VSX LAG 하나로 묶임
 
-Host D는 어댑터를 2개로 두고 `eth1`을 CX1 `1/1/7`(VLAN 110 access)에 연결해 사용. CX3 `1/1/5`(`eth0`)는 AOS-CX Virtual 10.07 이미지에서 `lag10`을 통과하는 VLAN 110 데이터 프레임이 전달되지 않아 쓰지 않음 ([DC2 active gateway 검증](../verification/dc2/05-active-gateway.md))
+Host E는 어댑터를 2개로 두고 `eth1`을 CX1 `1/1/7`(VLAN 110 access)에 연결해 사용. CX3 `1/1/5`(`eth0`)는 AOS-CX Virtual 10.07 이미지에서 `lag10`을 통과하는 VLAN 110 데이터 프레임이 전달되지 않아 쓰지 않음 ([DC2 active gateway 검증](../verification/dc2/05-active-gateway.md))
 
 ## 4. 호스트 (Ubuntu Docker Guest, 6대)
 
@@ -107,8 +107,8 @@ Host D는 어댑터를 2개로 두고 `eth1`을 CX1 `1/1/7`(VLAN 110 access)에 
 | Host A | eth0 / eth1 | leaf1 Et5 / leaf2 Et5 | 10 | LACP(bond0), MLAG |
 | Host B | eth0 | leaf3 Et7 | 10 | |
 | Host C | eth0 | leaf4 Et7 | 20 | |
-| Host D | eth1 | CX1 1/1/7 | 110 | 사용 (eth0는 내림) |
-| Host D | eth0 | CX3 1/1/5 | 110 | 미사용 (lag10 데이터 경로 한계) |
+| Host E | eth1 | CX1 1/1/7 | 110 | 사용 (eth0는 내림) |
+| Host E | eth0 | CX3 1/1/5 | 110 | 미사용 (lag10 데이터 경로 한계) |
 | Host F | eth0 | ASW1 Gi1/0 | 50 | |
 | Host G | eth0 | ASW1 Gi1/1 | 60 | |
 

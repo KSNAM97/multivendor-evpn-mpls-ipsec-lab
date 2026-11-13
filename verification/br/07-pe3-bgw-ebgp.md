@@ -42,3 +42,18 @@
 |---|---|---|
 | 2026-10-23 | 성공 | 이전 구성(WAN-UL)에서 항목 7(DSW default route) 확인. 이 항목은 최종 구성에서도 같음 |
 | 2026-11-07 | 확인 필요 | 최종 구성(VRF BR1)에서 항목 1 ~ 6 재확인 후 기록. 양방향 ping(DC1 ↔ BR1, DC2 ↔ BR1)은 통과 |
+
+## 2026-11-14 새 DC1 대역 수신 확인
+
+- BGW1·2의 `PARTNER-TO-BR`에 192.168.30.0/24(seq 20), 192.168.99.0/24(seq 25)를 추가했으나 처음에는 경로가 없었음(`Network not in table`). 이웃에서 다시 받는 `clear ip bgp * soft in`을 실행한 뒤 경로가 들어옴. 원인은 입력 정책을 바꾼 뒤 재수신을 하지 않은 것으로 판단
+- BGW1 `show ip route 192.168.30.0`: BGP 경로, next hop 10.0.60.0(PE3), AS Hops 3. BGW2는 next hop 10.0.60.2
+- BGW1·2 `show ip bgp 192.168.99.0`: 경로 `65000 65010 65100`, `Not advertised to any peer`(`BR-TO-PARTNER`가 개발지사 대역만 허용해 DC1 경로를 되돌려 보내지 않음, transit 차단)
+- Host F -> 192.168.30.101, 192.168.99.101 ping 4/4, 0% 손실
+
+![BGW1 prefix-list](images/07-pe3-bgw-ebgp/bgw1-prefix-list-before.png)
+
+![BGW1 경로](images/07-pe3-bgw-ebgp/bgw1-route-30-bgp-99.png)
+
+![BGW2 경로](images/07-pe3-bgw-ebgp/bgw2-route-30-bgp-99.png)
+
+![Host F ping](images/07-pe3-bgw-ebgp/host-f-to-c-d-ping.png)

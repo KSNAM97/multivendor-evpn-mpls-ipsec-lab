@@ -6,7 +6,7 @@
 
 | 분류 | 항목 | 조치 |
 |---|---|---|
-| 장비 한계 | Aruba 가상 이미지에서 LAG(lag10) 위 VLAN 110 데이터가 전달되지 않음(LACP 협상은 정상) | 설계 변경: Host D를 CX1 `1/1/7`에 직접 연결 |
+| 장비 한계 | Aruba 가상 이미지에서 LAG(lag10) 위 VLAN 110 데이터가 전달되지 않음(LACP 협상은 정상) | 설계 변경: Host E를 CX1 `1/1/7`에 직접 연결 |
 | 장비 한계 | vEOS가 인터페이스 ACL을 지원하지 않음 | 설계 변경: 인터페이스 ACL 대신 Cisco·Aruba에서 시연 |
 | 설정 | `lacp rate fast`로 LACP와 VSX ISL이 흔들림 | `no lacp rate`로 slow 복귀 |
 | 설정 | AOS-CX VRF의 BGP router-id가 SVI 주소로 선택됨 | `vrf` 하위에 router-id 지정 |

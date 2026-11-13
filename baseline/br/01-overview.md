@@ -11,7 +11,7 @@
 | 역할 | Branch LAN + 스위치단. BGW가 고객사 망 끝단(CE)으로 PE3의 VRF BR1에 연결 |
 | 장비 | Cisco c7200 2대 (BGW1, BGW2), IOSv 3대 (DSW1, DSW2 = IOSvL3, ASW1 = IOSvL2), 호스트 2대 (F, G) |
 | 라우팅 | Branch 내부 OSPF, PE3와는 eBGP (PE3 AS 65000 ↔ BGW AS 65020). DC1과 DC2 경로는 MPLS L3VPN(VRF BR1)으로 받음 |
-| 스위치단 | VLAN 50, 60, MSTP, EtherChannel, VRRP |
+| 스위치단 | VLAN 50, 60, RSTP(rapid-pvst), EtherChannel, VRRP |
 
 Hub1, Hub2는 DC1 외부 연결 장비라서 [dc1](../dc1/01-overview.md)에 있음. Branch는 Hub와 직접 연결되지 않고 MPLS 코어(PE3)를 거쳐 통신함.
 
@@ -51,4 +51,4 @@ IOSv의 포트 이름은 4개 단위로 번호가 매겨짐(`Gi0/0 ~ Gi0/3`, `Gi
 ## 7. 확인이 필요한 항목
 
 - IOSvL3의 스위치 기능(SVI, EtherChannel, VRRP): `show vlan`, `show etherchannel`, `show vrrp`
-- IOSvL2의 EtherChannel과 MSTP: `show etherchannel summary`, `show spanning-tree mst`
+- IOSvL2의 EtherChannel과 RSTP: `show etherchannel summary`, `show spanning-tree vlan 50`

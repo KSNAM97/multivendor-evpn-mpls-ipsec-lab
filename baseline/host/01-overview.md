@@ -8,14 +8,15 @@
 
 | 호스트 | 지역 | VLAN | IP | 게이트웨이 | 연결 장비와 포트 | 어댑터 |
 |---|---|---|---|---|---|---|
-| Host A | DC1 | 10 | 192.168.10.101/24 (`bond0`) | 192.168.10.1 (anycast) | leaf1 `ethernet5`, leaf2 `ethernet5` (MLAG) | **2** (eth0, eth1) |
-| Host B | DC1 | 10 | 192.168.10.102/24 | 192.168.10.1 (anycast) | leaf3 `ethernet7` | 1 |
-| Host C | DC1 | 20 | 192.168.20.101/24 | 192.168.20.1 (anycast) | leaf4 `ethernet7` | 1 |
-| Host D | DC2 | 110 | 192.168.110.101/24 (`eth1`) | 192.168.110.1 (VSX active gateway) | CX1 `1/1/7` (eth1). CX3 `1/1/5`(eth0)는 미사용 | **2** (eth0, eth1) |
+| Host A | DC1 | 10 | 192.168.10.101/24 | 192.168.10.1 (anycast) | leaf1 `ethernet5` (단일 연결) | 1 |
+| Host B | DC1 | 20 | 192.168.20.101/24 | 192.168.20.1 (anycast) | leaf2 `ethernet5` | 1 |
+| Host C | DC1 | 30 | 192.168.30.101/24 | 192.168.30.1 (anycast) | leaf3 `ethernet7` | 1 |
+| Host D | DC1 | 99 | 192.168.99.101/24 | 192.168.99.1 (anycast) | leaf4 `ethernet7` | 1 |
+| Host E | DC2 | 110 | 192.168.110.101/24 (`eth1`) | 192.168.110.1 (VSX active gateway) | CX1 `1/1/7` (eth1). CX3 `1/1/5`(eth0)는 미사용 | **2** (eth0, eth1) |
 | Host F | Branch | 50 | 192.168.50.101/24 | 192.168.50.1 (VRRP VIP) | ASW1 `Gi1/0` | 1 |
 | Host G | Branch | 60 | 192.168.60.101/24 | 192.168.60.1 (VRRP VIP) | ASW1 `Gi1/1` | 1 |
 
-- 호스트 이름은 Host A, B, C, D, F, G임(E는 쓰지 않음).
+- 호스트 이름: Host A~D는 DC1(누리데이터 ERP), Host E는 DC2(매체제어), Host F·G는 개발지사. 2026-11-14에 DC2 호스트를 D에서 E로 바꾸고 DC1 Host D를 새로 둠
 - 컨피그 파일은 [configs/host](../../configs/host/)에 호스트마다 하나씩(`HOST-A.sh` 등) 둠
 
 ## 이미지와 기본 조건
@@ -33,7 +34,9 @@
 | VLAN | 서브넷 | 게이트웨이 방식 | 게이트웨이 장비 |
 |---|---|---|---|
 | 10 | 192.168.10.0/24 | anycast gateway | leaf1~leaf4 |
-| 20 | 192.168.20.0/24 | anycast gateway | leaf3, leaf4 |
+| 20 | 192.168.20.0/24 | anycast gateway | leaf1~leaf4 |
+| 30 | 192.168.30.0/24 | anycast gateway | leaf1~leaf4 |
+| 99 | 192.168.99.0/24 | anycast gateway | leaf1~leaf4 |
 | 110 | 192.168.110.0/24 | VSX active gateway | CX1, CX2 |
 | 50 | 192.168.50.0/24 | VRRP (DSW1 master) | DSW1, DSW2 |
 | 60 | 192.168.60.0/24 | VRRP (DSW2 master) | DSW1, DSW2 |
@@ -42,12 +45,13 @@
 
 | 장비 | 포트 | STP 설정 | 비고 |
 |---|---|---|---|
-| leaf1, leaf2 | `port-channel10` (Host A, MLAG) | `spanning-tree portfast`, `spanning-tree bpduguard enable` | 묶인 포트채널에 붙임 (`ethernet5`가 아님) |
-| leaf3 | `ethernet7` (Host B) | 같음 | access VLAN 10 |
-| leaf4 | `ethernet7` (Host C) | 같음 | access VLAN 20 |
+| leaf1 | `ethernet5` (Host A) | `spanning-tree portfast`, `spanning-tree bpduguard enable` | access VLAN 10, 단일 연결(포트채널 없음) |
+| leaf2 | `ethernet5` (Host B) | 같음 | access VLAN 20 |
+| leaf3 | `ethernet7` (Host C) | 같음 | access VLAN 30 |
+| leaf4 | `ethernet7` (Host D) | 같음 | access VLAN 99 |
 | ASW1 | `Gi1/0`, `Gi1/1` (Host F, G) | `spanning-tree portfast` | IOSv, access 포트. 필요하면 `spanning-tree bpduguard enable` |
-| CX1 | `1/1/7` (Host D `eth1`) | `spanning-tree port-type admin-edge` (STP를 켠 경우) | Aruba의 말단 포트 설정. 현재 STP가 꺼져 있어 효과 없음 |
-| CX3 | `1/1/5` (Host D `eth0`, 미사용) | 같음 | CX3 경유 연결은 이미지 한계로 쓰지 않음 |
+| CX1 | `1/1/7` (Host E `eth1`) | `spanning-tree port-type admin-edge` (STP를 켠 경우) | Aruba의 말단 포트 설정. DC2는 2026-11-14부터 rpvst 사용 |
+| CX3 | `1/1/5` (Host E `eth0`, 미사용) | 같음 | CX3 경유 연결은 이미지 한계로 쓰지 않음 |
 
 - 호스트 한 대만 연결되는 포트라서 STP 수렴을 기다리지 않게 하고, `bpduguard`로 스위치가 잘못 연결되는 경우를 막음
 - **스위치끼리 연결되는 포트에는 쓰지 않음**: MLAG 피어링크, spine-leaf 링크, border leaf의 Hub 링크, DSW-ASW 트렁크.

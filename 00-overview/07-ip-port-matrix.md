@@ -56,7 +56,7 @@ spine, Cisco 장비, CX에는 Loopback1이 없음(VXLAN이 없음).
 | Et2 | spine-leaf | 10.1.10.9/31 | spine2 Et1 (.8) | OSPF |
 | Et3-4 (Po1) | MLAG peer-link | (L2) | leaf2 Et3-4 | trunk group MLAGPEER |
 | Vlan4094 | MLAG 제어 | 10.1.254.0/31 | leaf2 Vlan4094 (.1) | domain MLAG1 |
-| Et5 (Po10) | Host A (mlag 10) | (L2, VLAN 10) | Host A eth0 | |
+| Et5 | Host A | (L2, VLAN 10) | Host A eth0 | access 포트(단일 연결) |
 | Vlan10 | anycast gateway | 192.168.10.1/24 | - | VRF TENANT-A, **공유** (leaf1~4) |
 
 ### leaf2 (MLAG 쌍: leaf1, AS 65100)
@@ -70,7 +70,7 @@ spine, Cisco 장비, CX에는 Loopback1이 없음(VXLAN이 없음).
 | Et2 | spine-leaf | 10.1.10.11/31 | spine2 Et2 (.10) | OSPF |
 | Et3-4 (Po1) | MLAG peer-link | (L2) | leaf1 Et3-4 | |
 | Vlan4094 | MLAG 제어 | 10.1.254.1/31 | leaf1 Vlan4094 (.0) | |
-| Et5 (Po10) | Host A (mlag 10) | (L2, VLAN 10) | Host A eth1 | |
+| Et5 | Host B | (L2, VLAN 20) | Host B eth0 | access 포트(단일 연결) |
 | Vlan10 | anycast gateway | 192.168.10.1/24 | - | VRF TENANT-A, **공유** |
 
 ### leaf3 (MLAG 쌍: leaf4, AS 65100)
@@ -84,7 +84,7 @@ spine, Cisco 장비, CX에는 Loopback1이 없음(VXLAN이 없음).
 | Et2 | spine-leaf | 10.1.10.13/31 | spine2 Et3 (.12) | OSPF |
 | Et3-4 (Po1) | MLAG peer-link | (L2) | leaf4 Et3-4 | |
 | Vlan4094 | MLAG 제어 | 10.1.254.2/31 | leaf4 Vlan4094 (.3) | domain **MLAG2** |
-| Et7 | Host B | (L2, VLAN 10) | Host B eth0 | access 포트 |
+| Et7 | Host C | (L2, VLAN 30) | Host C eth0 | access 포트 |
 | Vlan10 | anycast gateway | 192.168.10.1/24 | - | **공유** |
 | Vlan20 | anycast gateway | 192.168.20.1/24 | - | **공유** (leaf3, leaf4) |
 
@@ -99,7 +99,7 @@ spine, Cisco 장비, CX에는 Loopback1이 없음(VXLAN이 없음).
 | Et2 | spine-leaf | 10.1.10.15/31 | spine2 Et4 (.14) | OSPF |
 | Et3-4 (Po1) | MLAG peer-link | (L2) | leaf3 Et3-4 | |
 | Vlan4094 | MLAG 제어 | 10.1.254.3/31 | leaf3 Vlan4094 (.2) | |
-| Et7 | Host C | (L2, VLAN 20) | Host C eth0 | access 포트 |
+| Et7 | Host D | (L2, VLAN 99) | Host D eth0 | access 포트 |
 | Vlan10 | anycast gateway | 192.168.10.1/24 | - | **공유** |
 | Vlan20 | anycast gateway | 192.168.20.1/24 | - | **공유** |
 
@@ -211,7 +211,7 @@ spine, Cisco 장비, CX에는 Loopback1이 없음(VXLAN이 없음).
 | CX1 | 1/1/4 | VSX keepalive | 10.2.254.0/31 | CX2 1/1/4 (.1) | VRF KEEPALIVE |
 | CX1 | lag 10 (1/1/5-6) | CX3 연결 | (L2 trunk, VLAN 110) | CX3 lag 10 | multi-chassis |
 | CX1 | vlan 110 | SVI | 192.168.110.2/24 | - | active gateway .1 (**공유**) |
-| CX1 | 1/1/7 | Host D 연결 | (L2, VLAN 110 access) | Host D eth1 | CX3 경유가 이미지 한계로 안 되어 직접 연결 |
+| CX1 | 1/1/7 | Host E 연결 | (L2, VLAN 110 access) | Host E eth1 | CX3 경유가 이미지 한계로 안 되어 직접 연결 |
 | CX2 | mgmt | 관리 | 192.168.100.42/24 | MGMT-SW Et8 | |
 | CX2 | Loopback0 | router-id | 10.2.0.2/32 | - | |
 | CX2 | 1/1/1 | PE-CE | 10.0.20.7/31 | PE2 Gi3/0 (.6) | VRF TENANT-A (CX 로컬 이름, PE2는 PARTNER) |
@@ -221,7 +221,7 @@ spine, Cisco 장비, CX에는 Loopback1이 없음(VXLAN이 없음).
 | CX2 | vlan 110 | SVI | 192.168.110.3/24 | - | active gateway .1 (**공유**) |
 | CX3 | mgmt | 관리 | 192.168.100.43/24 | MGMT-SW Et9 | |
 | CX3 | lag 10 (1/1/1-4) | VSX 쌍 연결 | (L2 trunk, VLAN 110) | CX1, CX2 lag 10 | |
-| CX3 | 1/1/5 | Host D | (L2, VLAN 110) | Host D eth0 | access 포트. 사용하지 않음(이미지 한계로 `lag10` 데이터 경로 불가) |
+| CX3 | 1/1/5 | Host E | (L2, VLAN 110) | Host E eth0 | access 포트. 사용하지 않음(이미지 한계로 `lag10` 데이터 경로 불가) |
 
 ## 5. 호스트
 
@@ -230,7 +230,7 @@ spine, Cisco 장비, CX에는 Loopback1이 없음(VXLAN이 없음).
 | Host A | 192.168.10.101/24 (bond0) | 192.168.10.1 | leaf1 Et5, leaf2 Et5 (eth0, eth1) | 10 |
 | Host B | 192.168.10.102/24 | 192.168.10.1 | leaf3 Et7 | 10 |
 | Host C | 192.168.20.101/24 | 192.168.20.1 | leaf4 Et7 | 20 |
-| Host D | 192.168.110.101/24 (eth1) | 192.168.110.1 | CX1 1/1/7 (eth1) | 110 |
+| Host E | 192.168.110.101/24 (eth1) | 192.168.110.1 | CX1 1/1/7 (eth1) | 110 |
 | Host F | 192.168.50.101/24 | 192.168.50.1 (VRRP) | ASW1 Gi1/0 | 50 |
 | Host G | 192.168.60.101/24 | 192.168.60.1 (VRRP) | ASW1 Gi1/1 | 60 |
 

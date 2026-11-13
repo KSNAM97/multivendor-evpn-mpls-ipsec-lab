@@ -1,3 +1,5 @@
+> 2026-11-14 변경: 서버를 Leaf 한 대에 단일 연결로 바꿔 서버 쪽 `port-channel10`·`mlag 10`(항목 3, 4, 5의 Host A bond)은 이전 구성의 기록임. MLAG 피어 링크, VTEP·anycast 공유, MLAG 쌍 검증은 그대로 유효. 새 호스트 접속은 [VLAN·MSTP 검증](07-vlan-mstp.md)
+
 # MLAG 검증
 
 **선행 조건**: spine과 leaf가 켜져 있고 leaf 쌍의 Et3-4(peer-link)가 연결되어 있어야 함. **OSPF underlay와는 독립적이라 OSPF 전에 해도 됨.** [MLAG 샘플](../../samples/dc1/06-mlag.md)이 leaf1/leaf2, leaf3/leaf4에 적용되어 있어야 함

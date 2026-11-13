@@ -23,6 +23,10 @@ vlan 110
 vlan 999
     name NATIVE
 !
+spanning-tree mode rpvst
+spanning-tree
+spanning-tree vlan 110
+!
 vrf TENANT-A
     rd 65201:1
 !

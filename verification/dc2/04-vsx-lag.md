@@ -11,7 +11,7 @@
 | 1 | CX1, CX2 | `show lacp interfaces` | 1/1/5, 1/1/6이 active, in-sync | lag 10 multi-chassis, 포트 소속 |
 | 2 | CX3 | `show lacp interfaces` | 1/1/1~1/1/4 **4개 모두** active, in-sync | LAG 번호, 케이블 연결 |
 | 3 | CX1 | `show lacp aggregates` | lag 10이 multi-chassis | 양쪽 설정 |
-| 4 | Host D | `ping -c 3 192.168.110.1` | 응답 | VLAN 110, trunk allowed |
+| 4 | Host E | `ping -c 3 192.168.110.1` | 응답 | VLAN 110, trunk allowed |
 | 5 | CX1, CX3 | `show lacp interfaces` | 멤버가 모두 `ASFNCD`이고 `X`, `lacp-block` 없음 (slow 사용 시 `S` 대신 `L` 표시) | 양쪽 LACP 속도 값 일치. 에뮬레이션에서 `lacp rate fast`가 흔들림을 일으켜 제거함 |
 
 ## 장애 시험
@@ -108,4 +108,4 @@
 | 2026-10-22 | CX2 | 성공 (주의) | 1/1/5~6 ASFNCDX, up. 한때 down(State 없음)이었으나 복구. X 표시가 남아 있어 안정 여부 재확인 필요 |
 | 2026-10-22 | CX3 | 성공 | 1/1/1~4 4링크 모두 ASFNCD, up (한때 CX2 쪽 1/1/3~4가 lacp-block이었음) |
 | 2026-10-22 | CX1, CX2, CX3 | 조치 후 안정 | 05단계 중 ISL `1/1/2` lacp-block, 상대 `O`(OutofSync), VSX Out-Of-Sync가 재발. `lag 256`과 `lag 10`에서 `lacp rate fast`를 제거(slow)하자 안정화. 위 결과(fast 협상)는 제거 전 기록 |
-| 2026-10-22 | CX1, CX2, CX3 | 성공 (제한 있음) | LACP 협상과 LAG 상태는 정상(`ALFNCD`, up). 그러나 이 이미지(10.07)에서는 `lag10`을 통과하는 VLAN 110 데이터가 전달되지 않음(일반 트렁크는 정상). 항목 4(Host D ping)는 CX3 경유 대신 Host D를 CX1 `1/1/7`에 직접 연결해 [05단계](05-active-gateway.md)에서 확인. 상세는 05단계 "LAG 데이터 경로 한계" |
+| 2026-10-22 | CX1, CX2, CX3 | 성공 (제한 있음) | LACP 협상과 LAG 상태는 정상(`ALFNCD`, up). 그러나 이 이미지(10.07)에서는 `lag10`을 통과하는 VLAN 110 데이터가 전달되지 않음(일반 트렁크는 정상). 항목 4(Host E ping)는 CX3 경유 대신 Host E를 CX1 `1/1/7`에 직접 연결해 [05단계](05-active-gateway.md)에서 확인. 상세는 05단계 "LAG 데이터 경로 한계" |

@@ -66,15 +66,9 @@ interface gigabitethernet 0/0
     ip address 10.50.0.3 255.255.255.254
     no shutdown
 !
-spanning-tree mode mst
-spanning-tree mst configuration
-    name LAB
-    revision 1
-    instance 1 vlan 50
-    instance 2 vlan 60
-!
-spanning-tree mst 1 priority 8192
-spanning-tree mst 2 priority 4096
+spanning-tree mode rapid-pvst
+spanning-tree vlan 50 priority 8192
+spanning-tree vlan 60 priority 4096
 !
 interface range gigabitethernet 0/1 - 2
     switchport trunk encapsulation dot1q

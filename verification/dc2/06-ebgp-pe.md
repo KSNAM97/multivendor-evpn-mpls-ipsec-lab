@@ -9,7 +9,7 @@
 | 1 | CX1 | `ping 10.0.20.4 vrf TENANT-A` | PE2 응답 | 링크 IP, VRF |
 | 2 | CX1 | `show bgp all-vrf all summary` | PE2(65000)가 **Established** (명령이 다르면 ?로 확인) | AS 번호, activate |
 | 3 | CX1 | `show ip route vrf TENANT-A` | DC1과 Branch 경로가 BGP로 보임 | PE2 쪽 RT, 원격 설정 |
-| 4 | Host D | `ping -c 3 192.168.10.101` | Host A 응답 (DC2에서 DC1로) | VPNv4, DC1 쪽 설정 |
+| 4 | Host E | `ping -c 3 192.168.10.101` | Host A 응답 (DC2에서 DC1로) | VPNv4, DC1 쪽 설정 |
 | 5 | CX1 | `show bgp vrf TENANT-A all neighbors <PE2 주소>` (hold, keepalive 항목) | hold 9초, keepalive 3초 | 양쪽 `timers 3 9`, AOS-CX 문법 확인 |
 
 ## 증빙
@@ -41,10 +41,10 @@
 
 ### DC2에서 DC1로 end-to-end ping
 
-- Host D `ping -c 3 192.168.10.101`(Host A): **3/3 응답**, ttl 59, 285~1941 ms (에뮬레이션 부하로 지연이 큼)
-- 경로: Host D - CX1 - PE2 - (MPLS 코어 VPN 라벨) - PE1 - leaf3, leaf4 - Host A
+- Host E `ping -c 3 192.168.10.101`(Host A): **3/3 응답**, ttl 59, 285~1941 ms (에뮬레이션 부하로 지연이 큼)
+- 경로: Host E - CX1 - PE2 - (MPLS 코어 VPN 라벨) - PE1 - leaf3, leaf4 - Host A
 
-![Host D에서 Host A ping](images/06-ebgp-pe/host-d-ping-host-a.png)
+![Host E에서 Host A ping](images/06-ebgp-pe/host-d-ping-host-a.png)
 
 ## 패킷 캡처 (Wireshark)
 
@@ -58,4 +58,4 @@
 
 | 일시 | 결과 (성공, 실패) | 비고 |
 |---|---|---|
-| 2026-10-22 | 성공 | 항목 2(이웃 상태는 `show bgp vrf TENANT-A all`로 경로 수신 확인), 3, 4 완료. CX1, CX2가 PE2에서 DC1 경로를 받고 Host D가 Host A에 ping 성공. 항목 5(hold, keepalive)는 PE2 쪽에서 확인(9와 3). VRF router-id는 SVI 주소로 나오던 것을 `vrf TENANT-A` 하위 지정으로 설계값(10.2.2.1, 10.2.2.2)에 맞춤 |
+| 2026-10-22 | 성공 | 항목 2(이웃 상태는 `show bgp vrf TENANT-A all`로 경로 수신 확인), 3, 4 완료. CX1, CX2가 PE2에서 DC1 경로를 받고 Host E가 Host A에 ping 성공. 항목 5(hold, keepalive)는 PE2 쪽에서 확인(9와 3). VRF router-id는 SVI 주소로 나오던 것을 `vrf TENANT-A` 하위 지정으로 설계값(10.2.2.1, 10.2.2.2)에 맞춤 |

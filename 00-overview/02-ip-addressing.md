@@ -152,7 +152,7 @@ OSPF router-id는 `loopback0` 주소를 쓰고, **BGP router-id는 별도 대역
 |---|---|---|---|---|---|
 | DC1 | 10 | 10010 | 192.168.10.0/24 | .1 (anycast gateway) | Host A .101, Host B .102 |
 | DC1 | 20 | 10020 | 192.168.20.0/24 | .1 (anycast gateway) | Host C .101 |
-| DC2 | 110 | 10110 | 192.168.110.0/24 | .1 (VSX active gateway) | Host D .101 |
+| DC2 | 110 | 10110 | 192.168.110.0/24 | .1 (VSX active gateway) | Host E .101 |
 | Branch | 50 | - | 192.168.50.0/24 | VRRP VIP .1 (DSW1 .2, DSW2 .3) | Host F .101 |
 | Branch | 60 | - | 192.168.60.0/24 | VRRP VIP .1 (DSW1 .2, DSW2 .3) | Host G .101 |
 

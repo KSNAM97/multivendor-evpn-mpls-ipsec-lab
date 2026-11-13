@@ -1,12 +1,14 @@
 # 4단계: Branch
 
+파견 순서: 순서 1 ~ 3은 1차 파견(언더레이), 4(OSPF)는 2차 ①, 5(PE3 eBGP)는 ⑤, 6(통신 확인)은 ⑥. 고객사 간 순서는 [프로젝트 요약의 구축 순서](../docs/01-project-summary.md#구축-순서)
+
 ## 목표
 
-BGW 2대가 PE3의 VRF BR1과 eBGP를 맺고, Host F·G가 DC1(Host A)과 DC2(Host D)와 통신. DC1과 DC2는 서로 통신하지 않음(VRF와 RT, BGW prefix-list로 분리)
+BGW 2대가 PE3의 VRF BR1과 eBGP를 맺고, Host F·G가 DC1(Host A)과 DC2(Host E)와 통신. DC1과 DC2는 서로 통신하지 않음(VRF와 RT, BGW prefix-list로 분리)
 
 ## 켜는 노드
 
-Arista 3대(spine1, border-leaf1, border-leaf2), Hub1, Hub2, PE1, PE2, PE3, BGW1, BGW2, IOSv 3대(DSW1, DSW2, ASW1), Host A 또는 B, Host F, G. DC2(PE2, CX)를 함께 확인하려면 CX1~3과 Host D도 켬. 약 12GB 예상.
+Arista 3대(spine1, border-leaf1, border-leaf2), Hub1, Hub2, PE1, PE2, PE3, BGW1, BGW2, IOSv 3대(DSW1, DSW2, ASW1), Host A 또는 B, Host F, G. DC2(PE2, CX)를 함께 확인하려면 CX1~3과 Host E도 켬. 약 12GB 예상.
 
 ## 순서
 
@@ -15,11 +17,11 @@ Arista 3대(spine1, border-leaf1, border-leaf2), Hub1, Hub2, PE1, PE2, PE3, BGW1
 | 순서 | 할 일 | 참고 문서 | 확인 |
 |---|---|---|---|
 | 1 | Branch 기본 설정, 관리망 | [샘플: 기본 설정](../samples/br/01-base.md), [비밀번호 위치](../samples/br/13-password.md), [관리망](../samples/br/03-mgmt-access.md) | 콘솔 로그인, SSH |
-| 2 | DSW, ASW1 L2: VLAN, MSTP, EtherChannel (ASW1은 L2 전용, SVI 없음) | [기준](../baseline/br/04-mstp-etherchannel.md), [샘플](../samples/br/04-mstp-etherchannel.md) | [검증](../verification/br/04-mstp-etherchannel.md) |
+| 2 | DSW, ASW1 L2: VLAN, RSTP(rapid-pvst), EtherChannel (ASW1은 L2 전용, SVI 없음) | [기준](../baseline/br/04-mstp-etherchannel.md), [샘플](../samples/br/04-mstp-etherchannel.md) | [검증](../verification/br/04-mstp-etherchannel.md) |
 | 3 | SVI와 VRRP (DSW1, DSW2) | [기준](../baseline/br/05-vrrp-svi.md), [샘플](../samples/br/05-vrrp-svi.md) | [검증](../verification/br/05-vrrp-svi.md) |
 | 4 | Branch OSPF: BGW와 DSW를 area 0으로 (BGW `Gi0/0`은 제외) | [기준](../baseline/br/06-ospf-branch.md), [샘플](../samples/br/06-ospf-branch.md) | [검증](../verification/br/06-ospf-branch.md): BGW에서 DSW가 FULL |
 | 5 | PE3의 VRF BR1과 BGW eBGP (`.100` 서브인터페이스), BGW의 OSPF default | [기준](../baseline/br/07-pe3-bgw-ebgp.md), [샘플](../samples/br/07-pe3-bgw-ebgp.md), PE3 쪽은 [코어 PE-CE 샘플](../samples/core/07-pe-ce-ebgp.md) | [검증](../verification/br/07-pe3-bgw-ebgp.md), [코어 PE-CE 검증](../verification/core/07-pe-ce-ebgp.md): PE3 이웃 Established, DSW에 default |
-| 6 | 통신 확인 | [연결 확인](../samples/host/04-connectivity.md) | Host F ↔ Host A, Host F ↔ Host D ping, Host A ↔ Host D는 통신 안 됨 |
+| 6 | 통신 확인 | [연결 확인](../samples/host/04-connectivity.md) | Host F ↔ Host A, Host F ↔ Host E ping, Host A ↔ Host E는 통신 안 됨 |
 | 7 | 저장 | `write memory`, 컨피그를 `configs/br/`에 보관 | |
 
 ## 순서의 이유
@@ -31,5 +33,7 @@ Arista 3대(spine1, border-leaf1, border-leaf2), Hub1, Hub2, PE1, PE2, PE3, BGW1
 ## 완료 기준
 
 - PE3 - BGW eBGP가 Established
-- Host F가 Host A(DC1), Host D(DC2)와 ping이 됨
-- Host A와 Host D 사이에는 경로가 없음
+- Host F가 Host A(DC1), Host E(DC2)와 ping이 됨
+- Host A와 Host E 사이에는 경로가 없음
+
+다음: 1차 파견 완료. 2차 파견은 [프로젝트 요약의 구축 순서](../docs/01-project-summary.md#구축-순서) 6번 OSPF부터 진행. Branch의 OSPF(순서 4)는 2차 ①, PE3 eBGP(순서 5)는 ⑤, 통신 확인(순서 6)은 ⑥

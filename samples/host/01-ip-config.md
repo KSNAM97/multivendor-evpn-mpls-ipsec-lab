@@ -19,7 +19,7 @@
 #   Host A  192.168.10.101/24   gw 192.168.10.1   (bond0, 문서 bond-lacp 참고)
 #   Host B  192.168.10.102/24   gw 192.168.10.1
 #   Host C  192.168.20.101/24   gw 192.168.20.1
-#   Host D  192.168.110.101/24  gw 192.168.110.1  (eth1을 사용: CX1 1/1/7. eth0는 내림 = ip link set eth0 down)
+#   Host E  192.168.110.101/24  gw 192.168.110.1  (eth1을 사용: CX1 1/1/7. eth0는 내림 = ip link set eth0 down)
 #   Host F  192.168.50.101/24   gw 192.168.50.1  (VRRP VIP)
 #   Host G  192.168.60.101/24   gw 192.168.60.1  (VRRP VIP)
 

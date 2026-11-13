@@ -106,7 +106,7 @@
 | IOSvL3의 스위치 기능 (SVI, EtherChannel, VRRP) | `show vlan`, `show etherchannel`, `show vrrp` |
 | IOSvL2의 EtherChannel(LACP)과 MSTP | 확인됨: MSTP 설정 수락, `channel-group 1~3 mode active` 수락, LACP 협상 동작(상대 포트 미설정 시 suspended 메시지). 그룹 번호는 1~3 사용(99는 거부). 실제 번들링(P)은 상대 연결 후 확인. 상세는 [기능 지원 확인 결과](05-feature-check.md) |
 | IOSv 노드 어댑터 수 (DSW 5, ASW 6) | GNS3 템플릿에서 어댑터 수 조정 |
-| AOS-CX Virtual 10.07의 LAG 데이터 경로 | 확인됨(한계): `lag10`은 LACP 협상(`ALFNCD`)까지 정상이지만 VLAN 110 데이터 프레임이 LAG를 통과하지 못함. 같은 링크를 일반 트렁크로 쓰면 정상. 그래서 Host D를 CX1 `1/1/7`에 직접 연결. ISL(`lag256`)은 정상. 상세는 [DC2 active gateway 검증](../verification/dc2/05-active-gateway.md) |
+| AOS-CX Virtual 10.07의 LAG 데이터 경로 | 확인됨(한계): `lag10`은 LACP 협상(`ALFNCD`)까지 정상이지만 VLAN 110 데이터 프레임이 LAG를 통과하지 못함. 같은 링크를 일반 트렁크로 쓰면 정상. 그래서 Host E를 CX1 `1/1/7`에 직접 연결. ISL(`lag256`)은 정상. 상세는 [DC2 active gateway 검증](../verification/dc2/05-active-gateway.md) |
 | AOS-CX Virtual의 `lacp rate fast` | 확인됨(한계): 에뮬레이션 부하에서 LACP가 반복해서 흔들려(`X`, `lacp-block`, VSX Out-Of-Sync) 제거하고 기본(slow) 사용 |
 | vEOS의 VXLAN DSCP 복사 동작 | 캡처로 외부 헤더 DSCP 확인 |
 | vEOS ACL의 interface 적용 | 확인됨: `ip access-group ... in/out`이 `% Unavailable command (not supported on this hardware platform)`로 거부됨. 패킷 필터에 쓰지 않음. 컨트롤 플레인 ACL은 사용자 정의도 수락, 활성(`system control-plane`). 실제 차단은 미확인 |

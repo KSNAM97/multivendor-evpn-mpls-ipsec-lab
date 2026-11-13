@@ -1,4 +1,6 @@
-# LACP bond (Host A)
+# LACP bond (Host A, 이전 구성)
+
+> 2026-11-14 변경: 호스트가 Leaf 한 대에 단일 연결로 바뀌어 Host A의 bond와 leaf1·2 `port-channel10`(`mlag 10`)은 쓰지 않음. 아래는 2026-10-22까지 쓴 이전 구성의 기록. 현재는 [호스트 개요](01-overview.md)를 따름
 
 Host A는 MLAG 쌍(leaf1, leaf2)에 LACP로 이중 연결
 

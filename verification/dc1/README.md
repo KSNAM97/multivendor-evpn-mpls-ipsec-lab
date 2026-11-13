@@ -7,3 +7,6 @@
 3. [EVPN-VXLAN](03-evpn-vxlan.md)
 4. [DCI와 Hub 연동](04-dci-hub-ebgp.md)
 5. [관리 접속 제한 (ACL)](05-mgmt-acl.md)
+6. [VLAN, MSTP, 호스트 접속 (2026-11-14 설계)](07-vlan-mstp.md)
+7. [traceroute 경로](08-traceroute.md)
+8. [장애 시험 T1~T4](09-failover.md)

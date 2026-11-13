@@ -27,7 +27,7 @@
 
 ### 장애 시험 결과 (2026-10-25, PE1 `Gi0/0` shutdown)
 
-- 방법: Host A에서 `ping -D 192.168.110.101`(Host D)을 걸고 PE1 `interface GigabitEthernet0/0`에 `shutdown`. 같은 UTC 시간축으로 PE1 로그와 ping 시각을 맞춤
+- 방법: Host A에서 `ping -D 192.168.110.101`(Host E)을 걸고 PE1 `interface GigabitEthernet0/0`에 `shutdown`. 같은 UTC 시간축으로 PE1 로그와 ping 시각을 맞춤
 
 | 시각(UTC) | 출처 | 사건 |
 |---|---|---|

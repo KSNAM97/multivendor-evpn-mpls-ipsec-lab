@@ -8,17 +8,20 @@ VLAN, VNI, IP 대역, AS 번호를 한곳에 정리한 문서
 
 | VLAN | 이름 | 적용 장비 (SVI) | 용도 | 서브넷 | 게이트웨이 | 호스트와 포트 |
 |---|---|---|---|---|---|---|
-| 10 | APP | **leaf1, leaf2, leaf3, leaf4** (anycast gateway, L2VNI 10010) | DC1 서버 영역 | 192.168.10.0/24 | .1 (anycast, 4대 공유) | Host A .101 (leaf1 Et5 + leaf2 Et5), Host B .102 (leaf3 Et7) |
-| 20 | DB | **leaf3, leaf4** (anycast gateway, L2VNI 10020). leaf1, leaf2에는 없음 | DC1 서버 영역 | 192.168.20.0/24 | .1 (anycast, 2대 공유) | Host C .101 (leaf4 Et7) |
-| 110 | APP-DC2 | **CX1, CX2** (SVI .2/.3, active gateway), **CX3**(L2) | DC2 서버 영역 | 192.168.110.0/24 | .1 (VSX active gateway) | Host D .101 (CX1 1/1/7, eth1) |
+| 10 | FINANCE | **leaf1~leaf4** (anycast gateway, L2VNI 10010) | 재무회계 | 192.168.10.0/24 | .1 (anycast, 4대 공유) | Host A .101 (leaf1 Et5) |
+| 20 | LOGISTICS-HR | **leaf1~leaf4** (anycast gateway, L2VNI 10020) | 물류·생산·인사 | 192.168.20.0/24 | .1 (anycast, 4대 공유) | Host B .101 (leaf2 Et5) |
+| 30 | ERP-DB | **leaf1~leaf4** (anycast gateway, L2VNI 10030) | 중앙 ERP DB | 192.168.30.0/24 | .1 (anycast, 4대 공유) | Host C .101 (leaf3 Et7) |
+| 99 | MGMT | **leaf1~leaf4** (anycast gateway, L2VNI 10099) | 관리(고객사 요청 관리용 IP 대역, 개발지사에서 도달) | 192.168.99.0/24 | .1 (anycast, 4대 공유) | Host D .101 (leaf4 Et7) |
+| 110 | APP-DC2 | **CX1, CX2** (SVI .2/.3, active gateway), **CX3**(L2) | DC2 서버 영역 | 192.168.110.0/24 | .1 (VSX active gateway) | Host E .101 (CX1 1/1/7, eth1) |
 | 50 | BR-LAN50 | **DSW1, DSW2** (SVI .2/.3, VRRP), **ASW1**(L2) | Branch 사용자 LAN | 192.168.50.0/24 | VRRP VIP .1 | Host F .101 (ASW1 Gi1/0) |
 | 60 | BR-LAN60 | **DSW1, DSW2** (SVI .2/.3, VRRP), **ASW1**(L2) | Branch 사용자 LAN | 192.168.60.0/24 | VRRP VIP .1 | Host G .101 (ASW1 Gi1/1) |
 | 4094 | MLAG-PEER | **leaf1~leaf4** (쌍마다 다른 /31) | MLAG 제어 (trunk group MLAGPEER) | 10.1.254.0/31 (leaf1, leaf2), 10.1.254.2/31 (leaf3, leaf4) | - | - |
 | 999 | NATIVE | 트렁크가 있는 모든 장비 (leaf1~4, CX1~3, DSW1·2, ASW1) | 모든 트렁크의 네이티브 VLAN. 호스트와 SVI는 없음 | - | - | - |
-- VNI: L2VNI 10010(VLAN 10), 10020(VLAN 20), L3VNI 50001(VRF TENANT-A).
+- VNI: L2VNI 10010(VLAN 10), 10020(VLAN 20), 10030(VLAN 30), 10099(VLAN 99), L3VNI 50001(VRF TENANT-A).
+- DC1 STP는 MSTP(region DC1): 인스턴스 1 = VLAN 10, 20 / 인스턴스 2 = VLAN 30, 99. BR1과 DC2는 RSTP(BR1은 rapid-pvst, DC2는 rpvst)
 - DC2는 VXLAN이 없어서 VLAN 110의 L2VNI(10110)는 **예약만 하고 쓰지 않음**.
 - ASW1은 L2 스위치라 데이터 VLAN(50, 60)에는 SVI가 없고, 관리는 `Gi3/3`(access VLAN 100)의 `Vlan100` SVI(192.168.100.46). VLAN 100은 ASW1에만 있고 트렁크에 넣지 않음
-- Host D는 `eth1`을 CX1 `1/1/7`(VLAN 110 access)에 연결. CX3 경유(`eth0`)는 AOS-CX 10.07 가상 이미지에서 `lag10` 위로 VLAN 110 데이터가 전달되지 않아 쓰지 않음 ([DC2 검증](../verification/dc2/05-active-gateway.md))
+- Host E는 `eth1`을 CX1 `1/1/7`(VLAN 110 access)에 연결. CX3 경유(`eth0`)는 AOS-CX 10.07 가상 이미지에서 `lag10` 위로 VLAN 110 데이터가 전달되지 않아 쓰지 않음 ([DC2 검증](../verification/dc2/05-active-gateway.md))
 
 ## 2. 대역별 용도
 
@@ -26,7 +29,7 @@ VLAN, VNI, IP 대역, AS 번호를 한곳에 정리한 문서
 
 | 대역 | 용도 |
 |---|---|
-| 192.168.10.0/24, 20.0/24 | DC1 서버 VLAN 10, 20 |
+| 192.168.10.0/24, 20.0/24, 30.0/24, 99.0/24 | DC1 VLAN 10(재무회계), 20(물류·생산·인사), 30(중앙 ERP DB), 99(관리) |
 | 192.168.110.0/24 | DC2 서버 VLAN 110 |
 | 192.168.50.0/24, 60.0/24 | Branch LAN VLAN 50, 60 |
 | 192.168.100.0/24 | 장비 관리망 (MGMT-SW) |
@@ -59,10 +62,11 @@ Juniper를 뺐으므로 10.3.0.0/16은 **비어 있음**(향후 확장용).
 
 | 호스트 | 주소 | 게이트웨이 | VLAN |
 |---|---|---|---|
-| Host A | 192.168.10.101 (bond0) | 192.168.10.1 | 10 |
-| Host B | 192.168.10.102 | 192.168.10.1 | 10 |
-| Host C | 192.168.20.101 | 192.168.20.1 | 20 |
-| Host D | 192.168.110.101 | 192.168.110.1 | 110 |
+| Host A | 192.168.10.101 | 192.168.10.1 | 10 |
+| Host B | 192.168.20.101 | 192.168.20.1 | 20 |
+| Host C | 192.168.30.101 | 192.168.30.1 | 30 |
+| Host D | 192.168.99.101 | 192.168.99.1 | 99 |
+| Host E | 192.168.110.101 | 192.168.110.1 | 110 |
 | Host F | 192.168.50.101 | 192.168.50.1 | 50 |
 | Host G | 192.168.60.101 | 192.168.60.1 | 60 |
 

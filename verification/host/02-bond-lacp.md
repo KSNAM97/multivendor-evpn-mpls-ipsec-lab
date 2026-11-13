@@ -1,4 +1,6 @@
-# LACP bond (Host A) 검증
+# LACP bond (Host A) 검증 (이전 구성)
+
+> 2026-11-14 변경: Host A는 leaf1 `ethernet5` 단일 연결로 바뀌어 bond 검증은 이전 구성의 기록임. 현재 호스트 접속 확인은 [DC1 VLAN·MSTP 검증](../dc1/07-vlan-mstp.md)을 따름
 
 **선행 조건**: leaf1·2의 MLAG와 `port-channel10`이 설정되어 있고 Host A에 [bond 샘플](../../samples/host/02-bond-lacp.md)이 적용되어 있어야 함
 

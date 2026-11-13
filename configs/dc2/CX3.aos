@@ -21,6 +21,10 @@ vlan 110
 vlan 999
     name NATIVE
 !
+spanning-tree mode rpvst
+spanning-tree
+spanning-tree vlan 110
+!
 interface lag 10
     no shutdown
     description to-VSX-pair
@@ -47,7 +51,7 @@ interface 1/1/4
 !
 interface 1/1/5
     no shutdown
-    description to-HostD
+    description to-HostE
     spanning-tree port-type admin-edge
     no routing
     vlan access 110

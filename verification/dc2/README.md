@@ -10,3 +10,5 @@
 | 04 | VSX LAG | [04-vsx-lag.md](04-vsx-lag.md) |
 | 05 | VSX active gateway | [05-active-gateway.md](05-active-gateway.md) |
 | 06 | PE와 eBGP | [06-ebgp-pe.md](06-ebgp-pe.md) |
+| 07 | STP, VSX 재확인 (2026-11-14) | [07-stp-vsx.md](07-stp-vsx.md) |
+| 08 | 통신과 분리 (2026-11-14) | [08-connect-isolation.md](08-connect-isolation.md) |

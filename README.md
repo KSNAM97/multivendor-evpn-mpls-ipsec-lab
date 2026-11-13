@@ -10,11 +10,13 @@ Cisco, Arista, Aruba를 섞어 DC 2곳과 Branch를 MPLS L3VPN 코어에 PE-CE e
 
 | 항목 | 내용 |
 |---|---|
+| 요구사항 | 청명정밀(고객사): BR1 ↔ 누리데이터 DC1 연결, DC2 ↔ BR1 연결, DC1 ↔ DC2는 통신되지 않게 분리 |
+| 사업 구조 | 누리텔레콤(MPLS 코어, 기존 전용회선 계약 만료로 PE 포함), 누리데이터(DC1 임대, 청명정밀 전용 신규 사내 ERP 서버 필요와 예산·유지보수 비용 고려), 청명정밀(BR1·DC2) |
 | 규모 | 네트워크 장비 21대, 호스트 6대, 3개 벤더 |
-| 구성 | DC1(Arista EVPN-VXLAN, border leaf 2대와 Hub 2대로 외부 연결), MPLS 코어(Cisco PE 3대), DC2(Aruba VSX), Branch(Cisco, BGW가 고객사 망 끝단) |
+| 구성 | 누리데이터 DC1(Arista EVPN-VXLAN, border leaf 2대와 Hub 2대로 외부 연결), 누리텔레콤 MPLS 코어(Cisco PE 3대), 청명정밀 DC2(Aruba VSX), 청명정밀 BR1(Cisco, BGW가 고객사 망 끝단) |
 | 핵심 기술 | EVPN-VXLAN, MLAG, VSX, MPLS L3VPN(LDP, MP-BGP VPNv4, VRF와 RT 분리), PE-CE eBGP, VRRP, MSTP |
 | 검증 | 구간마다 기대 결과를 먼저 적고 CLI show 출력과 Wireshark 패킷으로 대조. 검증 캡처 약 222장 |
-| 작업 기간 | 2026.10.05 ~ 11.06, 1인 수행 |
+| 작업 기간 | 2026.10.05 ~ 11.06, 1인 수행(1차·2차 파견 4주 계획은 [프로젝트 요약](docs/01-project-summary.md)) |
 | 환경 | GNS3 VM 22GB |
 
 ## 주요 결과
@@ -29,7 +31,7 @@ Cisco, Arista, Aruba를 섞어 DC 2곳과 Branch를 MPLS L3VPN 코어에 PE-CE e
 | 보고 싶은 것 | 위치 |
 |---|---|
 | 프로젝트를 빠르게 이해 | [`docs/`](docs/README.md): [요약](docs/01-project-summary.md), [구조와 설계 판단](docs/02-architecture.md), [검증 결과](docs/03-verification-results.md), [트러블슈팅](docs/04-troubleshooting.md), [한계](docs/05-limitations.md) |
-| 구축 순서 | [`guide/`](guide/00-prerequisites.md) 0단계부터 4단계 |
+| 구축 순서 | 고객사 간 순서(1차 파견 언더레이, 2차 파견 프로토콜)는 [프로젝트 요약](docs/01-project-summary.md#구축-순서), 지역별 절차는 [`guide/`](guide/00-prerequisites.md) |
 | 전체 기준(토폴로지, IP, 프로토콜) | [`00-overview/`](00-overview/README.md) |
 | 설정 근거와 값 | [`baseline/`](baseline/br/README.md) |
 | 장비별 컨피그 | [`configs/`](configs/core/PE1.ios), [`samples/`](samples/br/README.md) |

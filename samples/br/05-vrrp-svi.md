@@ -19,7 +19,7 @@
 ! VLAN 50은 DSW1이 master(priority 110), VLAN 60은 DSW2가 master(priority 110)
 ! 확인: show vrrp brief / show ip interface brief / show vlan brief
 ! VLAN이 먼저 있어야 SVI가 올라온다 (포트가 없어도 올리려면 no autostate, ? 로 지원 확인)
-! MSTP root와 VRRP master를 같은 DSW로 맞춘다 (MSTP 샘플 참고)
+! STP(rapid-pvst) root와 VRRP master를 같은 DSW로 맞춘다 (RSTP 샘플 참고)
 !
 ip routing
 !

@@ -58,12 +58,7 @@ interface vlan 100
     ip address 192.168.100.46 255.255.255.0
     no shutdown
 !
-spanning-tree mode mst
-spanning-tree mst configuration
-    name LAB
-    revision 1
-    instance 1 vlan 50
-    instance 2 vlan 60
+spanning-tree mode rapid-pvst
 !
 interface range gigabitethernet 0/0 - 1
     switchport trunk encapsulation dot1q

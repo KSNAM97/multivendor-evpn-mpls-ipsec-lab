@@ -26,10 +26,10 @@ ping -c 3 192.168.10.102
 # 3. 다른 VLAN (L3VNI): Host A -> Host C
 ping -c 3 192.168.20.101
 
-# 4. 다른 지역 (DC1 -> DC2): Host A -> Host D. 통신 안 되는 것이 정상 (VRF와 RT, BGW prefix-list로 분리)
+# 4. 다른 지역 (DC1 -> DC2): Host A -> Host E. 통신 안 되는 것이 정상 (VRF와 RT, BGW prefix-list로 분리)
 ping -c 3 192.168.110.101
 
-# 5. Branch (MPLS L3VPN, VRF BR1): Host A -> Host F, Host D -> Host F
+# 5. Branch (MPLS L3VPN, VRF BR1): Host A -> Host F, Host E -> Host F
 ping -c 3 192.168.50.101
 
 # 6. 경로 확인 (Host A에서 Host F)

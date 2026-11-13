@@ -23,6 +23,10 @@ vlan 110
 vlan 999
     name NATIVE
 !
+spanning-tree mode rpvst
+spanning-tree
+spanning-tree vlan 110
+!
 vrf TENANT-A
     rd 65201:1
 !
@@ -88,7 +92,7 @@ interface vlan 110
 !
 interface 1/1/7
     no shutdown
-    description to-HostD-eth1
+    description to-HostE-eth1
     no routing
     vlan access 110
 !

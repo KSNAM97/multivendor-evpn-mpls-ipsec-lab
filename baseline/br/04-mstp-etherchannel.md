@@ -1,17 +1,19 @@
-# MSTP와 EtherChannel
+# RSTP(rapid-pvst)와 EtherChannel
 
-DSW 쌍과 ASW1 사이를 EtherChannel로 이중화하고 MSTP로 VLAN별 경로를 나눔
+DSW 쌍과 ASW1 사이를 EtherChannel로 이중화하고 RSTP(rapid-pvst)로 VLAN별 root를 나눔
 
 기준 문서: [00-overview](../../00-overview/README.md)
 
-## MSTP
+## RSTP (rapid-pvst)
 
 | 항목 | 값 |
 |---|---|
-| region | LAB |
-| revision | 1 |
-| 인스턴스 1 | VLAN 50, root DSW1 (priority 4096) |
-| 인스턴스 2 | VLAN 60, root DSW2 (priority 4096) |
+| 모드 | `spanning-tree mode rapid-pvst` (DSW1, DSW2, ASW1 동일) |
+| VLAN 50 | root DSW1 (priority 4096, 표시값 4146) |
+| VLAN 60 | root DSW2 (priority 4096, 표시값 4156) |
+
+- 선택 이유: 개발지사는 단순 L2 구조(DSW 2대, ASW 1대)라 인스턴스 매핑이 필요한 MSTP 대신 VLAN별로 root를 줄 수 있는 RSTP 계열(rapid-pvst)로 충분함. DC1은 서버 영역이 VLAN 4개라서 인스턴스로 묶는 MSTP를 씀([DC1 VLAN](../dc1/02-vlan-ip.md))
+- VRRP master(VLAN 50 = DSW1, VLAN 60 = DSW2)와 STP root를 같은 장비로 맞춰 트래픽이 DSW 사이로 우회하지 않게 함
 
 ## EtherChannel
 
@@ -21,7 +23,7 @@ DSW 쌍과 ASW1 사이를 EtherChannel로 이중화하고 MSTP로 VLAN별 경로
 | Po2 | DSW1 - ASW1 | DSW1 Gi0/3, Gi1/0 / ASW1 Gi0/0-1 | LACP active |
 | Po3 | DSW2 - ASW1 | DSW2 Gi0/3, Gi1/0 / ASW1 Gi0/2-3 | LACP active |
 
-- IOSv에는 MLAG가 없어서 ASW1의 두 번들 중 하나는 인스턴스별로 blocking됨. 이것이 VLAN 단위 부하 분산
+- IOSv에는 MLAG가 없어서 ASW1의 두 번들 중 하나는 VLAN별로 blocking됨. 이것이 VLAN 단위 부하 분산
 - 호스트 포트: ASW1 Gi1/0 = VLAN 50 (Host F), Gi1/1 = VLAN 60 (Host G).
 
 - LACP는 **기본(30초 간격)**을 씀. DC1은 fast(1초)이지만 IOSvL3 이미지는 `lacp rate fast`를 받지 않음(`% Invalid input`, 장비에서 확인)

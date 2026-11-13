@@ -4,6 +4,8 @@ Hub는 DC1의 외부 연결 장비. border leaf(border-leaf1, border-leaf2)에�
 
 값 우선순위: [IP와 포트 매칭표](../00-overview/07-ip-port-matrix.md), 각 기준 문서
 
+파견 순서: Hub 설정은 2차 ⑤(eBGP)에서 진행. 고객사 간 순서는 [프로젝트 요약의 구축 순서](../docs/01-project-summary.md#구축-순서)
+
 ## 역할과 위치
 
 | 항목 | Hub1 | Hub2 |

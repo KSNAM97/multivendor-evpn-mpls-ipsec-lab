@@ -15,4 +15,4 @@ VSX 쌍이 같은 게이트웨이 주소를 active-active로 제공
 | active gateway     | 192.168.110.1 (양쪽 같은 주소)         |
 | active gateway MAC | 12:00:00:00:01:10 (양쪽 같은 값)      |
 | VRF                | TENANT-A                         |
-| 호스트                | Host D 192.168.110.101, 게이트웨이 .1 |
+| 호스트                | Host E 192.168.110.101, 게이트웨이 .1 |

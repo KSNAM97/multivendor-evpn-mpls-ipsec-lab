@@ -1,5 +1,7 @@
 # 2단계: MPLS 코어와 DC1 연동
 
+파견 순서: 순서 1, 2는 1차 파견(언더레이), 3(OSPF)은 2차 ①, 4(MPLS와 LDP)는 ②, 6(VPNv4)은 ③, 5(VRF)는 ④, 7(PE-CE eBGP)은 ⑤. 고객사 간 순서는 [프로젝트 요약의 구축 순서](../docs/01-project-summary.md#구축-순서)
+
 ## 목표
 
 PE1이 VRF 경로를 학습하고, DC1 border leaf와 PE1 사이 eBGP가 맺어짐.
@@ -29,4 +31,4 @@ Hub 설정은 [Hub 설정 가이드](06-hub.md)를 따름
 - PE 간 OSPF, LDP, VPNv4 세션이 정상 (구축 순서 1 ~ 6 검증 통과)
 - PE1의 TENANT-A VRF에 DC1 경로가 보임
 
-다음: [3단계 DC2](03-dc2.md)
+다음: 1차 파견은 [3단계 DC2](03-dc2.md). 코어의 2차 ① ~ ⑤(OSPF, LDP, VPNv4, VRF, PE-CE eBGP)는 이 문서의 순서 3, 4, 6, 5, 7 순에서 이어서 진행
