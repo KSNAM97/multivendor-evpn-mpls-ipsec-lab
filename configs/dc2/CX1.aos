@@ -101,7 +101,7 @@ router bgp 65201
     vrf TENANT-A
     bgp router-id 10.2.2.1
         neighbor 10.0.20.4 remote-as 65000
-        neighbor 10.0.20.4 timers 3 9
+        neighbor 10.0.20.4 timers 30 90
         address-family ipv4 unicast
             neighbor 10.0.20.4 activate
             redistribute connected

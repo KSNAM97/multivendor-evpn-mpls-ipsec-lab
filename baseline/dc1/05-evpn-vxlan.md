@@ -17,14 +17,14 @@ iBGP EVPN(spine이 Route Reflector)으로 MAC/IP 경로를 교환하는 오버�
 | 종류 | iBGP, spine1·2가 **Route Reflector**(RR), leaf1~4가 RR client |
 | `bgp cluster-id` | 10.1.0.100 (spine1, spine2가 같은 값) |
 | 이웃 주소 | 양쪽 `loopback0`, `update-source loopback0` (OSPF가 루프백 도달성을 먼저 만들어야 함) |
-| **keepalive(hello), hold 타이머** | **3초, 9초** (기본 60초, 180초). 양쪽이 협상해 작은 hold 값을 씀 |
+| **keepalive(hello), hold 타이머** | **30초, 90초** (기본 60초, 180초). 양쪽이 협상해 작은 hold 값을 씀 |
 | 주소 패밀리 | `evpn`만 활성 (`no bgp default ipv4-unicast`). 언더레이 주소(loopback 등)는 OSPF가 전달 |
 | `send-community extended` | 모든 이웃 (route-target 전달에 필요) |
 | `maximum-paths` | 4 ecmp 4 |
 | TCP 포트 | 179. 관리 ACL(`MGMT-ACL`)의 규칙 40, 50이 `10.1.0.0/24`끼리의 BGP를 허용 |
 
 - iBGP는 next-hop을 바꾸지 않으므로 spine에 `next-hop-unchanged`가 필요 없고, 루프백 간 세션이지만 `ebgp-multihop`도 필요 없음
-- keepalive(상대에게 살아 있음을 알리는 주기)가 3초이고, hold(이 시간 동안 keepalive가 없으면 이웃을 끊는 한도)가 9초. 링크가 끊겨도 BGP 이웃은 최대 9초 뒤에 내려가므로, 평소에는 OSPF(dead 4초)가 먼저 경로를 바꿈.
+- keepalive(상대에게 살아 있음을 알리는 주기)가 30초이고, hold(이 시간 동안 keepalive가 없으면 이웃을 끊는 한도)가 90초. 링크가 끊겨도 BGP 이웃은 최대 90초 뒤에 내려가므로, 평소에는 OSPF(dead 9초)가 먼저 경로를 바꿈.
 - 사이트 밖(border leaf, Hub, PE1)과는 별도 단계(DCI와 Hub 연동)에서 eBGP를 맺음. 이때 DC1은 AS 65100으로 보임
 
 ## 장비별 iBGP 이웃

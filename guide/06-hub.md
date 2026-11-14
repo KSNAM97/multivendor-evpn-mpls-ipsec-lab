@@ -39,7 +39,7 @@ Hub는 PE1, border leaf의 설정이 어느 정도 되어 있어야 상대 쪽�
 | 1 | 기본 설정 | `hostname HUB1`, 권한 모드, domain-lookup 끄기, 콘솔 세션 | [Hub 기본 설정 샘플](../samples/dc1/03-base-hub.md) | 콘솔 로그인 |
 | 2 | 인터페이스 IP | 위 연결 표의 `gigabitethernet0/0`, `1/0`, `loopback0` | [IP와 포트 매칭표](../00-overview/07-ip-port-matrix.md) | `show ip interface brief` (PE1, border leaf 쪽으로 ping) |
 | 3 | PE1, border leaf와 eBGP | Hub AS 65010. PE1(AS 65000), border leaf(AS 65100). Hub1 이웃 `10.0.30.0`(PE1), `10.0.31.0`(border-leaf1). Hub2 이웃 `10.0.30.2`(PE1), `10.0.31.2`(border-leaf2) | [기준](../baseline/dc1/06-dci-hub-ebgp.md), [PE1 쪽 기준](../baseline/core/07-pe-ce-ebgp.md) | `show ip bgp summary` |
-| 4 | 협상 조건 통일 | BGP `timers 3 9`, BGP router-id는 OSPF(loopback0)와 다른 값 | [협상 조건 통일](../00-overview/03-protocol-matrix.md) | `show ip bgp neighbors` |
+| 4 | 협상 조건 통일 | BGP `timers 30 90`, BGP router-id는 OSPF(loopback0)와 다른 값 | [협상 조건 통일](../00-overview/03-protocol-matrix.md) | `show ip bgp neighbors` |
 | 5 | 저장 | `write memory`, 컨피그를 `configs/dc1/`에 보관 | | |
 
 ## 확인 (완료 기준)

@@ -19,5 +19,5 @@ VSX 쌍(CX1, CX2)이 MPLS 코어의 PE2와 TENANT-A 경로를 교환
 | PE2 AS          | 65000                                                            |
 | VRF / RD        | TENANT-A / 65201:1                                               |
 | BGP router-id   | CX1 10.2.2.1, CX2 10.2.2.2 (loopback0 주소 10.2.0.1, 10.2.0.2와 다름) |
-| keepalive, hold | **3초, 9초** (DC1과 통일, 기본 60초, 180초)                               |
+| keepalive, hold | **30초, 90초** (DC1과 통일, 기본 60초, 180초)                               |
 | 광고              | connected (VLAN 110 서브넷)                                         |

@@ -8,7 +8,7 @@
 - MLAG 쌍은 같은 VTEP 주소(Loopback1)를 공유. 이때 L3VNI(VRF 간 라우팅)의 안쪽 출발 MAC을 쌍이 같게 하려고 `vxlan virtual-router encapsulation mac-address mlag-system-id`를 `interface vxlan1` 안에 한 줄로 씀
 - 게이트웨이는 `ip address virtual`과 공통 virtual MAC으로 모든 leaf에 같은 주소를 둠
 - spine(Route Reflector)과는 루프백 간 iBGP로 EVPN 경로를 교환. 모든 DC1 장비가 AS 65100
-- 빠른 수렴을 위해 BGP 타이머를 keepalive 3초, hold 9초로 줄임(기본 60초, 180초). 양쪽 중 작은 hold 값으로 협상됨
+- 빠른 수렴을 위해 BGP 타이머를 keepalive 30초, hold 90초로 줄임(기본 60초, 180초). 양쪽 중 작은 hold 값으로 협상됨
 
 **확인 명령**: `show bgp evpn summary`, `show vxlan vtep`, `show vxlan vni`, `show bgp evpn route-type mac-ip`
 
@@ -66,7 +66,7 @@ router bgp 65100
    maximum-paths 4 ecmp 4
    neighbor SPINES peer group
    neighbor SPINES remote-as 65100
-   neighbor SPINES timers 3 9
+   neighbor SPINES timers 30 90
    neighbor SPINES update-source loopback0
    neighbor SPINES send-community extended
    neighbor 10.1.0.1 peer group SPINES

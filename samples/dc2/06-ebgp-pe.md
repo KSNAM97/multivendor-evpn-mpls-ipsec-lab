@@ -7,7 +7,7 @@
 - 인터페이스를 `vrf attach`하고 `router bgp` 아래 VRF 블록에서 neighbor를 activate함
 
 - BGP router-id(CX1 10.2.2.1, CX2 10.2.2.2)는 loopback0 주소(10.2.0.1, 10.2.0.2)와 다른 값을 씀
-- BGP 타이머는 DC1과 같은 **keepalive 3초, hold 9초**(`timers 3 9`)로 통일함(기본 60초, 180초). 양쪽이 협상해 작은 hold 값을 씀. AOS-CX의 `neighbor ... timers` 문법은 이미지에서 `?`로 확인
+- BGP 타이머는 DC1과 같은 **keepalive 30초, hold 90초**(`timers 30 90`)로 통일함(기본 60초, 180초). 양쪽이 협상해 작은 hold 값을 씀. AOS-CX의 `neighbor ... timers` 문법은 이미지에서 `?`로 확인
 
 **확인 명령**: `show bgp vrf TENANT-A all summary`, `show ip route vrf TENANT-A`
 
@@ -24,7 +24,7 @@ router bgp 65201
     bgp router-id 10.2.2.1
     vrf TENANT-A
         neighbor 10.0.20.4 remote-as 65000
-        neighbor 10.0.20.4 timers 3 9
+        neighbor 10.0.20.4 timers 30 90
         address-family ipv4 unicast
             neighbor 10.0.20.4 activate
             redistribute connected

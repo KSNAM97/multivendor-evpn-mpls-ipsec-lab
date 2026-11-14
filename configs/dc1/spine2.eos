@@ -94,38 +94,38 @@ interface loopback0
 interface ethernet1
    ip ospf network point-to-point
    ip ospf area 0.0.0.0
-   ip ospf hello-interval 1
-   ip ospf dead-interval 4
+   ip ospf hello-interval 3
+   ip ospf dead-interval 9
 !
 interface ethernet2
    ip ospf network point-to-point
    ip ospf area 0.0.0.0
-   ip ospf hello-interval 1
-   ip ospf dead-interval 4
+   ip ospf hello-interval 3
+   ip ospf dead-interval 9
 !
 interface ethernet3
    ip ospf network point-to-point
    ip ospf area 0.0.0.0
-   ip ospf hello-interval 1
-   ip ospf dead-interval 4
+   ip ospf hello-interval 3
+   ip ospf dead-interval 9
 !
 interface ethernet4
    ip ospf network point-to-point
    ip ospf area 0.0.0.0
-   ip ospf hello-interval 1
-   ip ospf dead-interval 4
+   ip ospf hello-interval 3
+   ip ospf dead-interval 9
 !
 interface ethernet5
    ip ospf network point-to-point
    ip ospf area 0.0.0.0
-   ip ospf hello-interval 1
-   ip ospf dead-interval 4
+   ip ospf hello-interval 3
+   ip ospf dead-interval 9
 !
 interface ethernet6
    ip ospf network point-to-point
    ip ospf area 0.0.0.0
-   ip ospf hello-interval 1
-   ip ospf dead-interval 4
+   ip ospf hello-interval 3
+   ip ospf dead-interval 9
 !
 router bgp 65100
    router-id 10.1.2.2
@@ -136,7 +136,7 @@ router bgp 65100
    neighbor LEAFS remote-as 65100
    neighbor LEAFS update-source loopback0
    neighbor LEAFS route-reflector-client
-   neighbor LEAFS timers 3 9
+   neighbor LEAFS timers 30 90
    neighbor LEAFS send-community extended
    neighbor 10.1.0.11 peer group LEAFS
    neighbor 10.1.0.12 peer group LEAFS

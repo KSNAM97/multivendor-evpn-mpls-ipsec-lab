@@ -5,7 +5,7 @@
 **핵심**
 
 - PE3와 BGW 사이는 `.100` 서브인터페이스(dot1q 100). BGW1은 PE3 `10.0.60.0`, BGW2는 PE3 `10.0.60.2`와 이웃(AS 65000). BGW AS는 65020, BGP router-id는 10.0.1.31, 10.0.1.32(OSPF router-id와 다름)
-- PE3 쪽 설정은 [코어 PE-CE 샘플](../core/07-pe-ce-ebgp.md)의 `[PE3]` 블록(VRF BR1). 양쪽 모두 `timers 3 9`
+- PE3 쪽 설정은 [코어 PE-CE 샘플](../core/07-pe-ce-ebgp.md)의 `[PE3]` 블록(VRF BR1). 양쪽 모두 `timers 30 90`
 - BGW는 PE3로 **자기 대역(192.168.50.0/24, 192.168.60.0/24)만** 광고함. `prefix-list BR-TO-PARTNER out`으로 막아 DC1과 DC2가 BR1을 거쳐 서로 통신하는 경로가 생기지 않게 함
 - PE3에서 받는 경로는 DC1(192.168.10.0/24, 192.168.20.0/24, 192.168.30.0/24, 192.168.99.0/24)과 DC2(192.168.110.0/24). `prefix-list PARTNER-TO-BR in`으로 이 다섯 개만 허용
 - OSPF에 `default-information originate always`: DC 경로는 BGP로 BGW까지만 오므로 DSW가 default로 BGW를 향하게 함
@@ -44,7 +44,7 @@ router bgp 65020
     bgp log-neighbor-changes
     no bgp default ipv4-unicast
     neighbor 10.0.60.0 remote-as 65000
-    neighbor 10.0.60.0 timers 3 9
+    neighbor 10.0.60.0 timers 30 90
     !
     address-family ipv4
         neighbor 10.0.60.0 activate

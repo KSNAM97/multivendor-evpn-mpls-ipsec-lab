@@ -119,11 +119,11 @@ OSPF, BGP, LACP의 협상 조건은 **DC1 기준으로 전 구간을 통일**. �
 
 | 프로토콜 | 값 | 적용 범위 |
 |---|---|---|
-| OSPF | point-to-point, **hello 1초, dead 4초**, loopback은 passive | DC1 spine-leaf, 코어 PE 링크, Branch BGW-DSW 링크 |
-| BGP | **keepalive 3초, hold 9초** (`timers 3 9`) | DC1 iBGP(EVPN), 코어 PE 간 iBGP(VPNv4), PE-CE eBGP(Hub ↔ PE1, Hub ↔ border leaf, CX ↔ PE2, BGW ↔ PE3) |
+| OSPF | point-to-point, **hello 3초, dead 9초**, loopback은 passive | DC1 spine-leaf, 코어 PE 링크, Branch BGW-DSW 링크 |
+| BGP | **keepalive 30초, hold 90초** (`timers 30 90`) | DC1 iBGP(EVPN), 코어 PE 간 iBGP(VPNv4), PE-CE eBGP(Hub ↔ PE1, Hub ↔ border leaf, CX ↔ PE2, BGW ↔ PE3) |
 | LACP | **fast**(1초 간격). 단 DC2 VSX LAG는 에뮬레이션에서 흔들려 **기본(slow)** 사용 | DC1 호스트 포트(leaf `lacp timer fast`, 호스트 `lacp_rate fast`). Branch EtherChannel은 IOSvL3가 `lacp rate fast`를 받지 않아 **기본(30초)** |
 | router-id | OSPF는 loopback0 주소, **BGP는 별도 대역** | 전 구간 ([IP 설계](02-ip-addressing.md) 3-1-1) |
 
-- 기본값은 OSPF 10초/40초, BGP 60초/180초, LACP 30초 간격. 빠른 수렴을 위해 줄였고, 이 랩은 장비 부하가 커서 이웃이 불필요하게 끊기면(flap) OSPF 2초/8초, BGP 6초/18초 정도로 올림
-- 링크가 끊기면 OSPF가 dead 4초 안에 먼저 경로를 바꾸고, BGP는 hold 9초 안에 이웃을 내림
+- 기본값은 OSPF 10초/40초, BGP 60초/180초, LACP 30초 간격. 빠른 수렴을 위해 줄였고, 이 랩은 장비 부하가 커서 이웃이 불필요하게 끊기므로 OSPF 3초/9초, BGP 30초/90초로 정함
+- 링크가 끊기면 OSPF가 dead 9초 안에 먼저 경로를 바꾸고, BGP는 hold 90초 안에 이웃을 내림
 - 새 구간을 구성할 때는 이 표의 값을 먼저 적용

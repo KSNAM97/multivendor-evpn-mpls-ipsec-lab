@@ -17,7 +17,7 @@ PE 3대가 삼각형으로 연결된 MPLS 코어의 IGP. 루프백(LDP, iBGP 출
 
 ## OSPF에 넣는 인터페이스
 
-각 인터페이스에 `ip ospf 1 area 0`을 직접 지정. 코어 링크는 `ip ospf network point-to-point`와 타이머(`ip ospf hello-interval 1`, `ip ospf dead-interval 4`)도 같이 줌
+각 인터페이스에 `ip ospf 1 area 0`을 직접 지정. 코어 링크는 `ip ospf network point-to-point`와 타이머(`ip ospf hello-interval 3`, `ip ospf dead-interval 9`)도 같이 줌
 
 | 장비 | 인터페이스 | 용도 | passive |
 |---|---|---|---|

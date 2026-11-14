@@ -30,15 +30,15 @@ VTEP과 BGP 루프백의 도달성을 만드는 underlay
 
 ## OSPF에 넣는 인터페이스
 
-각 인터페이스에 `ip ospf area 0.0.0.0`을 직접 지정함(network 문은 쓰지 않음). 점대점 링크는 `ip ospf network point-to-point`와 타이머(`ip ospf hello-interval 1`, `ip ospf dead-interval 4`)도 같이 줌
+각 인터페이스에 `ip ospf area 0.0.0.0`을 직접 지정함(network 문은 쓰지 않음). 점대점 링크는 `ip ospf network point-to-point`와 타이머(`ip ospf hello-interval 3`, `ip ospf dead-interval 9`)도 같이 줌
 
 | 장비 | 인터페이스 | 용도 | 네트워크 타입 | passive |
 |---|---|---|---|---|
 | spine1, spine2 | `loopback0` | OSPF router-id, BGP 출발지 | loopback | **passive** |
-| spine1, spine2 | `ethernet1` ~ `ethernet6` | leaf1 ~ leaf4, border-leaf1·2 링크 | point-to-point, hello 1 / dead 4 | 아니오 (이웃을 맺음) |
+| spine1, spine2 | `ethernet1` ~ `ethernet6` | leaf1 ~ leaf4, border-leaf1·2 링크 | point-to-point, hello 3 / dead 9 | 아니오 (이웃을 맺음) |
 | leaf1 ~ leaf4 | `loopback0` | OSPF router-id, BGP 출발지 | loopback | **passive** |
 | leaf1 ~ leaf4 | `loopback1` | VTEP (MLAG 쌍이 같은 주소 공유) | loopback | **passive** |
-| leaf1 ~ leaf4, border-leaf1·2 | `ethernet1`, `ethernet2` (border leaf는 `ethernet2`, `ethernet3`) | spine1, spine2 링크 | point-to-point, hello 1 / dead 4 | 아니오 (이웃을 맺음) |
+| leaf1 ~ leaf4, border-leaf1·2 | `ethernet1`, `ethernet2` (border leaf는 `ethernet2`, `ethernet3`) | spine1, spine2 링크 | point-to-point, hello 3 / dead 9 | 아니오 (이웃을 맺음) |
 
 **OSPF에 넣지 않는 인터페이스**
 

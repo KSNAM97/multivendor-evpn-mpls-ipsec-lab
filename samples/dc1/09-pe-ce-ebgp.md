@@ -5,7 +5,7 @@
 **핵심**
 
 - `no bgp default ipv4-unicast`를 쓰므로 VRF 안에서 `address-family ipv4`의 neighbor를 activate해야 함
-- BGP 타이머는 DC1과 같은 **keepalive 3초, hold 9초**(`timers 3 9`)로 통일함(기본 60초, 180초). 양쪽이 협상해 작은 hold 값을 씀
+- BGP 타이머는 DC1과 같은 **keepalive 30초, hold 90초**(`timers 30 90`)로 통일함(기본 60초, 180초). 양쪽이 협상해 작은 hold 값을 씀
 - border-leaf1은 Hub1 `Gi1/0`(ethernet1, 10.0.31.0/31), border-leaf2는 Hub2 `Gi1/0`(ethernet1, 10.0.31.2/31)에 각각 연결(1대1). 두 border leaf는 MLAG 없이 VTEP이 각각이고 EVPN type-5로 외부 경로를 leaf에 광고함
 - border leaf는 `vxlan vrf TENANT-A vni 50001`로 L3VNI를 쓰고 VRF의 route-target(50001:50001)을 leaf와 맞춤
 - 세션이 안 올라오면 MGMT-ACL을 확인. system control-plane의 ACL은 기본적으로 default VRF에만 적용되므로 VRF TENANT-A의 BGP는 보통 영향이 없음
@@ -39,7 +39,7 @@ router bgp 65100
       route-target export evpn 50001:50001
       router-id 10.1.2.15
       neighbor 10.0.31.1 remote-as 65010
-      neighbor 10.0.31.1 timers 3 9
+      neighbor 10.0.31.1 timers 30 90
       redistribute connected
       !
       address-family ipv4

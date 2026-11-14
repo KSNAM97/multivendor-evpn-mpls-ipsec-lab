@@ -93,14 +93,14 @@ interface loopback1
 interface ethernet2
    ip ospf network point-to-point
    ip ospf area 0.0.0.0
-   ip ospf hello-interval 1
-   ip ospf dead-interval 4
+   ip ospf hello-interval 3
+   ip ospf dead-interval 9
 !
 interface ethernet3
    ip ospf network point-to-point
    ip ospf area 0.0.0.0
-   ip ospf hello-interval 1
-   ip ospf dead-interval 4
+   ip ospf hello-interval 3
+   ip ospf dead-interval 9
 !
 router bgp 65100
    router-id 10.1.2.16
@@ -108,7 +108,7 @@ router bgp 65100
    maximum-paths 4 ecmp 4
    neighbor SPINES peer group
    neighbor SPINES remote-as 65100
-   neighbor SPINES timers 3 9
+   neighbor SPINES timers 30 90
    neighbor SPINES update-source loopback0
    neighbor SPINES send-community extended
    neighbor 10.1.0.1 peer group SPINES
@@ -123,7 +123,7 @@ router bgp 65100
       route-target export evpn 50001:50001
       router-id 10.1.2.16
       neighbor 10.0.31.3 remote-as 65010
-      neighbor 10.0.31.3 timers 3 9
+      neighbor 10.0.31.3 timers 30 90
       redistribute connected
       !
       address-family ipv4

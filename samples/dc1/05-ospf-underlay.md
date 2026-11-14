@@ -6,7 +6,7 @@
 
 - 링크마다 `ip ospf network point-to-point`로 DR 선출을 없앰.
 - OSPF router-id는 `loopback0` 주소(10.1.0.x)이고, BGP router-id(10.1.2.x)와 **다른 값**
-- 빠른 수렴을 위해 링크마다 `ip ospf hello-interval 1`, `ip ospf dead-interval 4`로 타이머를 줄임(기본값 10초, 40초). **양쪽 장비가 같은 값**이어야 이웃이 맺어짐.
+- 빠른 수렴을 위해 링크마다 `ip ospf hello-interval 3`, `ip ospf dead-interval 9`로 타이머를 줄임(기본값 10초, 40초). **양쪽 장비가 같은 값**이어야 이웃이 맺어짐.
 - `ip ospf area`를 인터페이스에 직접 지정하고, 루프백(`loopback0`, leaf는 `loopback1`도)은 passive로 둠. OSPF에 넣는 인터페이스: spine은 `loopback0`과 `ethernet1~4`, leaf는 `loopback0`, `loopback1`, `ethernet1~2`
 - `ip routing`을 켜기 전에 `no switchport` 후 `ip address`를 넣으면 "IP configuration will be ignored" 경고가 나옴(적용은 됨). `ip routing`을 먼저 켜면 나오지 않음. `show interfaces Ethernet1 switchport`가 `Disabled`이면 라우티드 포트
 
@@ -40,8 +40,8 @@ interface ethernet1
    no switchport
    ip address 10.1.10.1/31
    ip ospf network point-to-point
-   ip ospf hello-interval 1
-   ip ospf dead-interval 4
+   ip ospf hello-interval 3
+   ip ospf dead-interval 9
    ip ospf area 0.0.0.0
 !
 interface ethernet2
@@ -49,8 +49,8 @@ interface ethernet2
    no switchport
    ip address 10.1.10.9/31
    ip ospf network point-to-point
-   ip ospf hello-interval 1
-   ip ospf dead-interval 4
+   ip ospf hello-interval 3
+   ip ospf dead-interval 9
    ip ospf area 0.0.0.0
 !
 router ospf 1
@@ -59,10 +59,10 @@ router ospf 1
    passive-interface loopback1
    max-lsa 12000
 !
-! hello 1초, dead 4초는 모든 링크 인터페이스에 양쪽 같은 값이어야 한다 (loopback은 이웃이 없어 필요 없음)
+! hello 3초, dead 9초는 모든 링크 인터페이스에 양쪽 같은 값이어야 한다 (loopback은 이웃이 없어 필요 없음)
 ! [spine1] 같은 방식. loopback0 + ethernet1~4 (leaf1~4 링크), loopback1은 없음
 ! interface loopback0 : ip address 10.1.0.1/32, ip ospf area 0.0.0.0
-! interface ethernet1~4 : no switchport, ip address 10.1.10.0/31 ~ 10.1.10.6/31, ip ospf network point-to-point, ip ospf hello-interval 1, ip ospf dead-interval 4, ip ospf area 0.0.0.0
+! interface ethernet1~4 : no switchport, ip address 10.1.10.0/31 ~ 10.1.10.6/31, ip ospf network point-to-point, ip ospf hello-interval 3, ip ospf dead-interval 9, ip ospf area 0.0.0.0
 ! router ospf 1 : router-id 10.1.0.1, passive-interface loopback0, max-lsa 12000
 ! [spine2] loopback0 10.1.0.2/32, 링크 10.1.10.8/31 ~ 10.1.10.14/31, router-id 10.1.0.2
 ! [leaf2~4] router-id 10.1.0.12 ~ 10.1.0.14. loopback1은 leaf2가 10.1.1.12, leaf3과 leaf4가 10.1.1.34

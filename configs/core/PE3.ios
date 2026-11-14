@@ -81,14 +81,14 @@ interface loopback 0
 !
 interface gigabitethernet 0/0
     ip ospf network point-to-point
-    ip ospf hello-interval 1
-    ip ospf dead-interval 4
+    ip ospf hello-interval 3
+    ip ospf dead-interval 9
     ip ospf 1 area 0
 !
 interface gigabitethernet 1/0
     ip ospf network point-to-point
-    ip ospf hello-interval 1
-    ip ospf dead-interval 4
+    ip ospf hello-interval 3
+    ip ospf dead-interval 9
     ip ospf 1 area 0
 !
 exit
@@ -115,10 +115,10 @@ router bgp 65000
     no bgp default ipv4-unicast
     neighbor 10.0.0.11 remote-as 65000
     neighbor 10.0.0.11 update-source loopback 0
-    neighbor 10.0.0.11 timers 3 9
+    neighbor 10.0.0.11 timers 30 90
     neighbor 10.0.0.12 remote-as 65000
     neighbor 10.0.0.12 update-source loopback 0
-    neighbor 10.0.0.12 timers 3 9
+    neighbor 10.0.0.12 timers 30 90
     !
     address-family vpnv4
         neighbor 10.0.0.11 activate
@@ -130,10 +130,10 @@ router bgp 65000
     address-family ipv4 vrf BR1
         neighbor 10.0.60.1 remote-as 65020
         neighbor 10.0.60.1 activate
-        neighbor 10.0.60.1 timers 3 9
+        neighbor 10.0.60.1 timers 30 90
         neighbor 10.0.60.3 remote-as 65020
         neighbor 10.0.60.3 activate
-        neighbor 10.0.60.3 timers 3 9
+        neighbor 10.0.60.3 timers 30 90
         maximum-paths 2
     exit-address-family
 !

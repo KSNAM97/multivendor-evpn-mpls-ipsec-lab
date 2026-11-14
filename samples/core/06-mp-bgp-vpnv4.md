@@ -7,7 +7,7 @@
 - PE 3대 full mesh, 이웃 주소는 loopback0(10.0.0.x), `update-source loopback 0`
 - BGP router-id(PE1 10.0.1.11, PE2 10.0.1.12, PE3 10.0.1.13)는 OSPF router-id(10.0.0.x)와 다른 값
 - `send-community extended`가 없으면 Route Target이 전달되지 않음
-- BGP 타이머는 DC1과 같은 **keepalive 3초, hold 9초**(`timers 3 9`)로 통일(기본 60초, 180초). 양쪽이 협상해 작은 hold 값을 씀
+- BGP 타이머는 DC1과 같은 **keepalive 30초, hold 90초**(`timers 30 90`)로 통일(기본 60초, 180초). 양쪽이 협상해 작은 hold 값을 씀
 - `no bgp default ipv4-unicast`: 일반 IPv4 주소 패밀리를 자동으로 켜지 않음
 
 **확인 명령**: `show bgp vpnv4 unicast all summary`, `show bgp vpnv4 unicast all`
@@ -26,10 +26,10 @@ router bgp 65000
     no bgp default ipv4-unicast
     neighbor 10.0.0.12 remote-as 65000
     neighbor 10.0.0.12 update-source loopback 0
-    neighbor 10.0.0.12 timers 3 9
+    neighbor 10.0.0.12 timers 30 90
     neighbor 10.0.0.13 remote-as 65000
     neighbor 10.0.0.13 update-source loopback 0
-    neighbor 10.0.0.13 timers 3 9
+    neighbor 10.0.0.13 timers 30 90
     !
     address-family vpnv4
         neighbor 10.0.0.12 activate

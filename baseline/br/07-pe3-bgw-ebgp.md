@@ -18,7 +18,7 @@ PE3와 BGW 사이는 물리 포트 하나에 dot1q 100 서브인터페이스(`.1
 | 항목 | 값 |
 |---|---|
 | BGP router-id | BGW1 10.0.1.31, BGW2 10.0.1.32 (OSPF router-id인 loopback0 주소 10.0.0.31, 10.0.0.32와 다름) |
-| 타이머 | keepalive 3초, hold 9초 (`timers 3 9`). PE3와 양쪽 같은 값 |
+| 타이머 | keepalive 30초, hold 90초 (`timers 30 90`). PE3와 양쪽 같은 값 |
 | BGW가 PE3에 광고 | **자기 대역만**: 192.168.50.0/24, 192.168.60.0/24 (`network` 문). `prefix-list BR-TO-PARTNER out`으로 이 두 개만 허용 |
 | BGW가 PE3에서 받음 | DC1(192.168.10.0/24, 192.168.20.0/24, 192.168.30.0/24, 192.168.99.0/24)과 DC2(192.168.110.0/24) 대역. `prefix-list PARTNER-TO-BR in`으로 이 다섯 개만 허용 |
 

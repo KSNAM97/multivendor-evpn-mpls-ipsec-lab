@@ -9,7 +9,7 @@
 - iBGP는 next-hop을 바꾸지 않으므로 `next-hop-unchanged`와 `ebgp-multihop`이 필요 없음
 - 세션은 `loopback0`끼리 맺으므로 `update-source loopback0`이 필요하고, OSPF가 루프백 도달성을 먼저 만들어야 함
 - `bgp cluster-id`는 두 spine이 같은 값을 씀. leaf끼리는 BGP 이웃을 맺지 않음
-- 빠른 수렴을 위해 타이머는 keepalive 3초, hold 9초임(기본 60초, 180초).
+- 빠른 수렴을 위해 타이머는 keepalive 30초, hold 90초임(기본 60초, 180초).
 - `neighbor LEAFS route-reflector-client`는 `address-family evpn` 안이 아니라 **`router bgp` 바로 아래**에 씀. 이 vEOS에서 `neighbor LEAFS ?`로 확인했고, address-family 안에서 입력하면 상위 모드로 처리됨
 
 **확인 명령**: `show bgp evpn summary`, `show ip ospf neighbor`
@@ -26,7 +26,7 @@ router bgp 65100
    neighbor LEAFS remote-as 65100
    neighbor LEAFS update-source loopback0
    neighbor LEAFS route-reflector-client
-   neighbor LEAFS timers 3 9
+   neighbor LEAFS timers 30 90
    neighbor LEAFS send-community extended
    neighbor 10.1.0.11 peer group LEAFS
    neighbor 10.1.0.12 peer group LEAFS

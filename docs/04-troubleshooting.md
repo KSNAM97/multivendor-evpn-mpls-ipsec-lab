@@ -13,7 +13,7 @@
 | 설정 | IOSv 포트채널 멤버의 trunk 설정이 서로 달라 묶이지 않음 | `switchport trunk encapsulation dot1q` 포함 같은 설정 |
 | 설정 | IOSvL3 물리 포트에 IP와 VRF를 줄 때 거부됨 | `no switchport`를 먼저 입력 |
 | 설계 | leaf3·4가 VTEP을 공유하는데 Hub 1대씩만 연결해 Hub 한쪽 경로가 끊기면 트래픽이 블랙홀 | 외부 연결을 전용 border leaf 2대로 분리하고 MLAG 없이 VTEP을 각각 둠 |
-| 시험 | 가상 라우터(Dynamips)는 케이블 없이도 인터페이스가 up/up이고 상대가 링크 down을 바로 인식하지 못함 | 링크 장애 감지는 BGP hold 9초가 기준. 시험 결과에 감지 시간이 포함됨 |
+| 시험 | 가상 라우터(Dynamips)는 케이블 없이도 인터페이스가 up/up이고 상대가 링크 down을 바로 인식하지 못함 | 링크 장애 감지는 BGP hold 90초가 기준. 시험 결과에 감지 시간이 포함됨 |
 | 시험 | PE2 `Gi1/0`을 내린 채로 남겨 PE2 - PE3 경로가 PE1 경유로 보임(Wireshark 캡처에서 발견) | `no shutdown`으로 복구 후 OSPF FULL, VPNv4 이웃 확인 |
 | 시험 | 혼잡 시험 중 PE1-PE2 BGP가 22초 끊김 | NETCTRL 클래스 추가 |
 

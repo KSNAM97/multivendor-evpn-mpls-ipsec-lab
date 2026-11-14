@@ -35,4 +35,4 @@ PE가 DC와 Branch 쪽 장비와 경로를 교환하는 부분. 모든 구역이
 
 - BGW가 자기 대역만 광고하므로 BR1을 거쳐 DC1과 DC2가 서로 통신하는 경로(transit)가 생기지 않음
 - CX 쪽 VRF 이름은 장비 로컬 이름이라 `TENANT-A`로 남아 있어도 PE2의 `PARTNER`와 달라도 동작에 영향 없음
-- BGP 타이머는 DC1과 같은 **keepalive 3초, hold 9초**(`timers 3 9`)로 통일함(기본 60초, 180초). PE와 CE 양쪽에 같은 값을 줌
+- BGP 타이머는 DC1과 같은 **keepalive 30초, hold 90초**(`timers 30 90`)로 통일함(기본 60초, 180초). PE와 CE 양쪽에 같은 값을 줌

@@ -11,7 +11,7 @@ VRF 경로를 PE 사이에서 교환하는 단계. 코어 안은 iBGP
 | AS | 65000 |
 | 세션 | PE1, PE2, PE3 full mesh (Loopback0 기준, `update-source loopback 0`) |
 | BGP router-id | PE1 10.0.1.11, PE2 10.0.1.12, PE3 10.0.1.13 (OSPF router-id 10.0.0.11 ~ 10.0.0.13과 다름) |
-| keepalive, hold | **3초, 9초** (DC1과 통일, 기본 60초, 180초) |
+| keepalive, hold | **30초, 90초** (DC1과 통일, 기본 60초, 180초) |
 | 주소 패밀리 | vpnv4 (`send-community extended` 필요: RT 전달) |
 | 선행 조건 | [OSPF](03-ospf.md)로 loopback0 경로, [LDP](04-mpls-ldp.md)로 레이블, [VRF](05-vrf.md)의 RD와 RT |
 | 비고 | 코어 안은 iBGP VPNv4 (DC1의 EVPN도 iBGP Route Reflector) |
