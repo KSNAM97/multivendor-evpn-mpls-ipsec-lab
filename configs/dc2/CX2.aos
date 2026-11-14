@@ -87,6 +87,7 @@ interface vlan 110
     description APP-DC2
     vrf attach TENANT-A
     ip address 192.168.110.3/24
+    ip mtu 1400
     active-gateway ip mac 12:00:00:00:01:10
     active-gateway ip 192.168.110.1
 !

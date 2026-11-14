@@ -1,5 +1,7 @@
 # EVPN-VXLAN 검증
 
+> 이 문서의 화면과 값은 2026-11-14 타이머 변경 전 구성에서 측정한 기록(BGP keepalive 3 / hold 9 -> 현재 keepalive 30 / hold 90)임. 현재 타이머 기준 장애 시험 결과는 [장애 시험](09-failover.md) 참고
+
 **선행 조건**: **모든 spine, leaf에서 `service routing protocols model multi-agent`를 설정하고 `write memory` 후 `reload`(재부팅)한 상태여야 함**(재부팅 전에는 `address-family evpn`이 거부됨). [MLAG 검증](02-mlag.md)이 끝나 있고, [leaf 샘플](../../samples/dc1/07-evpn-vxlan-leaf.md)과 [spine 샘플](../../samples/dc1/08-evpn-spine.md)이 적용되어 있어야 함
 
 기준 문서: [05-evpn-vxlan.md](../../baseline/dc1/05-evpn-vxlan.md)

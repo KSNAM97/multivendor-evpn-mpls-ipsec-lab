@@ -33,36 +33,42 @@ ip routing
 !
 interface ethernet1
    description leaf1 to ethernet2
+   mtu 9214
    no switchport
    ip address 10.1.10.8/31
    no shutdown
 !
 interface ethernet2
    description leaf2 to ethernet2
+   mtu 9214
    no switchport
    ip address 10.1.10.10/31
    no shutdown
 !
 interface ethernet3
    description leaf3 to ethernet2
+   mtu 9214
    no switchport
    ip address 10.1.10.12/31
    no shutdown
 !
 interface ethernet4
    description leaf4 to ethernet2
+   mtu 9214
    no switchport
    ip address 10.1.10.14/31
    no shutdown
 !
 interface ethernet5
    description border-leaf1 to ethernet3
+   mtu 9214
    no switchport
    ip address 10.1.10.20/31
    no shutdown
 !
 interface ethernet6
    description border-leaf2 to ethernet3
+   mtu 9214
    no switchport
    ip address 10.1.10.22/31
    no shutdown

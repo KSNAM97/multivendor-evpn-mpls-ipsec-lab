@@ -7,10 +7,10 @@ router bgp 65000
     address-family ipv4 vrf TENANT-A
         neighbor 10.0.30.1 remote-as 65010
         neighbor 10.0.30.1 activate
-        neighbor 10.0.30.1 timers 3 9
+        neighbor 10.0.30.1 timers 30 90
         neighbor 10.0.30.3 remote-as 65010
         neighbor 10.0.30.3 activate
-        neighbor 10.0.30.3 timers 3 9
+        neighbor 10.0.30.3 timers 30 90
         maximum-paths 2
     exit-address-family
 !
@@ -19,10 +19,10 @@ router bgp 65000
     address-family ipv4 vrf PARTNER
         neighbor 10.0.20.5 remote-as 65201
         neighbor 10.0.20.5 activate
-        neighbor 10.0.20.5 timers 3 9
+        neighbor 10.0.20.5 timers 30 90
         neighbor 10.0.20.7 remote-as 65201
         neighbor 10.0.20.7 activate
-        neighbor 10.0.20.7 timers 3 9
+        neighbor 10.0.20.7 timers 30 90
         maximum-paths 2
     exit-address-family
 !
@@ -31,10 +31,10 @@ router bgp 65000
     address-family ipv4 vrf BR1
         neighbor 10.0.60.1 remote-as 65020
         neighbor 10.0.60.1 activate
-        neighbor 10.0.60.1 timers 3 9
+        neighbor 10.0.60.1 timers 30 90
         neighbor 10.0.60.3 remote-as 65020
         neighbor 10.0.60.3 activate
-        neighbor 10.0.60.3 timers 3 9
+        neighbor 10.0.60.3 timers 30 90
         maximum-paths 2
     exit-address-family
 !

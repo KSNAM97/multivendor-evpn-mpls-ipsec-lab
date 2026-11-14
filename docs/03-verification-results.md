@@ -13,7 +13,7 @@
 | DC2 | VSX, 멀티 섀시 LAG, Active Gateway, VRF eBGP | 성공 (제한: LAG 위 VLAN 데이터가 이미지 한계로 전달되지 않아 Host E를 CX1에 직접 연결) | [DC2 검증](../verification/dc2/04-vsx-lag.md) |
 | Branch L2, L3 | RSTP(rapid-pvst), EtherChannel, VRRP, OSPF | 성공 (2026-11-14 rapid-pvst 전환 후 VLAN 50·60 root 분담 확인) | [Branch 검증](../verification/br/04-mstp-etherchannel.md) |
 | PE-CE와 VRF 분리 | PE1·PE2 이웃, VRF BR1 경로, PE1 - PE3 MPLS 헤더(Label 26, 33), Host A ↔ F, Host E ↔ F | 성공 (최종 구성 화면 증빙 일부 추가 예정) | [PE-CE 검증](../verification/core/07-pe-ce-ebgp.md), [MPLS 검증](../verification/core/04-mpls-ldp.md) |
-| DC1 외부 연결과 장애 시험 | border leaf 2대 연결, Hub 링크(T1, T1b)와 코어 링크(T2) 차단과 자동 복구 | 성공 (T1 손실 0, T1b 47개, T2 3회 70~236개) | [Hub 검증](../verification/dc1/04-dci-hub-ebgp.md) |
+| DC1 외부 연결과 장애 시험 | border leaf 2대 연결, Hub 링크(T1, T1b)와 코어 링크(T2) 차단과 자동 복구 | 성공 (Hub1 링크 단절 손실 393/800, Hub2 링크 단절 1/800, 코어 링크 단절 68/1000) | [Hub 검증](../verification/dc1/04-dci-hub-ebgp.md) |
 
 ## 대표 증빙
 
@@ -31,15 +31,19 @@ PE1 `Gi1/0` - PE3 `Gi0/0` 링크, 필터 `mpls`. 직결 링크라 전송 레이�
 
 ### 장애 시험: DC1 Hub 이중화
 
-| 시험 | 내린 링크 | 결과 |
-|---|---|---|
-| 시험 | 내린 링크 | 흐름 | 결과 |
-|---|---|---|---|
-| T1 | PE1 `Gi2/0` (PE1 - Hub1) | Host F → Host A | 300/300 응답, 손실 0. 요청 경로가 Hub1·border-leaf1에서 Hub2·border-leaf2로 전환 |
-| T1b | PE1 `Gi5/0` (PE1 - Hub2) | Host A → Host F | 253/300 응답, 손실 47개(0.2초 간격으로 환산 약 9.4초), 경로가 border-leaf2·Hub2에서 border-leaf1·Hub1로 전환 |
-| T2 | PE2 `Gi1/0` (코어 링크) | Host E → Host F | 3회 측정: 165/300, 64/300, 230/300 응답. 손실 135개, 236개, 70개(약 27초, 47초 이상, 14초로 환산). BGP 세션이 끊긴 회차가 가장 김 |
+타이머 OSPF hello 3 / dead 9, BGP keepalive 30 / hold 90 기준
 
-T1과 T1b는 링크를 올리면 자동으로 복구됨. T2는 편차가 커서 대표값을 두지 않고 3회 값을 모두 기록함. 환산 시간은 패킷 수 × 0.2초이고 타임스탬프로 잰 값이 아님. 상세와 화면은 [Hub 검증](../verification/dc1/04-dci-hub-ebgp.md)
+| 내린 링크 | 흐름 | 정상 경로 -> 단절 중 경로 | 결과 |
+|---|---|---|---|
+| PE1 `Gi2/0` (PE1 - Hub1) | Host A -> Host F | Border-Leaf1 · Hub1 -> Border-Leaf2 · Hub2 | 800개 중 407개 응답, 손실 393개(49.1%) |
+| PE1 `Gi2/0` (PE1 - Hub1) | Host F -> Host A | 같은 링크의 반대 방향 시험 | 600개 중 166개 응답, 손실 434개(72.3%) |
+| PE1 `Gi2/0` (PE1 - Hub1) | 두 방향 동시 | 위와 같음 | 800개 중 손실 355개 · 354개 |
+| PE1 `Gi5/0` (PE1 - Hub2) | Host F -> Host A | PE1 -> Hub2 -> Border-Leaf2 -> PE1 -> Hub1 -> Border-Leaf1 | 800개 중 799개 응답, 손실 1개 |
+| PE2 `Gi1/0` (코어 링크) | Host E -> Host F | PE2 -> PE3 직접(6홉) -> PE2 -> PE1 -> PE3(7홉) | 1000개 중 932개 응답, 손실 68개(6.8%) |
+| Leaf1 `Et1` (Spine1 방향) | Host A -> Host C | next hop 두 개(Spine1·Spine2) -> Spine2 하나 | 800개 중 796개 응답, 손실 4개 |
+| Leaf1 `Et5` (Host A 포트) | Host A, Host B -> Host C | 우회 없음(Host A 단일 연결) | Host A 100% 손실, Host B 0% |
+
+모두 링크를 올리면 자동으로 복구됨. Hub1 링크를 내린 시험에서 손실이 크게 나는 것은 Hub1이 링크 다운을 BGP hold(90초) 만료까지 인식하지 못하기 때문으로 보임(추정). 환산 시간은 패킷 수 × 0.2초이고 타임스탬프로 잰 값이 아님. 상세와 화면은 [장애 시험](../verification/dc1/09-failover.md)
 
 ### Branch ↔ DC 통신
 
@@ -55,7 +59,7 @@ Host A → Host F ping 4/4 응답(손실 0%). DC1과 DC2는 분리되어 Host A 
 | 경로 | Host A -> C·D, Host F -> C, Host E -> F traceroute | 성공 | [traceroute](../verification/dc1/08-traceroute.md) |
 | DC2 | rpvst, VSX, LACP, Active Gateway ARP(가상 MAC), eBGP | 성공 (CX2 lag10 표시 미확인) | [DC2 STP·VSX](../verification/dc2/07-stp-vsx.md), [DC2 통신·분리](../verification/dc2/08-connect-isolation.md) |
 | 분리 | Host E <-> DC1 새 VLAN ping 100% 손실, traceroute 미도달, PE2·CX1 경로에 DC1 대역 없음 | 성공 | [DC2 통신·분리](../verification/dc2/08-connect-isolation.md) |
-| 장애 시험 | T1 Hub1(손실 0), T1b Hub2(손실 0), T2 코어(복구 중 0), T3 leaf 업링크(5개), T4 호스트 포트(Host A만 끊김) | 성공 | [장애 시험](../verification/dc1/09-failover.md) |
+| 장애 시험 | Hub1 링크(393/800), Hub2 링크(1/800), 코어 링크(68/1000), leaf 업링크(4/800), 호스트 포트(Host A만 끊김) | 성공 | [장애 시험](../verification/dc1/09-failover.md) |
 | 관리망 | DC1 관리망(MGMT-SW1, 10.9.0.0/24), 코어 관리망(MGMT-SW2, 10.9.1.0/24), MGMT-RTR, SSH 허용 대상 제한(MGMT-ACL, CoPP) | 성공 | [DC1 관리 접속 제한](../verification/dc1/05-mgmt-acl.md), [코어 관리망](../verification/core/08-mgmt.md) |
 
 ## 장애 확인과 복구 (2026-11-14)

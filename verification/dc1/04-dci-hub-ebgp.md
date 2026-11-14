@@ -1,5 +1,7 @@
 # DC1 외부 연결 검증 (border leaf - Hub - PE1)
 
+> 이 문서의 화면과 값은 2026-11-14 타이머 변경 전 구성에서 측정한 기록(OSPF hello 1 / dead 4 -> 현재 hello 3 / dead 9, BGP keepalive 3 / hold 9 -> 현재 keepalive 30 / hold 90)임. 현재 타이머 기준 장애 시험 결과는 [장애 시험](09-failover.md) 참고
+
 **선행 조건**: [EVPN-VXLAN 검증](03-evpn-vxlan.md)이 끝나 있고, MPLS 코어(PE1)가 올라와 있어야 함([core 검증](../core/06-mp-bgp-vpnv4.md))
 
 기준 문서: [06-dci-hub-ebgp.md](../../baseline/dc1/06-dci-hub-ebgp.md) / 샘플: [09-pe-ce-ebgp.md](../../samples/dc1/09-pe-ce-ebgp.md), [Hub 가이드](../../guide/06-hub.md)

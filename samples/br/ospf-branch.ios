@@ -23,8 +23,8 @@ interface loopback 0
 !
 interface gigabitethernet 1/0
     ip ospf network point-to-point
-    ip ospf hello-interval 1
-    ip ospf dead-interval 4
+    ip ospf hello-interval 3
+    ip ospf dead-interval 9
     ip ospf 1 area 0
 !
 ! [DSW1] (DSW2는 router-id 10.0.0.42). Branch LAN(SVI)을 passive로 OSPF에 포함
@@ -41,8 +41,8 @@ interface loopback 0
 !
 interface gigabitethernet 0/0
     ip ospf network point-to-point
-    ip ospf hello-interval 1
-    ip ospf dead-interval 4
+    ip ospf hello-interval 3
+    ip ospf dead-interval 9
     ip ospf 1 area 0
 !
 interface vlan 50

@@ -22,7 +22,7 @@ router bgp 65100
    neighbor LEAFS remote-as 65100
    neighbor LEAFS update-source loopback0
    neighbor LEAFS route-reflector-client
-   neighbor LEAFS timers 3 9
+   neighbor LEAFS timers 30 90
    neighbor LEAFS send-community extended
    neighbor 10.1.0.11 peer group LEAFS
    neighbor 10.1.0.12 peer group LEAFS

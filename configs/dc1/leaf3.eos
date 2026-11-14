@@ -70,21 +70,25 @@ interface vlan10
    description FINANCE-GW
    vrf TENANT-A
    ip address virtual 192.168.10.1/24
+   mtu 1400
 !
 interface vlan20
    description LOGISTICS-HR-GW
    vrf TENANT-A
    ip address virtual 192.168.20.1/24
+   mtu 1400
 !
 interface vlan30
    description ERP-DB-GW
    vrf TENANT-A
    ip address virtual 192.168.30.1/24
+   mtu 1400
 !
 interface vlan99
    description MGMT-GW
    vrf TENANT-A
    ip address virtual 192.168.99.1/24
+   mtu 1400
 !
 interface vlan4094
    ip address 10.1.254.2/31
@@ -92,26 +96,31 @@ interface vlan4094
 !
 interface ethernet1
    description spine1 to ethernet3
+   mtu 9214
    no switchport
    ip address 10.1.10.5/31
    no shutdown
 !
 interface ethernet2
    description spine2 to ethernet3
+   mtu 9214
    no switchport
    ip address 10.1.10.13/31
    no shutdown
 !
 interface port-channel1
    description MLAG-PEERLINK
+   mtu 9214
    switchport mode trunk
    switchport trunk native vlan 999
    switchport trunk group MLAGPEER
 !
 interface ethernet3
+   mtu 9214
    channel-group 1 mode active
 !
 interface ethernet4
+   mtu 9214
    channel-group 1 mode active
 !
 mlag configuration

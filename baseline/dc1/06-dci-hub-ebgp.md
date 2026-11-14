@@ -50,5 +50,5 @@
 ## 이중화
 
 - DC1 외부 출구는 border-leaf1-Hub1 경로와 border-leaf2-Hub2 경로 두 개이고, PE1에서 두 Hub로 ECMP
-- Hub와 PE1 링크 한쪽이 끊기면 반대쪽 경로로 자동 우회. 측정 결과는 [검증](../../verification/dc1/04-dci-hub-ebgp.md) 참고: PE1 `Gi2/0`(Hub1 링크) 차단 시 300/300 응답, `Gi5/0`(Hub2 링크) 차단 시 47개(약 9.4초) 손실 후 자동 복구
+- Hub와 PE1 링크 한쪽이 끊기면 반대쪽 경로로 자동 우회. 측정 결과는 [검증](../../verification/dc1/04-dci-hub-ebgp.md) 참고: PE1 `Gi2/0`(Hub1 링크) 차단 시 393/800 손실, `Gi5/0`(Hub2 링크) 차단 시 1/800 손실 후 자동 복구. 상세는 [장애 시험](../../verification/dc1/09-failover.md)
 - BGP 타이머는 DC1 iBGP와 같은 **keepalive 30초, hold 90초**(`timers 30 90`)로 통일. border leaf와 Hub, PE1과 Hub 양쪽에 같은 값을 줌

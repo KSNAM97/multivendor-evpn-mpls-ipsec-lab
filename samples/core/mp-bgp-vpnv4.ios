@@ -9,10 +9,10 @@ router bgp 65000
     no bgp default ipv4-unicast
     neighbor 10.0.0.12 remote-as 65000
     neighbor 10.0.0.12 update-source loopback 0
-    neighbor 10.0.0.12 timers 3 9
+    neighbor 10.0.0.12 timers 30 90
     neighbor 10.0.0.13 remote-as 65000
     neighbor 10.0.0.13 update-source loopback 0
-    neighbor 10.0.0.13 timers 3 9
+    neighbor 10.0.0.13 timers 30 90
     !
     address-family vpnv4
         neighbor 10.0.0.12 activate

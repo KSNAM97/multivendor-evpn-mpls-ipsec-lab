@@ -23,7 +23,7 @@ Cisco, Arista, Aruba를 섞어 DC 2곳과 Branch를 MPLS L3VPN 코어에 PE-CE e
 
 - **EVPN-VXLAN**: leaf 쌍이 VTEP 주소를 공유. Host A → Host B는 L2VNI 10010, Host A → Host C는 L3VNI 50001로 확인(VXLAN 패킷 캡처 포함)
 - **MPLS L3VPN**: VRF 3개(TENANT-A는 DC1, PARTNER는 DC2, BR1은 Branch)와 RT로 고객 구역을 분리. BR1만 DC1과 DC2를 import하고, DC1과 DC2는 서로 통신하지 않음(BGW prefix-list 포함). PE1은 Hub, PE2는 CX, PE3는 BGW와 PE-CE eBGP로 접속. PE1 - PE3 구간 MPLS 헤더 캡처(VPN 레이블 26, 33)
-- **DC1 외부 연결 이중화**: 전용 border leaf 2대(border-leaf1·Hub1, border-leaf2·Hub2 1대1 연결, MLAG 없이 VTEP 각각). Hub 링크 장애 시험 T1(손실 0, 요청 경로 전환), T1b(47개, 약 9.4초 환산), 코어 링크 T2는 3회 측정에서 손실 70~236개(약 14~47초 이상)로 편차가 큼. 자동 복구 확인
+- **DC1 외부 연결 이중화**: 전용 border leaf 2대(border-leaf1·Hub1, border-leaf2·Hub2 1대1 연결, MLAG 없이 VTEP 각각). Hub 링크 장애 시험은 Hub1 링크 단절 393/800, Hub2 링크 단절 1/800 손실(Hub1이 링크 다운을 hold 90초까지 인식하지 못해 차이가 남), 코어 링크 단절 68/1000 손실. 모두 자동 복구 확인
 - **트러블슈팅**: 가상 이미지의 LAG 데이터 경로 한계, `lacp rate fast` 불안정, 혼잡 중 BGP 단절 등을 확인하고 설계 변경이나 클래스 추가로 대응
 
 ## 문서 안내

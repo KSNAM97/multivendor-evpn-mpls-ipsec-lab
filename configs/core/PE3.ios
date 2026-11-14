@@ -41,11 +41,13 @@ interface loopback 0
 !
 interface gigabitethernet 0/0
     description PE1 to Gi1/0
+    mtu 4470
     ip address 10.0.10.3 255.255.255.254
     no shutdown
 !
 interface gigabitethernet 1/0
     description PE2 to Gi1/0
+    mtu 4470
     ip address 10.0.10.5 255.255.255.254
     no shutdown
 !

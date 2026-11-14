@@ -99,6 +99,8 @@ interface port-channel 3
 interface vlan 50
     description BR-LAN50
     ip address 192.168.50.3 255.255.255.0
+    ip mtu 1400
+    ip tcp adjust-mss 1360
     vrrp 50 ip 192.168.50.1
     vrrp 50 priority 100
     vrrp 50 preempt
@@ -107,6 +109,8 @@ interface vlan 50
 interface vlan 60
     description BR-LAN60
     ip address 192.168.60.3 255.255.255.0
+    ip mtu 1400
+    ip tcp adjust-mss 1360
     vrrp 60 ip 192.168.60.1
     vrrp 60 priority 110
     vrrp 60 preempt

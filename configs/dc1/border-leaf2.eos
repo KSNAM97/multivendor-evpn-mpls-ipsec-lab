@@ -48,12 +48,14 @@ interface ethernet1
 !
 interface ethernet2
    description spine1 to ethernet6
+   mtu 9214
    no switchport
    ip address 10.1.10.19/31
    no shutdown
 !
 interface ethernet3
    description spine2 to ethernet6
+   mtu 9214
    no switchport
    ip address 10.1.10.23/31
    no shutdown

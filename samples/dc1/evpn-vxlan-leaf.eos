@@ -50,7 +50,7 @@ router bgp 65100
    maximum-paths 4 ecmp 4
    neighbor SPINES peer group
    neighbor SPINES remote-as 65100
-   neighbor SPINES timers 3 9
+   neighbor SPINES timers 30 90
    neighbor SPINES update-source loopback0
    neighbor SPINES send-community extended
    neighbor 10.1.0.1 peer group SPINES

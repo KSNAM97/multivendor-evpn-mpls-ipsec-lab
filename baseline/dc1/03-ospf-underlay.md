@@ -6,6 +6,8 @@ VTEP과 BGP 루프백의 도달성을 만드는 underlay
 
 ## 설계값
 
+- 패브릭 링크(spine 전 포트, leaf `Et1`~`Et4`와 `port-channel1`, border leaf `Et2`·`Et3`)는 `mtu 9214`. VXLAN 캡슐화(약 50바이트) 때문이며 양쪽 끝이 같아야 OSPF가 유지됨
+
 | 항목 | 값 |
 |---|---|
 | 프로세스 | OSPF 1, area 0.0.0.0 |

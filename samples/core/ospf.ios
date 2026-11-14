@@ -11,13 +11,13 @@ interface loopback 0
 !
 interface gigabitethernet 0/0
     ip ospf network point-to-point
-    ip ospf hello-interval 1
-    ip ospf dead-interval 4
+    ip ospf hello-interval 3
+    ip ospf dead-interval 9
     ip ospf 1 area 0
 !
 interface gigabitethernet 1/0
     ip ospf network point-to-point
-    ip ospf hello-interval 1
-    ip ospf dead-interval 4
+    ip ospf hello-interval 3
+    ip ospf dead-interval 9
     ip ospf 1 area 0
 !
