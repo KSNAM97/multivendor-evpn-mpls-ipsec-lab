@@ -42,7 +42,7 @@ management ssh
 !
 ! 관리 인터페이스 (GNS3 어댑터 0번)
 interface management1
-   ip address 192.168.100.21/24
+   ip address 10.9.0.21/24
 !
 ! 로그와 시간
 logging buffered 64000

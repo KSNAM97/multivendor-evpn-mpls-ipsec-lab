@@ -1,0 +1,82 @@
+!
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+!
+hostname MGMT-RTR
+!
+no ip domain-lookup
+ip domain-name lab.local
+!
+enable secret admin1234
+username admin privilege 15 secret admin1234
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+!
+ip ssh version 2
+!
+logging buffered 16384
+clock timezone KST 9 0
+!
+banner motd #
+ LAB MGMT-RTR - authorized use only
+#
+!
+ip access-list extended ACL-DC1-IN
+ permit icmp 10.9.0.0 0.0.0.255 any
+ permit tcp host 10.9.0.10 host 10.9.0.1 eq 22
+ deny   ip 10.9.0.0 0.0.0.255 10.9.1.0 0.0.0.255 log
+!
+ip access-list extended ACL-CORE-IN
+ permit icmp 10.9.1.0 0.0.0.255 any
+ permit tcp host 10.9.1.10 host 10.9.1.1 eq 22
+ deny   ip 10.9.1.0 0.0.0.255 10.9.0.0 0.0.0.255 log
+!
+interface gigabitethernet 0/0
+ description to-MGMT-SW1 Gi3/2 (DC1 management)
+ ip address 10.9.0.1 255.255.255.0
+ ip access-group ACL-DC1-IN in
+ no shutdown
+!
+interface gigabitethernet 1/0
+ description to-MGMT-SW2 Gi3/2 (core management)
+ ip address 10.9.1.1 255.255.255.0
+ ip access-group ACL-CORE-IN in
+ no shutdown
+!
+ip access-list extended ACL-COPP-ALLOW
+ permit tcp host 10.9.0.10 any eq 22
+ permit tcp host 10.9.1.10 any eq 22
+ permit icmp 10.9.0.0 0.0.0.255 any
+ permit icmp 10.9.1.0 0.0.0.255 any
+!
+ip access-list extended ACL-COPP-DENY
+ permit tcp any any eq 22
+ permit tcp any any eq 23
+!
+class-map match-all CM-MGMT-ALLOW
+ match access-group name ACL-COPP-ALLOW
+class-map match-all CM-MGMT-DENY
+ match access-group name ACL-COPP-DENY
+!
+policy-map PM-CONTROL-PLANE
+ class CM-MGMT-ALLOW
+  police 1000000 conform-action transmit exceed-action drop
+ class CM-MGMT-DENY
+  drop
+!
+control-plane
+ service-policy input PM-CONTROL-PLANE
+!
+! SSH key (run once on the device, not stored in config): crypto key generate rsa modulus 2048
+line vty 0 4
+ exec-timeout 0 0
+ privilege level 15
+ login local
+ transport input ssh
+ logging synchronous
+!
+end

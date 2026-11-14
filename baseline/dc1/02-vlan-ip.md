@@ -25,7 +25,7 @@ DC1(Arista)의 VLAN, VNI, IP 대역
 - **Loopback1**: VTEP 출발지(leaf만). MLAG 쌍이 같은 주소를 공유하는 것은 의도된 설정임(leaf1·2 10.1.1.12, leaf3·4 10.1.1.34).
 - 장비별 전체 주소와 포트: [IP와 포트 매칭표](../../00-overview/07-ip-port-matrix.md)
 
-| 노드     | Mgmt (192.168.100.0/24) | Loopback0    | VTEP (Loopback1)         |
+| 노드     | Mgmt (10.9.0.0/24) | Loopback0    | VTEP (Loopback1)         |
 | ------ | ----------------------- | ------------ | ------------------------ |
 | spine1 | .11                     | 10.1.0.1/32  | -                        |
 | spine2 | .12                     | 10.1.0.2/32  | -                        |

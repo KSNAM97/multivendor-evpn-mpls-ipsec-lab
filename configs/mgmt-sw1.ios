@@ -1,0 +1,61 @@
+!
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+!
+hostname MGMT-SW1
+!
+no ip domain-lookup
+ip domain-name lab.local
+!
+enable secret admin1234
+username admin privilege 15 secret admin1234
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+!
+ip ssh version 2
+!
+logging buffered 16384
+clock timezone KST 9 0
+!
+banner motd #
+ LAB MGMT-SW1 - authorized use only
+#
+!
+vlan 900
+ name MGMT-DC1
+!
+! DC1 device management ports (access VLAN 900)
+interface range gigabitethernet 0/0 - 3 , gigabitethernet 1/0 - 3 , gigabitethernet 3/3
+ description DC1 management (access VLAN 900)
+ switchport mode access
+ switchport access vlan 900
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+ no shutdown
+!
+! uplink to MGMT-RTR Gi0/0 (gateway 10.9.0.1)
+interface gigabitethernet 3/2
+ description to-MGMT-RTR Gi0/0
+ switchport mode access
+ switchport access vlan 900
+ spanning-tree portfast
+ no shutdown
+!
+interface vlan 900
+ ip address 10.9.0.2 255.255.255.0
+ no shutdown
+!
+ip default-gateway 10.9.0.1
+!
+line vty 0 4
+ exec-timeout 0 0
+ privilege level 15
+ login local
+ transport input ssh
+ logging synchronous
+!
+end

@@ -12,3 +12,4 @@
 | 06 | [MP-BGP VPNv4](06-mp-bgp-vpnv4.md) | PE 간 iBGP VPNv4 | `mp-bgp-vpnv4.ios` |
 | 07 | [PE-CE eBGP](07-pe-ce-ebgp.md) | VRF 안 고객 장비와 eBGP | `pe-ce-ebgp.ios` |
 | 09 | [비밀번호 지정 위치](09-password.md) | enable, 계정, 라인, OSPF, LDP, BGP 인증 위치 | `password.ios` |
+| 10 | [코어 관리망](10-mgmt.md) | MGMT-SW2, MGMT-RTR, PE 관리 VRF와 접속 제한 | `mgmt-sw2.ios`, `mgmt-rtr.ios` |

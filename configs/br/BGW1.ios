@@ -70,6 +70,8 @@ ip prefix-list BR-TO-PARTNER seq 10 permit 192.168.60.0/24
 ip prefix-list PARTNER-TO-BR seq 5 permit 192.168.110.0/24
 ip prefix-list PARTNER-TO-BR seq 10 permit 192.168.10.0/24
 ip prefix-list PARTNER-TO-BR seq 15 permit 192.168.20.0/24
+ip prefix-list PARTNER-TO-BR seq 20 permit 192.168.30.0/24
+ip prefix-list PARTNER-TO-BR seq 25 permit 192.168.99.0/24
 !
 router bgp 65020
     bgp router-id 10.0.1.31

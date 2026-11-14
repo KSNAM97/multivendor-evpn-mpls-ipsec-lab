@@ -80,8 +80,8 @@
 
 | 주차 | 기간 | 내용 | 담당 기업 |
 |---|---|---|---|
-| 1주차 | 10/05~10/09 | 1차 파견: DC1 언더레이(기본 설정, loopback, /31 IP, MLAG, 호스트) | 누리데이터 |
-| 2주차 | 10/12~10/16 | 1차 파견: 코어 인터페이스 IP, DC2(VSX, VSX LAG, active gateway), Branch(VLAN, MSTP, EtherChannel, SVI, VRRP) | 누리텔레콤, 청명정밀 |
+| 1주차 | 10/05~10/09 | 1차 파견: DC1 관리망(MGMT-SW1, 관리 PC, 10/05), DC1 언더레이(기본 설정, loopback, /31 IP, MLAG, 호스트) | 누리데이터 |
+| 2주차 | 10/12~10/16 | 1차 파견: 코어 관리망(MGMT-SW2, MGMT-RTR, PE 관리 VRF, 10/12), 코어 인터페이스 IP, DC2(VSX, VSX LAG, active gateway), Branch(VLAN, MSTP, EtherChannel, SVI, VRRP) | 누리텔레콤, 청명정밀 |
 | 3주차 | 10/19~10/23 | 2차 파견: 서비스 모델 정의, OSPF, MPLS·LDP, iBGP(EVPN, VPNv4), VRF | 누리데이터, 누리텔레콤, 청명정밀 |
 | 4주차 | 10/26~11/06 | 2차 파견: eBGP(PE-CE), 연결·분리 검증, 장애 시험, 결과 종합 | 세 고객사, 검증 |
 

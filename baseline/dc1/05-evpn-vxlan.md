@@ -40,7 +40,7 @@ iBGP EVPN(spine이 Route Reflector)으로 MAC/IP 경로를 교환하는 오버�
 
 - **OSPF router-id(loopback0 주소 10.1.0.x)와 BGP router-id(10.1.2.x)는 다름.** BGP 이웃 주소는 loopback0(10.1.0.x)이고, router-id는 `show bgp neighbors`와 와이어샤크 BGP OPEN의 BGP Identifier에서 보임
 - 세션은 모두 8개임(leaf 4대 x spine 2대). 각 leaf가 같은 경로를 spine 두 대로부터 받으므로 경로가 이중화됨
-- **BGP 이웃을 맺지 않는 것**: leaf끼리(MLAG 쌍도 포함), 호스트, MGMT-SW. MLAG 쌍도 spine(RR)을 통해 서로의 경로를 받음
+- **BGP 이웃을 맺지 않는 것**: leaf끼리(MLAG 쌍도 포함), 호스트, MGMT-SW1. MLAG 쌍도 spine(RR)을 통해 서로의 경로를 받음
 - leaf는 EVPN 경로(Type 2 MAC/IP, Type 3 IMET, Type 5 IP prefix)를 spine에게 광고하고, spine은 이를 다른 leaf에게 reflect함
 
 ## VTEP

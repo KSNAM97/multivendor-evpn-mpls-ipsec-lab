@@ -13,3 +13,4 @@
 | 05 | VRF | [VRF](05-vrf.md) | [샘플](../../samples/core/05-vrf.md) | [검증](../../verification/core/05-vrf.md) |
 | 06 | MP-BGP VPNv4 | [MP-BGP VPNv4](06-mp-bgp-vpnv4.md) | [샘플](../../samples/core/06-mp-bgp-vpnv4.md) | [검증](../../verification/core/06-mp-bgp-vpnv4.md) |
 | 07 | PE-CE eBGP | [PE-CE eBGP](07-pe-ce-ebgp.md) | [샘플](../../samples/core/07-pe-ce-ebgp.md) | [검증](../../verification/core/07-pe-ce-ebgp.md) |
+| 08 | 코어 관리망 | [코어 관리망과 접속 제한](08-mgmt.md) | [샘플](../../samples/core/10-mgmt.md) | [검증](../../verification/core/08-mgmt.md) |

@@ -10,10 +10,17 @@ management console
 !
 management ssh
    idle-timeout 0
-   no shutdown
+   vrf MGMT
+      no shutdown
+!
+vrf instance MGMT
 !
 interface management1
-   ip address 192.168.100.22/24
+   vrf MGMT
+   ip address 10.9.0.22/24
+!
+ip route vrf MGMT 0.0.0.0/0 10.9.0.1
+!
 !
 interface loopback0
    description ROUTER-ID
@@ -132,8 +139,10 @@ interface vxlan1
    vxlan virtual-router encapsulation mac-address mlag-system-id
 !
 ip access-list MGMT-ACL
-   10 permit tcp 192.168.100.0/24 any eq ssh
-   20 permit icmp 192.168.100.0/24 any
+   10 permit tcp host 10.9.0.10 any eq ssh
+   11 permit tcp host 10.9.0.2 any eq ssh
+   15 deny tcp 10.9.0.0/24 any eq ssh log
+   20 permit icmp 10.9.0.0/24 any
    30 permit ospf any any
    40 permit tcp 10.1.0.0/24 any eq bgp
    50 permit tcp 10.1.0.0/24 eq bgp any
@@ -143,6 +152,7 @@ ip access-list MGMT-ACL
 !
 system control-plane
    ip access-group MGMT-ACL in
+   ip access-group MGMT-ACL vrf MGMT in
 !
 router ospf 1
    router-id 10.1.0.12

@@ -44,7 +44,7 @@ VTEP과 BGP 루프백의 도달성을 만드는 underlay
 
 | 인터페이스 | 이유 |
 |---|---|
-| `management1` | 관리망(192.168.100.0/24)은 데이터 경로와 분리 |
+| `management1` | 관리망(10.9.0.0/24)은 데이터 경로와 분리 |
 | `vlan10`, `vlan20` (SVI) | 테넌트 경로는 EVPN으로 전달 (VRF TENANT-A) |
 | `vlan4094` | MLAG 제어 전용. 필요 시 우회 경로용으로 추가 검토 |
 | `port-channel1`, `ethernet3`, `ethernet4` | MLAG 피어 링크 (L2) |

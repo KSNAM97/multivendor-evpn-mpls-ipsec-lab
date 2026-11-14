@@ -9,7 +9,7 @@ no ip domain-lookup
 ip domain-name lab.local
 !
 enable secret admin1234
-username admin privilege 15 secret admin
+username admin privilege 15 secret admin1234
 !
 line con 0
  exec-timeout 0 0
@@ -17,6 +17,7 @@ line con 0
  logging synchronous
 !
 line vty 0 4
+ access-class MGMT-ACL in vrf-also
  exec-timeout 0 0
  privilege level 15
  login local
@@ -125,3 +126,41 @@ router bgp 65000
         maximum-paths 2
     exit-address-family
 !
+!
+! management (core): VRF MGMT on Gi6/0 to MGMT-SW2 (10.9.1.0/24)
+ip vrf MGMT
+!
+interface GigabitEthernet6/0
+ description to-MGMT-SW2 (core management)
+ ip vrf forwarding MGMT
+ ip address 10.9.1.12 255.255.255.0
+ no shutdown
+!
+ip route vrf MGMT 0.0.0.0 0.0.0.0 10.9.1.1
+!
+ip access-list standard MGMT-ACL
+ permit host 10.9.1.10
+!
+ip access-list extended ACL-COPP-ALLOW
+ permit tcp host 10.9.1.10 any eq 22
+ permit icmp 10.9.1.0 0.0.0.255 any
+!
+ip access-list extended ACL-COPP-DENY
+ permit tcp any any eq 22
+ permit tcp any any eq 23
+!
+class-map match-all CM-MGMT-ALLOW
+ match access-group name ACL-COPP-ALLOW
+class-map match-all CM-MGMT-DENY
+ match access-group name ACL-COPP-DENY
+!
+policy-map PM-CONTROL-PLANE
+ class CM-MGMT-ALLOW
+  police 1000000 conform-action transmit exceed-action drop
+ class CM-MGMT-DENY
+  drop
+!
+control-plane
+ service-policy input PM-CONTROL-PLANE
+!
+! SSH key (run once on the device, not stored in config): crypto key generate rsa modulus 2048

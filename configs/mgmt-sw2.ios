@@ -1,0 +1,59 @@
+!
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+!
+hostname MGMT-SW2
+!
+no ip domain-lookup
+ip domain-name lab.local
+!
+enable secret <PASSWORD>
+username admin privilege 15 secret <PASSWORD>
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+!
+ip ssh version 2
+!
+logging buffered 16384
+clock timezone KST 9 0
+!
+banner motd #
+ LAB MGMT-SW2 - authorized use only
+#
+!
+vlan 910
+ name MGMT-CORE
+!
+interface range gigabitethernet 0/0 - 2 , gigabitethernet 3/3
+ description core management (access VLAN 910)
+ switchport mode access
+ switchport access vlan 910
+ spanning-tree portfast
+ spanning-tree bpduguard enable
+ no shutdown
+!
+interface gigabitethernet 3/2
+ description to-MGMT-RTR Gi1/0
+ switchport mode access
+ switchport access vlan 910
+ spanning-tree portfast
+ no shutdown
+!
+interface vlan 910
+ ip address 10.9.1.2 255.255.255.0
+ no shutdown
+!
+ip default-gateway 10.9.1.1
+!
+line vty 0 4
+ exec-timeout 0 0
+ privilege level 15
+ login local
+ transport input ssh
+ logging synchronous
+!
+end

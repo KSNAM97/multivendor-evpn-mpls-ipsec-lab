@@ -56,3 +56,33 @@ Host A → Host F ping 4/4 응답(손실 0%). DC1과 DC2는 분리되어 Host A 
 | DC2 | rpvst, VSX, LACP, Active Gateway ARP(가상 MAC), eBGP | 성공 (CX2 lag10 표시 미확인) | [DC2 STP·VSX](../verification/dc2/07-stp-vsx.md), [DC2 통신·분리](../verification/dc2/08-connect-isolation.md) |
 | 분리 | Host E <-> DC1 새 VLAN ping 100% 손실, traceroute 미도달, PE2·CX1 경로에 DC1 대역 없음 | 성공 | [DC2 통신·분리](../verification/dc2/08-connect-isolation.md) |
 | 장애 시험 | T1 Hub1(손실 0), T1b Hub2(손실 0), T2 코어(복구 중 0), T3 leaf 업링크(5개), T4 호스트 포트(Host A만 끊김) | 성공 | [장애 시험](../verification/dc1/09-failover.md) |
+| 관리망 | DC1 관리망(MGMT-SW1, 10.9.0.0/24), 코어 관리망(MGMT-SW2, 10.9.1.0/24), MGMT-RTR, SSH 허용 대상 제한(MGMT-ACL, CoPP) | 성공 | [DC1 관리 접속 제한](../verification/dc1/05-mgmt-acl.md), [코어 관리망](../verification/core/08-mgmt.md) |
+
+## 장애 확인과 복구 (2026-11-14)
+
+DC2 연동 구간에서 아래 이상을 확인함. 위 결과는 각 시점의 장비 출력으로 판정한 값이고, 현재 상태와 다를 수 있음
+
+### 확인한 장애
+
+| 구간 | 확인한 것 | 결과 |
+|---|---|---|
+| PE2 - CX1 eBGP (VRF PARTNER) | CX1 `show bgp all-vrf all summary` | 이웃 `10.0.20.4` 상태 `Connect`, 끊긴 지 약 6시간 |
+| PE2 - CX2 eBGP (VRF PARTNER) | PE2 `show ip bgp vpnv4 vrf PARTNER summary` | 이웃 `10.0.20.7` 상태 `Active`, 약 2시간. `No active TCP connection` |
+| PE2 - CX1 연결 | CX1 `ping 10.0.20.4 vrf TENANT-A` | 5개 전송, 0개 수신(손실 100%). CX1 `1/1/1`은 VRF TENANT-A, `10.0.20.5/31`, `up/up` |
+| DC2 VSX | CX1, CX2 `show vsx status` | 양쪽 모두 ISL channel `Out-Of-Sync`, ISL mgmt channel `inter_switch_link_down`, Config Sync `Out-Of-Sync` |
+| DC2 ISL LAG | CX1 `show lacp interfaces` | `lag256` 멤버 `1/1/2`는 LACP 응답 없음, `1/1/3`은 파트너가 보이나 Distributing 아님. CX3로 가는 `lag10`은 정상 |
+
+원인은 확인하지 못함
+
+### 복구 절차
+
+| 순서 | 장비 | 명령 | 합격 기준 |
+|---|---|---|---|
+| 1 | PE2 | `show ip interface brief`, `show vrf PARTNER`, `show arp vrf PARTNER`, `ping vrf PARTNER 10.0.20.5` | CX1 연결 인터페이스 `up/up`, 10.0.20.4(VRF PARTNER), ARP에 10.0.20.5, ping 응답 |
+| 2 | CX1 | `show arp vrf TENANT-A`, `ping 10.0.20.4 vrf TENANT-A` | ARP에 10.0.20.4, ping 응답 |
+| 3 | CX1, CX2 | `show interface lag256`, `show lacp interfaces`, `show vsx status` | ISL 멤버 `1/1/2`, `1/1/3`이 같은 LAG로 `ALFNCD`, ISL channel `In-Sync` |
+| 4 | PE2 | `show ip bgp vpnv4 vrf PARTNER summary` | 이웃 `10.0.20.5`, `10.0.20.7` 모두 `Estab`, 경로 수신 |
+| 5 | 전체 | `copy running-config startup-config` | PE1~3, MGMT-RTR, MGMT-SW1·SW2, Arista 8대 저장 완료 |
+| 6 | 호스트 | Host E ↔ Host F ping, DC2 ↔ 개발지사 traceroute | 응답, 경로가 PE2 → PE3 직접 6홉 |
+
+- 복구 후 통신 매트릭스를 다시 확인하고, 이 절의 결과를 갱신함

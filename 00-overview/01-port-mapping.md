@@ -116,24 +116,52 @@ Host E는 어댑터를 2개로 두고 `eth1`을 CX1 `1/1/7`(VLAN 110 access)에 
 
 ## 5. 관리망 (M)
 
-DC1은 누리데이터에서 임대한 망이라 **누리데이터 관리 전용** 관리망을 따로 둠. MGMT-SW는 Cisco IOSv 스위치 1대이고 VLAN 900(native, 서브넷 192.168.100.0/24)에 DC1 장비의 관리 포트와 관리 PC(MGMT-PC)만 모음. 청명정밀의 DC2(Aruba CX)와 개발지사(DSW, ASW1), 코어(c7200)에는 별도 관리망이 없고 콘솔로만 접속
+관리망은 **두 개로 분리**함. 누리데이터 DC1(임대망)은 누리데이터 관리 전용 관리망(MGMT-SW1), 누리텔레콤 코어는 별도 관리망(MGMT-SW2)이고, 두 관리망은 MGMT-RTR(Cisco c7200)이 연결함. 청명정밀의 DC2(Aruba CX)와 개발지사(DSW, ASW1), 코어의 Hub·BGW(c7200)에는 관리망이 없고 콘솔로만 접속
 
-| MGMT-SW 포트 | 연결 | 관리 IP |
+### 5-1. DC1 관리망 (MGMT-SW1, VLAN 900, 10.9.0.0/24)
+
+MGMT-SW1은 Cisco IOSv 스위치. 모든 장비와 PC가 같은 서브넷이고 게이트웨이는 MGMT-RTR `Gi0/0`(10.9.0.1)
+
+| MGMT-SW1 포트 | 연결 | 관리 IP |
 |---|---|---|
-| Gi0/0 | border-leaf1 Management1 | 192.168.100.25 |
-| Gi0/1 | border-leaf2 Management1 | 192.168.100.26 |
-| Gi0/2 | spine1 Management1 | 192.168.100.11 |
-| Gi0/3 | spine2 Management1 | 192.168.100.12 |
-| Gi1/0 | leaf1 Management1 | 192.168.100.21 |
-| Gi1/1 | leaf2 Management1 | 192.168.100.22 |
-| Gi1/2 | leaf3 Management1 | 192.168.100.23 |
-| Gi1/3 | leaf4 Management1 | 192.168.100.24 |
-| Gi3/3 | MGMT-PC eth0 | 192.168.100.10 |
+| Gi0/0 | border-leaf1 Management1 | 10.9.0.25 |
+| Gi0/1 | border-leaf2 Management1 | 10.9.0.26 |
+| Gi0/2 | spine1 Management1 | 10.9.0.11 |
+| Gi0/3 | spine2 Management1 | 10.9.0.12 |
+| Gi1/0 | leaf1 Management1 | 10.9.0.21 |
+| Gi1/1 | leaf2 Management1 | 10.9.0.22 |
+| Gi1/2 | leaf3 Management1 | 10.9.0.23 |
+| Gi1/3 | leaf4 Management1 | 10.9.0.24 |
+| Gi3/2 | MGMT-RTR Gi0/0 (게이트웨이 10.9.0.1) | - |
+| Gi3/3 | MGMT-PC1 eth0 | 10.9.0.10 |
 
-MGMT-SW 자신의 관리 주소는 `Vlan900` 192.168.100.2. DC2와 개발지사 장비의 `mgmt`·`Gi3/3` 관리 주소(CX1~3 .41~.43, DSW1·2 .44·.45, ASW1 .46)는 이전 구성의 값이고 현재는 연결하지 않음
+MGMT-SW1 자신의 관리 주소는 `Vlan900` 10.9.0.2. Arista의 `Management1`은 `vrf MGMT`에 두고 기본 경로(`0.0.0.0/0 via 10.9.0.1`)를 가짐
+
+### 5-2. 코어 관리망 (MGMT-SW2, VLAN 910, 10.9.1.0/24)
+
+MGMT-SW2는 Cisco IOSv 스위치. PE의 관리 인터페이스는 `ip vrf MGMT`(Gi6/0), 게이트웨이는 MGMT-RTR `Gi1/0`(10.9.1.1)
+
+| MGMT-SW2 포트 | 연결 | 관리 IP |
+|---|---|---|
+| Gi0/0 | PE1 Gi6/0 | 10.9.1.11 |
+| Gi0/1 | PE2 Gi6/0 | 10.9.1.12 |
+| Gi0/2 | PE3 Gi6/0 | 10.9.1.13 |
+| Gi3/2 | MGMT-RTR Gi1/0 (게이트웨이 10.9.1.1) | - |
+| Gi3/3 | MGMT-PC2 eth0 | 10.9.1.10 |
+
+MGMT-SW2 자신의 관리 주소는 `Vlan910` 10.9.1.2
+
+### 5-3. MGMT-RTR (Cisco c7200)
+
+| 포트 | 연결 | 주소 |
+|---|---|---|
+| Gi0/0 | MGMT-SW1 Gi3/2 | 10.9.0.1/24 |
+| Gi1/0 | MGMT-SW2 Gi3/2 | 10.9.1.1/24 |
+
+두 관리망 사이는 ICMP만 통과하고 SSH 등은 인터페이스 ACL(`ACL-DC1-IN`, `ACL-CORE-IN`)이 차단. DC2와 개발지사 장비의 `mgmt`·`Gi3/3` 관리 주소(CX1~3 .41~.43, DSW1·2 .44·.45, ASW1 .46)는 이전 구성의 값이고 현재는 연결하지 않음
 
 ---
-## 6. 링크 요약 (데이터 링크 47개 + 관리 13개)
+## 6. 링크 요약 (데이터 링크 47개 + 관리 15개)
 
 | 구간 | 링크 수 |
 |---|---|
@@ -148,21 +176,19 @@ MGMT-SW 자신의 관리 주소는 `Vlan900` 192.168.100.2. DC2와 개발지사 
 | Branch 스위치 | 6 (DSW 간 2, DSW1-ASW1 2, DSW2-ASW1 2) |
 | VSX ISL와 keepalive | 3 |
 | DC2 VSX LAG (CX3 연결) | 4 |
-| 관리망 | 9 (MGMT-SW, DC1 장비 8 + MGMT-PC 1) |
+| 관리망 | 15 (DC1: MGMT-SW1에 장비 8 + MGMT-PC1 1 + MGMT-RTR 1, 코어: MGMT-SW2에 PE 3 + MGMT-PC2 1 + MGMT-RTR 1) |
 
 ## 7. 노드 수
 
 | 구분 | 수 |
 |---|---|
-| Arista vEOS | 6 (spine, leaf) + border leaf 2 |
-| Cisco IOSv (MGMT-SW 포함) | 4 |
+| Arista vEOS | 8 (spine 2, leaf 4, border leaf 2) |
+| Cisco IOSv | 5 (DSW1, DSW2, ASW1, MGMT-SW1, MGMT-SW2) |
 | Aruba CX | 3 |
-| Cisco IOSv | 3 |
-| Cisco c7200 | 7 |
-| 네트워크 장비 합계 | 20 |
-| 호스트 | 6 |
-| 전체 (Cloud 포함) | 27 |
+| Cisco c7200 | 8 (PE 3, Hub 2, BGW 2, MGMT-RTR) |
+| 네트워크 장비 합계 | 24 |
+| 호스트 | 7 (Host A~G) + 관리 PC 2 (MGMT-PC1, MGMT-PC2) |
 
-QEMU 노드: 12개(Arista 6, Aruba 3, IOSv 3)
+QEMU 노드: 16개(Arista 8, Aruba 3, IOSv 5)
 
 메모리 계획: [04-resource-plan.md](04-resource-plan.md)

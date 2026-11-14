@@ -19,11 +19,11 @@ spine, Cisco 장비, CX에는 Loopback1이 없음(VXLAN이 없음).
 
 ## 1. DC1 Arista
 
-### spine1 (관리 192.168.100.11/24)
+### spine1 (관리 10.9.0.11/24)
 
 | 인터페이스 | 역할 | IP | 상대 | 비고 |
 |---|---|---|---|---|
-| Management1 | 관리 | 192.168.100.11/24 | MGMT-SW Gi0/2 | |
+| Management1 | 관리 | 10.9.0.11/24 | MGMT-SW1 Gi0/2 | |
 | Loopback0 | router-id, BGP | 10.1.0.1/32 | - | |
 | Et1 | spine-leaf | 10.1.10.0/31 | leaf1 Et1 (.1) | OSPF |
 | Et2 | spine-leaf | 10.1.10.2/31 | leaf2 Et1 (.3) | OSPF |
@@ -32,11 +32,11 @@ spine, Cisco 장비, CX에는 Loopback1이 없음(VXLAN이 없음).
 | Et5 | spine-border leaf | 10.1.10.16/31 | border-leaf1 Et2 (.17) | OSPF |
 | Et6 | spine-border leaf | 10.1.10.18/31 | border-leaf2 Et2 (.19) | OSPF |
 
-### spine2 (관리 192.168.100.12/24)
+### spine2 (관리 10.9.0.12/24)
 
 | 인터페이스 | 역할 | IP | 상대 | 비고 |
 |---|---|---|---|---|
-| Management1 | 관리 | 192.168.100.12/24 | MGMT-SW Gi0/3 | |
+| Management1 | 관리 | 10.9.0.12/24 | MGMT-SW1 Gi0/3 | |
 | Loopback0 | router-id, BGP | 10.1.0.2/32 | - | |
 | Et1 | spine-leaf | 10.1.10.8/31 | leaf1 Et2 (.9) | OSPF |
 | Et2 | spine-leaf | 10.1.10.10/31 | leaf2 Et2 (.11) | OSPF |
@@ -49,7 +49,7 @@ spine, Cisco 장비, CX에는 Loopback1이 없음(VXLAN이 없음).
 
 | 인터페이스 | 역할 | IP | 상대 | 비고 |
 |---|---|---|---|---|
-| Management1 | 관리 | 192.168.100.21/24 | MGMT-SW Gi1/0 | |
+| Management1 | 관리 | 10.9.0.21/24 | MGMT-SW1 Gi1/0 | |
 | Loopback0 | router-id, BGP | 10.1.0.11/32 | - | |
 | **Loopback1** | **VTEP** | **10.1.1.12/32** | - | **공유** (leaf2와 같은 주소) |
 | Et1 | spine-leaf | 10.1.10.1/31 | spine1 Et1 (.0) | OSPF |
@@ -63,7 +63,7 @@ spine, Cisco 장비, CX에는 Loopback1이 없음(VXLAN이 없음).
 
 | 인터페이스 | 역할 | IP | 상대 | 비고 |
 |---|---|---|---|---|
-| Management1 | 관리 | 192.168.100.22/24 | MGMT-SW Gi1/1 | |
+| Management1 | 관리 | 10.9.0.22/24 | MGMT-SW1 Gi1/1 | |
 | Loopback0 | router-id, BGP | 10.1.0.12/32 | - | |
 | **Loopback1** | **VTEP** | **10.1.1.12/32** | - | **공유** (leaf1과 같은 주소) |
 | Et1 | spine-leaf | 10.1.10.3/31 | spine1 Et2 (.2) | OSPF |
@@ -77,7 +77,7 @@ spine, Cisco 장비, CX에는 Loopback1이 없음(VXLAN이 없음).
 
 | 인터페이스 | 역할 | IP | 상대 | 비고 |
 |---|---|---|---|---|
-| Management1 | 관리 | 192.168.100.23/24 | MGMT-SW Gi1/2 | |
+| Management1 | 관리 | 10.9.0.23/24 | MGMT-SW1 Gi1/2 | |
 | Loopback0 | router-id, BGP | 10.1.0.13/32 | - | |
 | **Loopback1** | **VTEP** | **10.1.1.34/32** | - | **공유** (leaf4와 같은 주소) |
 | Et1 | spine-leaf | 10.1.10.5/31 | spine1 Et3 (.4) | OSPF |
@@ -92,7 +92,7 @@ spine, Cisco 장비, CX에는 Loopback1이 없음(VXLAN이 없음).
 
 | 인터페이스 | 역할 | IP | 상대 | 비고 |
 |---|---|---|---|---|
-| Management1 | 관리 | 192.168.100.24/24 | MGMT-SW Gi1/3 | |
+| Management1 | 관리 | 10.9.0.24/24 | MGMT-SW1 Gi1/3 | |
 | Loopback0 | router-id, BGP | 10.1.0.14/32 | - | |
 | **Loopback1** | **VTEP** | **10.1.1.34/32** | - | **공유** (leaf3과 같은 주소) |
 | Et1 | spine-leaf | 10.1.10.7/31 | spine1 Et4 (.6) | OSPF |
@@ -107,7 +107,7 @@ spine, Cisco 장비, CX에는 Loopback1이 없음(VXLAN이 없음).
 
 | 인터페이스 | 역할 | IP | 상대 | 비고 |
 |---|---|---|---|---|
-| Management1 | 관리 | 192.168.100.25/24 | 연결 없음 | |
+| Management1 | 관리 | 10.9.0.25/24 | MGMT-SW1 Gi0/0 | |
 | Loopback0 | router-id, BGP | 10.1.0.15/32 | - | |
 | **Loopback1** | **VTEP** | **10.1.1.15/32** | - | 단독 (MLAG 없음) |
 | Et1 | Hub1 연동 | 10.0.31.0/31 | Hub1 Gi1/0 (.1) | VRF TENANT-A |
@@ -118,7 +118,7 @@ spine, Cisco 장비, CX에는 Loopback1이 없음(VXLAN이 없음).
 
 | 인터페이스 | 역할 | IP | 상대 | 비고 |
 |---|---|---|---|---|
-| Management1 | 관리 | 192.168.100.26/24 | 연결 없음 | |
+| Management1 | 관리 | 10.9.0.26/24 | MGMT-SW1 Gi0/1 | |
 | Loopback0 | router-id, BGP | 10.1.0.16/32 | - | |
 | **Loopback1** | **VTEP** | **10.1.1.16/32** | - | 단독 (MLAG 없음) |
 | Et1 | Hub2 연동 | 10.0.31.2/31 | Hub2 Gi1/0 (.3) | VRF TENANT-A |
@@ -135,6 +135,7 @@ spine, Cisco 장비, CX에는 Loopback1이 없음(VXLAN이 없음).
 | Gi1/0 | 코어 | 10.0.10.2/31 | PE3 Gi0/0 (.3) | global |
 | Gi2/0 | PE-CE | 10.0.30.0/31 | Hub1 Gi0/0 (.1) | TENANT-A |
 | Gi5/0 | PE-CE | 10.0.30.2/31 | Hub2 Gi0/0 (.3) | TENANT-A |
+| Gi6/0 | 관리 | 10.9.1.11/24 | MGMT-SW2 Gi0/0 | VRF MGMT (기본 경로 10.9.1.1) |
 
 ### PE2 (Loopback0 10.0.0.12/32)
 
@@ -144,6 +145,7 @@ spine, Cisco 장비, CX에는 Loopback1이 없음(VXLAN이 없음).
 | Gi1/0 | 코어 | 10.0.10.4/31 | PE3 Gi1/0 (.5) | global |
 | Gi2/0 | PE-CE | 10.0.20.4/31 | CX1 1/1/1 (.5) | PARTNER |
 | Gi3/0 | PE-CE | 10.0.20.6/31 | CX2 1/1/1 (.7) | PARTNER |
+| Gi6/0 | 관리 | 10.9.1.12/24 | MGMT-SW2 Gi0/1 | VRF MGMT (기본 경로 10.9.1.1) |
 
 ### PE3 (Loopback0 10.0.0.13/32)
 
@@ -153,6 +155,7 @@ spine, Cisco 장비, CX에는 Loopback1이 없음(VXLAN이 없음).
 | Gi1/0 | 코어 | 10.0.10.5/31 | PE2 Gi1/0 (.4) | global |
 | Gi2/0.100 (dot1q 100) | PE-CE | 10.0.60.0/31 | BGW1 Gi0/0.100 (.1) | BR1 |
 | Gi3/0.100 (dot1q 100) | PE-CE | 10.0.60.2/31 | BGW2 Gi0/0.100 (.3) | BR1 |
+| Gi6/0 | 관리 | 10.9.1.13/24 | MGMT-SW2 Gi0/2 | VRF MGMT (기본 경로 10.9.1.1) |
 
 ## 3. Hub와 Branch
 
