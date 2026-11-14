@@ -49,7 +49,12 @@
 
 ### ASW1 VLAN별 blocking (항목 5)
 
-- rapid-pvst 전환 후 ASW1 `show spanning-tree vlan 50`, `vlan 60` 캡처는 아직 받지 않았음. 받으면 이 자리에 기록(VLAN 50은 Po2 root·Po3 Altn, VLAN 60은 반대)
+- 2026-11-14 ASW1 `show spanning-tree vlan 50`: protocol **rstp**, Root ID priority **4146**, Root port **Port-channel2**, `Po2 Root FWD`, `Po3 Altn BLK`, `Gi1/0 Desg FWD Edge`(Host F)
+- ASW1 `show spanning-tree vlan 60`: Root ID priority **4156**, Root port **Port-channel3**, `Po3 Root FWD`, `Po2 Altn BLK`, `Gi1/1 Desg FWD Edge`(Host G). VLAN마다 다른 번들이 forwarding, 나머지는 blocking
+
+![ASW1 VLAN 50](images/04-mstp-etherchannel/asw1-stp-vlan50.png)
+
+![ASW1 VLAN 60](images/04-mstp-etherchannel/asw1-stp-vlan60.png)
 
 ### ASW1 관리 SVI
 
@@ -67,3 +72,34 @@
 |---|---|---|
 | 2026-10-23 | 성공 | 항목 1 완료(Po1~Po3 SU, 멤버 P), 3, 4, 5 완료(인스턴스 1 root DSW1, 인스턴스 2 root DSW2, ASW1은 번들이 인스턴스별로 blocking). 항목 2(`mst configuration`)는 `show spanning-tree mst`의 인스턴스 매핑으로 확인. 항목 6(호스트 ping)은 Host F, G 설정 뒤. 항목 7은 IOSv에서 `lacp rate fast`를 받지 않아 기본(30초) |
 | 2026-11-14 | 성공 | rapid-pvst 전환 후 항목 2, 3, 4 완료(DSW1 VLAN 50 root, VLAN 60 root는 DSW2). 항목 5(ASW1)는 캡처 예정 |
+
+### VLAN별 부하 분담 시험 (2026-11-14, UDP 저속)
+
+VLAN 50(Host F -> Host C)과 VLAN 60(Host G -> Host D)에 동시에 UDP 부하를 주고 ASW1 번들 카운터를 비교함. 방법은 `iperf3 -c <대상> -u -b 300K -l 1000 -t 30`(Host F -> 192.168.30.101, Host G -> 192.168.99.101)
+
+| 번들 | 시험 전 output | 시험 후 output | 증가 |
+|---|---|---|---|
+| Port-channel2 | 226 packets (38,640 B) | 1,767 packets (1,571,889 B) | +1,541 packets (약 1.53MB) |
+| Port-channel3 | 225 packets (38,912 B) | 1,727 packets (1,573,522 B) | +1,502 packets (약 1.53MB) |
+
+![ASW1 시험 전 카운터](images/04-mstp-etherchannel/asw1-po-counters-before.png)
+
+![ASW1 시험 후 카운터](images/04-mstp-etherchannel/asw1-po-counters-after.png)
+
+![Host C iperf3 UDP 수신](images/04-mstp-etherchannel/host-c-iperf-udp.png)
+
+![Host D iperf3 UDP 수신](images/04-mstp-etherchannel/host-d-iperf-udp.png)
+
+- 두 서버 모두 1,125개 데이터그램 중 99% 이상 수신(Host C 손실 5개 0.44%, Host D 손실 10개 0.89%), 평균 295 Kbit/s, 지터 약 22 ~ 24ms
+- 두 번들 모두 약 1,500 packets씩 증가. 한 번들에 몰렸다면 한쪽이 약 3,000, 다른 쪽이 거의 0이어야 하므로 VLAN 50은 Po2(DSW1 쪽), VLAN 60은 Po3(DSW2 쪽)으로 나뉘어 나감. 증가량이 UDP 계산값(약 1,125 packets)보다 큰 것은 시험 전 값을 TCP 시험 이전에 기록해 TCP 데이터와 재전송이 더해졌기 때문으로 추정
+- 두 흐름의 시작 시각을 맞추었는지는 기록하지 못함
+
+### 이 환경에서의 한계 (TCP, 경로 MTU)
+
+- TCP(`iperf3 -b 5M`)는 연결이 맺어져도 데이터가 전달되지 않고(Retr 13, 0 bytes) 서버가 `idle timeout for receiving data`로 종료됨
+- 경로 MTU: `ping -M do`는 `-s 1372`(패킷 1400B)까지 응답, `-s 1472`(1500B)는 `local error: message too long, mtu=1496`. 실제 한계는 1400 ~ 1496B 사이(정확한 값은 측정하지 못함). MPLS 레이블과 VXLAN 오버헤드 때문으로 추정
+- `-M 1300`으로 줄이면 데이터가 전달되지만 평균 35 ~ 51 Kbit/s(Retr 64, 66)로 매우 낮음. 이 구간은 연속 TCP 부하 시험에는 맞지 않아 UDP 저속으로 시험함
+
+![MTU 시험](images/04-mstp-etherchannel/host-f-ping-df-mtu.png)
+
+![TCP -M 1300](images/04-mstp-etherchannel/host-f-iperf-tcp-mss1300.png)
