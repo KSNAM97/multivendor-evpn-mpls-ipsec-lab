@@ -61,6 +61,8 @@
 
 ### 차단 확인
 
+![MGMT-SW2에서 PE2, PE3로 SSH 시간 초과](images/08-mgmt/sw2-ssh-pe2-pe3-timeout.png)
+
 ![PC1에서 PE로 SSH 차단](images/08-mgmt/pc1-ssh-pe123-blocked.png)
 
 ![PC1 ping과 PE1 SSH](images/08-mgmt/pc1-ping-pc2-ssh-pe1-blocked.png)
@@ -81,10 +83,12 @@
 | 장비 | CoPP 화면 |
 |---|---|
 | PE2 | ![](images/08-mgmt/pe2-copp.png) |
+| PE2 (SW2 시도 후) | ![](images/08-mgmt/pe2-copp-deny.png) |
 | PE3 | ![](images/08-mgmt/pe3-copp.png) |
+| PE3 (SW2 시도 후) | ![](images/08-mgmt/pe3-copp-deny.png) |
 
 - PE1 `MGMT-ACL`의 `permit 10.9.1.10` match 증가, `CM-MGMT-ALLOW` conformed(exceeded 0). MGMT-SW2 시도 후 `CM-MGMT-DENY`가 0에서 4 packets로 증가
-- PE2, PE3는 `CM-MGMT-ALLOW` conformed, `CM-MGMT-DENY`는 0(차단 시험은 PE1에서만 함)
+- PE2, PE3는 `CM-MGMT-ALLOW` conformed. MGMT-SW2에서 PE2, PE3로 SSH를 시도한 뒤 `CM-MGMT-DENY`가 각각 3 packets(180 bytes)로 증가(PE2 화면은 CoPP를 다시 적용한 뒤라 ALLOW가 0부터 다시 셈)
 - MGMT-RTR `ACL-DC1-IN`의 deny(log)에 match, ICMP 허용 줄에 match
 
 ### 코어 서비스 유지 (OSPF, LDP, VPNv4)
@@ -97,10 +101,14 @@
 
 ![PE1 VPNv4 이웃](images/08-mgmt/pe1-vpnv4.png)
 
-- 세 대 모두 OSPF 이웃 2개 FULL, LDP 이웃 2개 Oper. PE1 VPNv4 이웃 4개 Established. 관리 VRF 추가 후에도 코어 서비스에 영향 없음. PE2, PE3의 VPNv4는 확인 전
+![PE3 VPNv4 이웃](images/08-mgmt/pe3-vpnv4.png)
+
+![PE2 VPNv4 이웃](images/08-mgmt/pe2-vpnv4.png)
+
+- 세 대 모두 OSPF 이웃 2개 FULL, LDP 이웃 2개 Oper. PE1 VPNv4 이웃 4개 Established, PE3 VPNv4 이웃 4개(PE1, PE2, BGW1, BGW2) 모두 경로 수신, PE2 VPNv4 이웃 PE1(6)·PE3(2) 정상. 관리 VRF 추가 후에도 코어 서비스에 영향 없음
 
 ## 결과 기록
 
 | 일시 | 결과 (성공, 실패) | 비고 |
 |---|---|---|
-| 2026-11-14 | 성공 (PE1~3, MGMT-SW2, MGMT-RTR) | 관리 접속, 경계 차단, CoPP 허용·차단(PE1), OSPF·LDP 유지 확인. PE2·PE3 VPNv4와 장비 저장은 확인 전 |
+| 2026-11-14 | 성공 (PE1~3, MGMT-SW2, MGMT-RTR) | 관리 접속, 경계 차단, SW2 출발 SSH 차단과 CoPP 차단 클래스 증가(PE1, PE2, PE3), OSPF·LDP 유지, PE1·PE2·PE3 VPNv4 확인. 장비 저장은 하지 않음 |

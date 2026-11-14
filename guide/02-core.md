@@ -8,7 +8,7 @@ PE1이 VRF 경로를 학습하고, DC1 border leaf와 PE1 사이 eBGP가 맺어�
 
 ## 켜는 노드
 
-1단계 노드 + PE1, PE2, PE3 (c7200은 2~3대씩 켜기).
+1단계 노드 + PE1, PE2, PE3 (c7200은 2~3대씩 켜기). 관리망 구성과 검증 때만 MGMT-SW2, MGMT-RTR, MGMT-PC2를 추가로 켬.
 
 ## 순서
 
@@ -17,6 +17,7 @@ PE1이 VRF 경로를 학습하고, DC1 border leaf와 PE1 사이 eBGP가 맺어�
 | 순서 | 할 일 | 참고 문서 | 확인 |
 |---|---|---|---|
 | 1 | PE 기본 설정(이름, 권한 모드, domain-lookup, 배너) | [기준](../baseline/core/01-overview.md), [샘플](../samples/core/01-base.md), [비밀번호 위치](../samples/core/09-password.md) | [검증](../verification/core/01-base.md) |
+| 1-1 | 코어 관리망: MGMT-SW2(VLAN 910, 10.9.1.0/24), MGMT-RTR(두 관리망 연결, 경계 ACL), PE 관리 VRF(`Gi6/0`)와 접속 제한(vty ACL, CoPP). PE마다 `crypto key generate rsa modulus 2048` 필요 | [기준](../baseline/core/08-mgmt.md), [샘플](../samples/core/10-mgmt.md) | [검증](../verification/core/08-mgmt.md) |
 | 2 | 인터페이스 IP (loopback0, 링크, VRF 소속) | [기준](../baseline/core/02-ip.md), [샘플](../samples/core/02-ip.md) | [검증](../verification/core/02-interface-ip.md) |
 | 3 | OSPF (코어 링크와 loopback0) | [기준](../baseline/core/03-ospf.md), [샘플](../samples/core/03-ospf.md) | [검증](../verification/core/03-ospf.md) |
 | 4 | MPLS와 LDP (코어 링크) | [기준](../baseline/core/04-mpls-ldp.md), [샘플](../samples/core/04-mpls-ldp.md) | [검증](../verification/core/04-mpls-ldp.md) |

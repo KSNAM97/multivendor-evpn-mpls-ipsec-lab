@@ -74,6 +74,27 @@ DC2 연동 구간에서 아래 이상을 확인함. 위 결과는 각 시점의 
 
 원인은 확인하지 못함
 
+### 이후 상태
+
+| 시점 | 확인한 것 | 결과 |
+|---|---|---|
+| 2026-11-14 이후 | PE2 `show bgp vpnv4 unicast all summary` | 이웃 `10.0.20.5`(CX1)가 `Up/Down 00:01:32`, `PfxRcd 2`로 복구됨. 이웃 `10.0.20.7`(CX2)은 `Active`(약 3시간 12분)로 계속 끊겨 있음 |
+| 2026-11-14 이후(재확인) | PE2 `show bgp vpnv4 unicast all summary` | PE1(`Up/Down 00:08:03`, 2), PE3(`00:08:05`, 2), CX1 `10.0.20.5`(`00:01:55`, 2), CX2 `10.0.20.7`(`00:01:20`, 2) 모두 경로 수신. DC2 두 이웃이 복구됨 |
+
+![PE2 VPNv4 이웃 복구](../verification/dc2/images/08-connect-isolation/pe2-vpnv4-cx-recovered.png)
+
+| 시점 | 확인한 것 | 결과 |
+|---|---|---|
+| 복구 후 | CX1 `show vsx status` | ISL channel `In-Sync`, ISL mgmt channel `operational`, Config Sync `In-Sync`, Device Role primary / secondary |
+| 복구 후 | PE2 `show ip bgp vpnv4 vrf PARTNER summary` | CX1 `10.0.20.5`(`00:03:28`), CX2 `10.0.20.7`(`00:02:53`) 모두 `PfxRcd 2` |
+| 복구 후 | Host E `ping -c 10 192.168.50.1`(개발지사 VLAN 50 게이트웨이) | 10/10 응답, 손실 0%, rtt 평균 약 150ms(`ttl=251`) |
+
+![CX1 VSX In-Sync](../verification/dc2/images/08-connect-isolation/cx1-vsx-in-sync.png)
+
+![PE2 PARTNER 이웃](../verification/dc2/images/08-connect-isolation/pe2-partner-summary-recovered.png)
+
+![Host E ping](../verification/dc2/images/08-connect-isolation/host-e-ping-branch-gw-10.png)
+
 ### 복구 절차
 
 | 순서 | 장비 | 명령 | 합격 기준 |
